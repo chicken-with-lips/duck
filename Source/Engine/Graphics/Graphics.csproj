@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Systems\SyncRenderTransformsSystem.cs" />
+      <Compile Remove="Systems\BoxPrimitiveLifecycleSystem.cs" />
+      <Compile Remove="Systems\CameraLifecycleSystem.cs" />
+      <Compile Remove="Systems\GenerateFilamentIdentitySystem.cs" />
+      <Compile Remove="Systems\MeshLifecycleSystem.cs" />
+      <Compile Remove="Systems\SyncParentTransformConnectionsSystem.cs" />
+      <Compile Remove="Components\MeshComponent.cs" />
+      <Compile Remove="Components\BoundingBoxComponent.cs" />
+      <Compile Remove="Components\BoxPrimitiveComponent.cs" />
+      <Compile Remove="Components\FilamentIdentityComponent.cs" />
+      <Compile Remove="Components\TransformComponent.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Components" />
+      <Folder Include="Systems" />
+    </ItemGroup>
+
+</Project>

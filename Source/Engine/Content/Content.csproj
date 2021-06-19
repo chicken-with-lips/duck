@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Duck.Content</AssemblyName>
+        <RootNamespace>Duck.Content</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
+      <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="StbImageSharp" Version="2.27.8" />
+    </ItemGroup>
+
+</Project>

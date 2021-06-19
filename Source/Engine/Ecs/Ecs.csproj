@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Duck.Ecs</AssemblyName>
+        <RootNamespace>Duck.Ecs</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
+      <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" />
+    </ItemGroup>
+
+</Project>
