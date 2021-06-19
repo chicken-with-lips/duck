@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\infectic\Code\Game.csproj" />
+      <ProjectReference Include="..\Duck\Duck.csproj" />
+      <ProjectReference Include="..\Test\Test.csproj" />
+      <ProjectReference Include="..\..\infectic\game\Game.csproj" />
+    </ItemGroup>
+
+</Project>

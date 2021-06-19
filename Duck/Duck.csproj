@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BepuPhysics" Version="2.4.0-beta3" />
+      <PackageReference Include="GLFWDotNet" Version="20.9.0" />
+      <PackageReference Include="MessagePack" Version="2.2.85" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Duck.Contracts\Duck.Contracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Filament, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\filament\Filament\bin\Debug\net5.0\Filament.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
