@@ -57,6 +57,9 @@ public class Filter<T> : FilterBase, IFilter<T>
     public Filter(IWorld world, string id, FilterComponentPredicate[] componentPredicates)
         : base(world, id, componentPredicates)
     {
+        _entitiesAddedPreviousFrame = _entitiesAdded2;
+        _entitiesRemovedPreviousFrame = _entitiesRemoved2;
+
         _entitiesAddedCurrentFrame = _entitiesAdded1;
         _entitiesRemovedCurrentFrame = _entitiesRemoved1;
     }
