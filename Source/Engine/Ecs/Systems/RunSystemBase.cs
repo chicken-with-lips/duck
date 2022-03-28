@@ -1,26 +1,58 @@
 namespace Duck.Ecs.Systems;
 
-public abstract class SystemBase : IRunSystem
+public abstract class RunSystemBase<C1> : SystemBase
+    where C1 : struct
 {
-    public abstract void Run();
+    protected IFilter<C1> Filter { get; init; }
 
-    public FilterBuilder<T> Filter<T>(IWorld world) where T : struct
+    public override void Run()
     {
-        return new FilterBuilder<T>(world);
+        foreach (var entityId in Filter.EntityList) {
+            RunEntity(entityId, ref Filter.Get(entityId));
+        }
     }
 
-    public FilterBuilder<T1, T2> Filter<T1, T2>(IWorld world)
-        where T1 : struct
-        where T2 : struct
+    public abstract void RunEntity(int entityId, ref C1 component);
+}
+
+public abstract class RunSystemBase<C1, C2> : SystemBase
+    where C1 : struct
+    where C2 : struct
+{
+    protected IFilter<C1, C2> Filter { get; init; }
+
+    public override void Run()
     {
-        return new FilterBuilder<T1, T2>(world);
+        foreach (var entityId in Filter.EntityList) {
+            RunEntity(
+                entityId,
+                ref Filter.Get1(entityId),
+                ref Filter.Get2(entityId)
+            );
+        }
     }
 
-    public FilterBuilder<T1, T2, T3> Filter<T1, T2, T3>(IWorld world)
-        where T1 : struct
-        where T2 : struct
-        where T3 : struct
+    public abstract void RunEntity(int entityId, ref C1 component1, ref C2 component2);
+}
+
+public abstract class RunSystemBase<C1, C2, C3> : SystemBase
+    where C1 : struct
+    where C2 : struct
+    where C3 : struct
+{
+    protected IFilter<C1, C2, C3> Filter { get; init; }
+
+    public override void Run()
     {
-        return new FilterBuilder<T1, T2, T3>(world);
+        foreach (var entityId in Filter.EntityList) {
+            RunEntity(
+                entityId,
+                ref Filter.Get1(entityId),
+                ref Filter.Get2(entityId),
+                ref Filter.Get3(entityId)
+            );
+        }
     }
+
+    public abstract void RunEntity(int entityId, ref C1 component1, ref C2 component2, ref C3 component3);
 }
