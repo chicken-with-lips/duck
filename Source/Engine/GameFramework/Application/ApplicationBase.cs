@@ -1,8 +1,10 @@
+using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Exceptions;
 using Duck.Input;
 using Duck.Logging;
+using Duck.Physics;
 using Duck.Platform;
 using Duck.Platform.Default;
 using Duck.Scene;
@@ -108,16 +110,17 @@ public abstract class ApplicationBase : IApplication
 
     protected virtual void RegisterSubsystems()
     {
-        _subsystems.Add(new LogSubsystem());
-        _subsystems.Add(new EventBus());
-        // _subsystems.Add(new RenderingSubsystem(this, GetSubsystem<ILogSubsystem>()));
-        _subsystems.Add(new WorldSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
-        _subsystems.Add(new SceneSubsystem(GetSubsystem<IWorldSubsystem>()));
+        AddSubsystem(new LogSubsystem());
+        AddSubsystem(new EventBus());
+        // AddSubsystem(new RenderingSubsystem(this, GetSubsystem<ILogSubsystem>()));
+        AddSubsystem(new ContentSubsystem(GetSubsystem<ILogSubsystem>()));
+        AddSubsystem(new WorldSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
+        AddSubsystem(new SceneSubsystem(GetSubsystem<IWorldSubsystem>()));
+        AddSubsystem(new InputSubsystem(GetSubsystem<ILogSubsystem>(), _platform));
+        AddSubsystem(new PhysicsSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
 
         if (_isEditor) {
         } else {
-            _subsystems.Add(new InputSubsystem(GetSubsystem<ILogSubsystem>(), _platform));
-            // _subsystems.Add(new PhysicsSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
         }
     }
 
@@ -129,18 +132,20 @@ public abstract class ApplicationBase : IApplication
 
         ChangeState(State.Running);
 
-        while (_state == State.Running) {
-            if (_platform.Window.CloseRequested) {
-                Shutdown();
-                break;
-            }
+        Time.FrameTimer?.Start();
 
-            Time.FrameTimer.Update();
+        while (_state == State.Running) {
+            // if (_platform.Window.CloseRequested) {
+            // Shutdown();
+            // break;
+            // }
+
+            Time.FrameTimer?.Update();
 
             PreTickSubsystems();
             TickSubsystems();
 
-            _platform.Window.ClearEvents();
+            _platform.Window?.ClearEvents();
 
             PostTickSubsystems();
         }

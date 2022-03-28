@@ -7,13 +7,15 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>bin/Debug</OutputPath>
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <OutputPath>../../Build/Debug</OutputPath>
+      <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Engine\Content\Content.csproj" />
       <ProjectReference Include="..\Engine\Core\Core.csproj" />
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
+      <ProjectReference Include="..\Engine\Graphics\Graphics.csproj" />
     </ItemGroup>
 
 </Project>

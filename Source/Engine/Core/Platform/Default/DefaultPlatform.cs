@@ -6,13 +6,7 @@ public class DefaultPlatform : IPlatform
 {
     #region IPlatform implementation
 
-    public IWindow Window {
-        get {
-            Debug.Assert(_window != null, "Platform needs to be initialized before use.");
-
-            return _window;
-        }
-    }
+    public IWindow? Window => _window;
 
     #endregion
 
@@ -31,11 +25,10 @@ public class DefaultPlatform : IPlatform
 
     public void Initialize()
     {
-        _window = new DefaultWindow(
-            Configuration.Default
-        );
-        _frameTimer = new FrameTimer(_window);
-
+        // _window = new DefaultWindow(
+            // Configuration.Default
+        // );
+        _frameTimer = new FrameTimer();
         Time.FrameTimer = _frameTimer;
     }
 

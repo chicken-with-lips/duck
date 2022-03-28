@@ -4,7 +4,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Content;
 
-public class AssetSubsystem : IAssetSubsystem
+public class ContentSubsystem : IContentSubsystem
 {
     #region Properties
 
@@ -24,7 +24,7 @@ public class AssetSubsystem : IAssetSubsystem
 
     #region Methods
 
-    internal AssetSubsystem(ILogSubsystem logSubsystem)
+    public ContentSubsystem(ILogSubsystem logSubsystem)
     {
         _logger = logSubsystem.CreateLogger("Asset");
         _logger.LogInformation("Initializing asset subsystem.");

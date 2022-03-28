@@ -1,7 +1,6 @@
-namespace Duck.Physics
+namespace Duck.Physics;
+
+public interface IPhysicsWorld
 {
-    public interface IPhysicsWorld
-    {
-        public void Step(float timeStep);
-    }
+    public void Step(float timeStep);
 }

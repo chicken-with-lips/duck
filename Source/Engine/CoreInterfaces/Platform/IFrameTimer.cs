@@ -5,6 +5,6 @@ public interface IFrameTimer
     public float Delta { get; }
     public double DoubleDelta { get; }
 
-    public void Reset();
+    public void Start();
     public void Update();
 }

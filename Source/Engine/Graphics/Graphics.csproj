@@ -4,9 +4,12 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyName>Duck.Graphics</AssemblyName>
+        <RootNamespace>Duck.Graphics</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Content\Content.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
@@ -17,15 +20,12 @@
       <Compile Remove="Systems\GenerateFilamentIdentitySystem.cs" />
       <Compile Remove="Systems\MeshLifecycleSystem.cs" />
       <Compile Remove="Systems\SyncParentTransformConnectionsSystem.cs" />
-      <Compile Remove="Components\MeshComponent.cs" />
       <Compile Remove="Components\BoundingBoxComponent.cs" />
-      <Compile Remove="Components\BoxPrimitiveComponent.cs" />
       <Compile Remove="Components\FilamentIdentityComponent.cs" />
       <Compile Remove="Components\TransformComponent.cs" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components" />
       <Folder Include="Systems" />
     </ItemGroup>
 

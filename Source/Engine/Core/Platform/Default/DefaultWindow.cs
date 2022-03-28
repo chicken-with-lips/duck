@@ -55,7 +55,7 @@ public class DefaultWindow : IWindow
             var mouse = _silkInput.Mice.FirstOrDefault();
 
             if (mouse != null) {
-                mouse.MouseMove += (mouse1, vector2) => OnCursorPosition(mouse1, vector2);
+                mouse.MouseMove += OnCursorPosition;
 
                 _cursorPosition = new Vector2(
                     (int)mouse.Position.X,
@@ -64,6 +64,7 @@ public class DefaultWindow : IWindow
             }
         };
         _silkWindow.Resize += OnSizeChanged;
+        _silkWindow.Initialize();
     }
 
     public void Update()

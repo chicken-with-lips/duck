@@ -2,6 +2,7 @@ using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.GameHost;
 using Duck.GameFramework;
+using Duck.Input;
 using Duck.Scene;
 
 namespace Duck.GameFramework.GameClient;
@@ -27,13 +28,11 @@ public abstract class GameClientBase : IGameClient
         _scene = sceneSubsystem.Create();
         _systemComposition = CreateDefaultSystemComposition(_scene);
 
-        // InitializeInput(app.GetSubsystem<IInputSubsystem>());
+        InitializeInput(app.GetSubsystem<IInputSubsystem>());
         InitializeSystems(_systemComposition, context);
 
         _systemComposition.Init();
     }
-
-    // protected abstract void InitializeInput(IInputSubsystem input);
 
     protected virtual ISystemComposition CreateDefaultSystemComposition(IScene scene)
     {
@@ -44,6 +43,7 @@ public abstract class GameClientBase : IGameClient
         return new SystemComposition(scene.World);
     }
 
+    protected abstract void InitializeInput(IInputSubsystem input);
     protected abstract void InitializeSystems(ISystemComposition composition, IGameClientInitializationContext context);
 
     public void Tick()

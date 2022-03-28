@@ -11,13 +11,13 @@ public class EditorClientHostSubsystem : IApplicationTickableSubsystem
 
     public EditorClientHostSubsystem(IApplication application, ILogSubsystem logSubsystem)
     {
-        _logger = logSubsystem.CreateLogger("ClientHost");
-        _logger.LogInformation("Initializing client host subsystem.");
+        _logger = logSubsystem.CreateLogger("GameHost");
+        _logger.LogInformation("Initializing game host subsystem.");
 
         _clientHost = new EditorClientHost(application, _logger);
 
         if (!_clientHost.LoadAndInitialize()) {
-            throw new Exception("Failed to initialize client");
+            throw new Exception("Failed to initialize game client");
         }
     }
 

@@ -1,4 +1,4 @@
-namespace Duck.Rendering.Components
+namespace Duck.Graphics.Components
 {
     public struct BoxPrimitiveComponent
     {

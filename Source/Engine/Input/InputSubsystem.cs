@@ -1,3 +1,4 @@
+using System.Numerics;
 using Duck.Input.Exception;
 using Duck.Logging;
 using Duck.Platform;
@@ -41,14 +42,14 @@ public class InputSubsystem : IInputSubsystem, IApplicationTickableSubsystem
         _states[mouseDeltaYId] = 0;
 
         if (_isFirstTick) {
-            var cursorPosition = _platform.Window.CursorPosition;
+            var cursorPosition = _platform.Window?.CursorPosition ?? Vector2.Zero;
 
             _mouseX = (int)cursorPosition.X;
             _mouseY = (int)cursorPosition.Y;
             _isFirstTick = false;
         }
 
-        foreach (var windowEvent in _platform.Window.Events) {
+        foreach (var windowEvent in _platform.Window?.Events ?? Array.Empty<IWindowEvent>()) {
             if (windowEvent is KeyEvent keyEvent && (int)keyEvent.Key < _states.Length) {
                 _states[(int)keyEvent.Key] = keyEvent.IsDown ? 1 : 0;
             } else if (windowEvent is MousePositionEvent mousePositionEvent) {

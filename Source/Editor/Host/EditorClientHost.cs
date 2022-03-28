@@ -50,36 +50,51 @@ public class EditorClientHost
 
         IsBusy = true;
 
-        _assemblyContext = new EditorClientAssemblyLoadContext("Editor", true);
+        // _assemblyContext = new EditorClientAssemblyLoadContext("Editor", true);
 
         var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var assemblies = new[] {
             "Duck.dll",
-            "MessagePack.dll",
-            "MessagePack.Annotations.dll"
+            // "Duck.CoreInterfaces.dll",
+            "Duck.Ecs.dll",
+            "Duck.GameFramework.dll",
+            "Duck.Input.dll",
+            "Duck.Scene.dll",
+            "Duck.ServiceBus.dll",
+            "Duck.ServiceBusInterfaces.dll",
         };
 
         foreach (var assembly in assemblies) {
-            _logger.LogDebug("Loading {0} in to context.", assembly);
+            // _logger.LogDebug("Loading {0} in to context.", assembly);
 
             // _assemblyContext.LoadFromAssemblyPath(Path.Combine(directory, assembly));
         }
 
-        using (var stream = File.OpenRead(Path.Combine(directory, "Game.dll"))) {
-            var assembly = _assemblyContext.LoadFromStream(stream);
+        // var gameDll = Path.Combine(directory, "Game.dll");
+        var gameDll = "/home/jolly_samurai/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
 
-            var clientTypes = assembly
-                .GetTypes()
-                .Where(type => !type.IsAbstract && typeof(IGameClient).IsAssignableFrom(type))
-                .ToArray();
 
-            if (clientTypes.Length != 1) {
-                _logger.LogError("There must be exactly one IClient defined.");
-                return false;
+        // using (_assemblyContext?.EnterContextualReflection()) {
+            using (var stream = File.OpenRead(gameDll)) {
+                // var assembly = _assemblyContext.LoadFromStream(stream);
+
+                var assembly = Assembly.LoadFile(gameDll);
+
+                // var clientTypes = assembly
+                //     .GetTypes()
+                //     .Where(type => !type.IsAbstract && typeof(IGameClient).IsAssignableFrom(type))
+                //     .ToArray();
+                //
+                // if (clientTypes.Length != 1) {
+                //     _logger.LogError("There must be exactly one IClient defined.");
+                //     return false;
+                // }
+
+                var clientType = assembly.GetType("Game.GameClient");
+                var x = Activator.CreateInstance(clientType);
+                _hostedClient = x as IGameClient;
             }
-
-            _hostedClient = Activator.CreateInstance(clientTypes[0]) as IGameClient;
-        }
+        // }
 
         IsBusy = false;
         IsLoaded = true;
@@ -128,7 +143,7 @@ public class EditorClientHost
     private void AssertContextIsReady()
     {
         if (!IsLoaded || IsBusy) {
-            throw new Exception("Client is not loaded or is busy");
+            // throw new Exception("Client is not loaded or is busy");
         }
     }
 
@@ -137,15 +152,15 @@ public class EditorClientHost
     {
         AssertContextIsReady();
 
-        using (_assemblyContext?.EnterContextualReflection()) {
-            var type = Type.GetType("Duck.Client.ClientInitializationContext, Duck");
+        // using (_assemblyContext?.EnterContextualReflection()) {
+            var type = Type.GetType("Duck.GameFramework.GameClient.GameClientInitializationContext, Duck.GameFramework");
             var context = (IGameClientInitializationContext)Activator.CreateInstance(type, new object[] {
                 _application,
                 isHotReload
             });
 
             _hostedClient?.Initialize(context);
-        }
+        // }
 
         return true;
     }

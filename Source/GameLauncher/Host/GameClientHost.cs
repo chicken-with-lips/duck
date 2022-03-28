@@ -94,7 +94,7 @@ namespace Game.Host
                 return false;
             }
 
-            var type = Type.GetType("Duck.GameClient.GameClientInitializationContext, Duck");
+            var type = Type.GetType("Duck.GameHost.IGameClientInitializationContext, Duck.CoreInterfaces");
             var context = (IGameClientInitializationContext) Activator.CreateInstance(type, new object[] {
                 _application,
                 isHotReload

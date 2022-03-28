@@ -1,15 +1,14 @@
-namespace Duck.Physics.Components
-{
-    public enum BodyType
-    {
-        Dynamic,
-        Kinematic,
-        Static
-    }
+namespace Duck.Physics.Components;
 
-    public struct PhysicsBoxComponent
-    {
-        public BodyType BodyType;
-        public float Mass;
-    }
+public enum BodyType
+{
+    Dynamic,
+    Kinematic,
+    Static
+}
+
+public struct PhysicsBoxComponent
+{
+    public BodyType BodyType;
+    public float Mass;
 }

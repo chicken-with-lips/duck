@@ -1,9 +1,8 @@
 using Duck.Ecs;
 
-namespace Duck.Physics
+namespace Duck.Physics;
+
+public interface IPhysicsSubsystem : IApplicationSubsystem
 {
-    public interface IPhysicsSubsystem : IApplicationSubsystem
-    {
-        public IPhysicsWorld GetOrCreatePhysicsWorld(IWorld world);
-    }
+    public IPhysicsWorld GetOrCreatePhysicsWorld(IWorld world);
 }

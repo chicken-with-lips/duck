@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Duck.Platform.Default;
 
 internal class FrameTimer : IFrameTimer
@@ -12,33 +14,38 @@ internal class FrameTimer : IFrameTimer
 
     #region Members
 
+    private Stopwatch _timer;
     private double _previousTime;
-    private readonly IWindow _window;
 
     #endregion
 
     #region Methods
 
-    public FrameTimer(IWindow window)
+    public FrameTimer()
     {
-        _window = window;
+        _timer = new Stopwatch();
 
         Reset();
     }
 
-    public void Reset()
+    public void Start()
     {
-        _previousTime = _window.ElapsedTime;
+        _timer.Start();
     }
 
     public void Update()
     {
-        var time = _window.ElapsedTime;
+        var time = _timer.Elapsed.TotalSeconds;
 
         DoubleDelta = time - _previousTime;
         Delta = (float)DoubleDelta;
 
         _previousTime = time;
+    }
+
+    private void Reset()
+    {
+        _previousTime = _timer.Elapsed.TotalSeconds;
     }
 
     #endregion

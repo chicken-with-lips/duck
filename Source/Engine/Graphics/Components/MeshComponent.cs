@@ -1,6 +1,6 @@
-using Duck.Contracts.AssetManagement;
+using Duck.Content;
 
-namespace Duck.Rendering.Components
+namespace Duck.Graphics.Components
 {
     public struct MeshComponent
     {
