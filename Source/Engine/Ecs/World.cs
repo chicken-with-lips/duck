@@ -150,17 +150,11 @@ public class World : IWorld
     private void EvaluateFilters(IEntity entity, bool isAddition)
     {
         foreach (var filter in _filters.Values) {
-            if (filter.EntityList.Contains(entity.Id)) {
-                continue;
-            }
+            var evalResult = _filterEvaluator.Evaluate(filter, entity);
 
-            if (!_filterEvaluator.Evaluate(filter, entity)) {
-                continue;
-            }
-
-            if (isAddition) {
+            if (evalResult && isAddition && !filter.EntityList.Contains(entity.Id)) {
                 filter.QueueAddition(entity);
-            } else {
+            } else if (!evalResult && !isAddition && filter.EntityList.Contains(entity.Id)) {
                 filter.QueueRemoval(entity);
             }
         }

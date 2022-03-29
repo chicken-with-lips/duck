@@ -239,7 +239,7 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
 
     public override void QueueRemoval(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
+        _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
     }
 
     public IEntity GetEntity(int entityId)
