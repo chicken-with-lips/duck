@@ -77,7 +77,7 @@ public class Filter<T> : FilterBase, IFilter<T>
 
     public override void QueueRemoval(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.Remove(entity.Id, out var unused);
+        _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
     }
 
     public override void SwapDirtyBuffers()
@@ -156,7 +156,7 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
 
     public override void QueueRemoval(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
+        _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
     }
 
     public IEntity GetEntity(int entityId)
