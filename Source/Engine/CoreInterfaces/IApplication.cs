@@ -10,39 +10,39 @@ public interface IApplication
 
     public void Shutdown();
 
-    public T GetSubsystem<T>() where T : IApplicationSubsystem;
+    public T GetModule<T>() where T : IModule;
 }
 
-public interface IApplicationSubsystem
+public interface IModule
 {
 }
 
-public interface IApplicationInitializableSubsystem : IApplicationSubsystem
+public interface IInitializableModule : IModule
 {
     public bool Init();
 }
 
-public interface IApplicationTickableSubsystem : IApplicationSubsystem
+public interface ITickableModule : IModule
 {
     public void Tick();
 }
 
-public interface IApplicationPreTickableSubsystem : IApplicationSubsystem
+public interface IPreTickableModule : IModule
 {
     public void PreTick();
 }
 
-public interface IApplicationPostTickableSubsystem : IApplicationSubsystem
+public interface IPostTickableModule : IModule
 {
     public void PostTick();
 }
 
-public interface IApplicationRenderableSubsystem : IApplicationSubsystem
+public interface IRenderableModule : IModule
 {
     public void Render();
 }
 
-public interface IHotReloadAwareSubsystem : IApplicationSubsystem
+public interface IHotReloadAwareModule : IModule
 {
     public void BeginHotReload();
     public void EndHotReload();

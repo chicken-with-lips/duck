@@ -50,7 +50,7 @@ public class InputActionBuilder
         return this;
     }
 
-    public void Register(IInputSubsystem input)
+    public void Register(IInputModule input)
     {
         if (string.IsNullOrEmpty(_name)) {
             throw new MissingNameException();

@@ -4,25 +4,25 @@ using Duck.Serialization;
 namespace Duck.Scene;
 
 [AutoSerializable]
-public partial class SceneSubsystem : ISceneSubsystem, IHotReloadAwareSubsystem
+public partial class SceneModule : ISceneModule, IHotReloadAwareModule
 {
     #region Members
 
-    private readonly IWorldSubsystem _worldSubsystem;
+    private readonly IWorldModule _worldModule;
     private readonly List<IScene> _loadedScenes = new();
 
     #endregion
 
     #region Methods
 
-    public SceneSubsystem(IWorldSubsystem worldSubsystem)
+    public SceneModule(IWorldModule worldModule)
     {
-        _worldSubsystem = worldSubsystem;
+        _worldModule = worldModule;
     }
 
     public IScene Create()
     {
-        var scene = new Scene(_worldSubsystem.Create());
+        var scene = new Scene(_worldModule.Create());
 
         _loadedScenes.Add(scene);
 

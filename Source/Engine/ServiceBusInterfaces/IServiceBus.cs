@@ -1,5 +1,5 @@
 namespace Duck.ServiceBus;
 
-public interface IServiceBus : IApplicationSubsystem
+public interface IServiceBus : IModule
 {
 }

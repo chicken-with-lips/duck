@@ -10,10 +10,10 @@ public class Editor : ApplicationBase
     {
     }
 
-    protected override void RegisterSubsystems()
+    protected override void RegisterModules()
     {
-        base.RegisterSubsystems();
+        base.RegisterModules();
 
-        AddSubsystem(new EditorClientHostSubsystem(this, GetSubsystem<ILogSubsystem>()));
+        AddModule(new EditorClientHostModule(this, GetModule<ILogModule>()));
     }
 }

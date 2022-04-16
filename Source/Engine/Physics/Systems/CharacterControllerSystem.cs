@@ -13,9 +13,9 @@ public class CharacterControllerSystem : SystemBase
     private readonly Simulation _simulation;
     private readonly CharacterControllerIntegration _characterControllerIntegration;
 
-    public CharacterControllerSystem(IWorld world, IPhysicsSubsystem physicsSubsystem)
+    public CharacterControllerSystem(IWorld world, IPhysicsModule physicsModule)
     {
-        PhysicsWorld physicsWorld = (PhysicsWorld)physicsSubsystem.GetOrCreatePhysicsWorld(world);
+        PhysicsWorld physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
 
         _simulation = physicsWorld.Simulation;
         _characterControllerIntegration = physicsWorld.CharacterControllerIntegration;

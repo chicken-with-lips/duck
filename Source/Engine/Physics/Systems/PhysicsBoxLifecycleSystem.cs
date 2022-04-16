@@ -18,9 +18,9 @@ public class PhysicsBoxLifecycleSystem : BasePhysicsShapeLifecycleSystem
 
     #region Methods
 
-    public PhysicsBoxLifecycleSystem(IWorld world, IPhysicsSubsystem physicsSubsystem)
+    public PhysicsBoxLifecycleSystem(IWorld world, IPhysicsModule physicsModule)
     {
-        _physicsWorld = (PhysicsWorld)physicsSubsystem.GetOrCreatePhysicsWorld(world);
+        _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
 
         _filter = Filter<PhysicsBoxComponent, TransformComponent, BoundingBoxComponent>(world)
             .Without<PhysicsBodyComponent>()

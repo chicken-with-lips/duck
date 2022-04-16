@@ -1,6 +1,6 @@
 namespace Duck.Ecs;
 
-public interface IWorldSubsystem : IApplicationSubsystem
+public interface IWorldModule : IModule
 {
     public IWorld[] Worlds { get; }
 

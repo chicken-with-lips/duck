@@ -18,9 +18,9 @@ public class PhysicsCapsuleLifecycleSystem : BasePhysicsShapeLifecycleSystem
 
     #region Methods
 
-    public PhysicsCapsuleLifecycleSystem(IWorld world, IPhysicsSubsystem physicsSubsystem)
+    public PhysicsCapsuleLifecycleSystem(IWorld world, IPhysicsModule physicsModule)
     {
-        _physicsWorld = (PhysicsWorld)physicsSubsystem.GetOrCreatePhysicsWorld(world);
+        _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
 
         _filter = Filter<PhysicsCapsuleComponent, TransformComponent>(world)
             .Without<PhysicsBodyComponent>()

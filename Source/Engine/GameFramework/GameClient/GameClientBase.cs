@@ -22,13 +22,13 @@ public abstract class GameClientBase : IGameClient
     public void Initialize(IGameClientInitializationContext context)
     {
         var app = context.Application;
-        var sceneSubsystem = app.GetSubsystem<ISceneSubsystem>();
+        var sceneModule = app.GetModule<ISceneModule>();
 
         _application = app;
-        _scene = sceneSubsystem.Create();
+        _scene = sceneModule.Create();
         _systemComposition = CreateDefaultSystemComposition(_scene);
 
-        InitializeInput(app.GetSubsystem<IInputSubsystem>());
+        InitializeInput(app.GetModule<IInputModule>());
         InitializeSystems(_systemComposition, context);
 
         _systemComposition.Init();
@@ -43,7 +43,7 @@ public abstract class GameClientBase : IGameClient
         return new SystemComposition(scene.World);
     }
 
-    protected abstract void InitializeInput(IInputSubsystem input);
+    protected abstract void InitializeInput(IInputModule input);
     protected abstract void InitializeSystems(ISystemComposition composition, IGameClientInitializationContext context);
 
     public void Tick()

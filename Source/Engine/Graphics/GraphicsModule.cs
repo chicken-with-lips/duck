@@ -1,9 +1,10 @@
 using Duck.Logging;
 using Duck.Platform;
+using Silk.NET.OpenGL;
 
 namespace Duck.Graphics;
 
-public class GraphicsSubsystem : IGraphicsSubsystem, IApplicationTickableSubsystem, IApplicationRenderableSubsystem
+public class GraphicsModule : IGraphicsModule, ITickableModule, IRenderableModule
 {
     #region Members
 
@@ -15,36 +16,27 @@ public class GraphicsSubsystem : IGraphicsSubsystem, IApplicationTickableSubsyst
 
     #region Methods
 
-    internal GraphicsSubsystem(IApplication app, ILogSubsystem logSubsystem, IPlatform platform)
+    public GraphicsModule(IApplication app, ILogModule logModule, IPlatform platform)
     {
         _app = app;
         _platform = platform;
 
-        _logger = logSubsystem.CreateLogger("Graphics");
-        _logger.LogInformation("Initializing graphics subsystem.");
+        _logger = logModule.CreateLogger("Graphics");
+        _logger.LogInformation("Initializing graphics module.");
     }
 
     #endregion
 
-    #region IRenderingSubsystem
+    #region IRenderingModule
 
     public void Tick()
     {
         ProcessWindowEvents();
     }
 
-    private void ProcessWindowEvents()
+    public void Render()
     {
-        // foreach (var windowEvent in _nativeWindow.Events) {
-        // if (windowEvent is NativeWindow.ResizeEvent resizeEvent) {
-        // _renderingWindow?.Resize(resizeEvent.NewWidth, resizeEvent.NewHeight);
-        // }
-        // }
-    }
-
-    private void Render()
-    {
-        var gl = GL.GetApi(_silkWindow);
+        /*var gl = GL.GetApi(_platform.Window?.);
             
         gl.Clear((uint)ClearBufferMask.ColorBufferBit);
 
@@ -109,8 +101,17 @@ void main()
         gl.DeleteShader(fragmentShader);
         
         gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 12, null);
-        gl.EnableVertexAttribArray(0);
+        gl.EnableVertexAttribArray(0);*/
     }
-    
+
+    private void ProcessWindowEvents()
+    {
+        // foreach (var windowEvent in _nativeWindow.Events) {
+        // if (windowEvent is NativeWindow.ResizeEvent resizeEvent) {
+        // _renderingWindow?.Resize(resizeEvent.NewWidth, resizeEvent.NewHeight);
+        // }
+        // }
+    }
+
     #endregion
 }

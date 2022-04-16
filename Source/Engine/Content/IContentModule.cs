@@ -2,7 +2,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Content;
 
-public interface IContentSubsystem : IApplicationSubsystem
+public interface IContentModule : IModule
 {
     public AssetReference<T> GetReference<T>(Uri uri) where T : IAsset;
     public ITexture2D LoadTextureImmediate(AssetReference<ITexture2DAsset> assetReference);

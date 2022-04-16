@@ -5,7 +5,7 @@ using Duck.Platform;
 
 namespace Duck.Input;
 
-public class InputSubsystem : IInputSubsystem, IApplicationTickableSubsystem
+public class InputModule : IInputModule, ITickableModule
 {
     #region Members
 
@@ -25,12 +25,12 @@ public class InputSubsystem : IInputSubsystem, IApplicationTickableSubsystem
 
     #region Methods
 
-    public InputSubsystem(ILogSubsystem logSubsystem, IPlatform platform)
+    public InputModule(ILogModule logModule, IPlatform platform)
     {
         _platform = platform;
 
-        _logger = logSubsystem.CreateLogger("Input");
-        _logger.LogInformation("Initializing input subsystem.");
+        _logger = logModule.CreateLogger("Input");
+        _logger.LogInformation("Initializing input module.");
     }
 
     public void Tick()

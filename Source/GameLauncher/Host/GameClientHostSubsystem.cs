@@ -4,15 +4,15 @@ using Duck.Logging;
 
 namespace Game.Host;
 
-public class GameClientHostSubsystem : IApplicationTickableSubsystem
+public class GameClientHostModule : ITickableModule
 {
     private readonly ILogger _logger;
     private readonly GameClientHost _clientHost;
 
-    public GameClientHostSubsystem(IApplication application, ILogSubsystem logSubsystem)
+    public GameClientHostModule(IApplication application, ILogModule logModule)
     {
-        _logger = logSubsystem.CreateLogger("GameHost");
-        _logger.LogInformation("Initializing client host subsystem.");
+        _logger = logModule.CreateLogger("GameHost");
+        _logger.LogInformation("Initializing client host module.");
 
         _clientHost = new GameClientHost(application, _logger);
 

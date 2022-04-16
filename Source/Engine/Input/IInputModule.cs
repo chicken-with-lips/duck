@@ -1,6 +1,6 @@
 namespace Duck.Input;
 
-public interface IInputSubsystem : IApplicationSubsystem
+public interface IInputModule : IModule
 {
     public void Register(InputAction action);
     public void Register(InputAxis axis);

@@ -8,15 +8,15 @@ using Silk.NET.Input;
 
 namespace Editor.Host;
 
-public class EditorClientHostSubsystem : IApplicationTickableSubsystem
+public class EditorClientHostModule : ITickableModule
 {
     private readonly ILogger _logger;
     private readonly EditorClientHost _clientHost;
 
-    public EditorClientHostSubsystem(ApplicationBase application, ILogSubsystem logSubsystem)
+    public EditorClientHostModule(ApplicationBase application, ILogModule logModule)
     {
-        _logger = logSubsystem.CreateLogger("GameHost");
-        _logger.LogInformation("Initializing game host subsystem.");
+        _logger = logModule.CreateLogger("GameHost");
+        _logger.LogInformation("Initializing game host module.");
 
         _clientHost = new EditorClientHost(application, _logger);
 

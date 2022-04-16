@@ -7,7 +7,7 @@ using Duck.ServiceBus;
 
 namespace Duck.Physics;
 
-public class PhysicsSubsystem : IPhysicsSubsystem, IApplicationPostTickableSubsystem
+public class PhysicsModule : IPhysicsModule, IPostTickableModule
 {
     #region Members
 
@@ -24,17 +24,17 @@ public class PhysicsSubsystem : IPhysicsSubsystem, IApplicationPostTickableSubsy
 
     #region Methods
 
-    public PhysicsSubsystem(ILogSubsystem logSubsystem, IEventBus eventBus)
+    public PhysicsModule(ILogModule logModule, IEventBus eventBus)
     {
         _eventBus = eventBus;
 
-        _logger = logSubsystem.CreateLogger("Physics");
+        _logger = logModule.CreateLogger("Physics");
 
         // this uses defaults from the demo
         var targetThreadCount = System.Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
         _threadDispatcher = new ThreadDispatcher(targetThreadCount);
 
-        _logger.LogInformation("Initialized physics subsystem.");
+        _logger.LogInformation("Initialized physics module.");
         _logger.LogInformation("Thread count: {0}", targetThreadCount);
     }
 

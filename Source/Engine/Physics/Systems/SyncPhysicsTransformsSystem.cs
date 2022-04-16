@@ -18,9 +18,9 @@ public class SyncPhysicsTransformsSystem : SystemBase
 
     #region Methods
 
-    public SyncPhysicsTransformsSystem(IWorld world, IPhysicsSubsystem physicsSubsystem)
+    public SyncPhysicsTransformsSystem(IWorld world, IPhysicsModule physicsModule)
     {
-        _physicsWorld = (PhysicsWorld)physicsSubsystem.GetOrCreatePhysicsWorld(world);
+        _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
 
         _filter = Filter<PhysicsBodyComponent, TransformComponent>(world)
             .Build();

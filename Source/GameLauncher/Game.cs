@@ -11,10 +11,10 @@ public class Game : ApplicationBase
     {
     }
 
-    protected override void RegisterSubsystems()
+    protected override void RegisterModules()
     {
-        base.RegisterSubsystems();
+        base.RegisterModules();
 
-        AddSubsystem(new GameClientHostSubsystem(this, GetSubsystem<ILogSubsystem>()));
+        AddModule(new GameClientHostModule(this, GetModule<ILogModule>()));
     }
 }

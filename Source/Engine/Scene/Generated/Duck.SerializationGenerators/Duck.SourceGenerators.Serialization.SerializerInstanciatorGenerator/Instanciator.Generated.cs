@@ -15,7 +15,7 @@ public class Instanciator : IInstanciator
             case "Duck.Scene.Components.ParentComponent":
             case "Duck.Scene.Components.TransformComponent":
             case "Duck.Scene.Scene":
-            case "Duck.Scene.SceneSubsystem":
+            case "Duck.Scene.SceneModule":
 
                 return true;
         }
@@ -31,7 +31,7 @@ public class Instanciator : IInstanciator
             "Duck.Scene.Components.ParentComponent" => new Duck.Scene.Components.ParentComponent(deserializer, context),
             "Duck.Scene.Components.TransformComponent" => new Duck.Scene.Components.TransformComponent(deserializer, context),
             "Duck.Scene.Scene" => new Duck.Scene.Scene(deserializer, context),
-            "Duck.Scene.SceneSubsystem" => new Duck.Scene.SceneSubsystem(deserializer, context),
+            "Duck.Scene.SceneModule" => new Duck.Scene.SceneModule(deserializer, context),
 
             _ => default
         };

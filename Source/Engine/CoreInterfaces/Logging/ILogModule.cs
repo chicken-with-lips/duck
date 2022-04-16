@@ -1,6 +1,6 @@
 namespace Duck.Logging;
 
-public interface ILogSubsystem : IApplicationSubsystem
+public interface ILogModule : IModule
 {
     public ILogger CreateLogger(string categoryName);
 }

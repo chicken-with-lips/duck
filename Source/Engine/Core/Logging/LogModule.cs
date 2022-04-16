@@ -5,7 +5,7 @@ using ProviderLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Duck.Logging;
 
-public class LogSubsystem : ILogSubsystem
+public class LogModule : ILogModule
 {
     #region Members
 
@@ -17,7 +17,7 @@ public class LogSubsystem : ILogSubsystem
 
     #region Methods
 
-    public LogSubsystem()
+    public LogModule()
     {
         _factory = LoggerFactory.Create(builder => {
             builder
@@ -29,7 +29,7 @@ public class LogSubsystem : ILogSubsystem
         });
 
         _logger = CreateLogger("Log");
-        _logger.LogInformation("Initialized logging subsystem.");
+        _logger.LogInformation("Initialized logging module.");
     }
 
     public ILogger CreateLogger(string categoryName)

@@ -6,7 +6,7 @@ using Duck.ServiceBus;
 
 namespace Duck.Ecs;
 
-public class WorldSubsystem : IWorldSubsystem, IApplicationPreTickableSubsystem
+public class WorldModule : IWorldModule, IPreTickableModule
 {
     #region Properties
 
@@ -24,12 +24,12 @@ public class WorldSubsystem : IWorldSubsystem, IApplicationPreTickableSubsystem
 
     #region Methods
 
-    public WorldSubsystem(ILogSubsystem logSubsystem, IEventBus eventBus)
+    public WorldModule(ILogModule logModule, IEventBus eventBus)
     {
         _eventBus = eventBus;
 
-        _logger = logSubsystem.CreateLogger("Ecs");
-        _logger.LogInformation("Initialized ECS world subsystem.");
+        _logger = logModule.CreateLogger("Ecs");
+        _logger.LogInformation("Initialized ECS world module.");
     }
 
     public void PreTick()

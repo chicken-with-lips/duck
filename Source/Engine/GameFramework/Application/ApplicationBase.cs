@@ -2,6 +2,7 @@ using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Exceptions;
+using Duck.Graphics;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
@@ -21,7 +22,7 @@ public abstract class ApplicationBase : IApplication
     private ILogger _systemLogger;
     private readonly IPlatform _platform;
 
-    private readonly List<IApplicationSubsystem> _subsystems = new();
+    private readonly List<IModule> _modules = new();
 
     private bool _isEditor;
     private bool _isHotReloading;
@@ -33,7 +34,7 @@ public abstract class ApplicationBase : IApplication
         _platform = new DefaultPlatform();
         _isEditor = isEditor;
 
-        RegisterSubsystems();
+        RegisterModules();
     }
 
     public bool Initialize()
@@ -48,7 +49,7 @@ public abstract class ApplicationBase : IApplication
 
         _platform.Initialize();
 
-        if (!InitializeSubsystems()) {
+        if (!InitializeModules()) {
             return false;
         }
 
@@ -57,15 +58,15 @@ public abstract class ApplicationBase : IApplication
         return true;
     }
 
-    public T GetSubsystem<T>() where T : IApplicationSubsystem
+    public T GetModule<T>() where T : IModule
     {
-        foreach (var subsystem in _subsystems) {
-            if (subsystem is T applicationSubsystem) {
-                return applicationSubsystem;
+        foreach (var module in _modules) {
+            if (module is T cast) {
+                return cast;
             }
         }
 
-        throw new ApplicationSubsystemNotFoundException();
+        throw new ApplicationModuleNotFoundException();
     }
 
     public IHotReloadContext BeginHotReload()
@@ -73,12 +74,12 @@ public abstract class ApplicationBase : IApplication
         var serializationContext = new SerializationContext(true);
         var serializer = new GraphSerializer(serializationContext);
 
-        IterateOverSystems<IHotReloadAwareSubsystem>(subsystem => {
-            if (subsystem is not ISerializable serializable) {
-                _systemLogger.LogError("Hot reloadable system is not serializable: " + subsystem.GetType().Name);
+        IterateOverModules<IHotReloadAwareModule>(module => {
+            if (module is not ISerializable serializable) {
+                _systemLogger.LogError("Hot reloadable module is not serializable: " + module.GetType().Name);
             } else {
                 serializable.Serialize(serializer, serializationContext);
-                subsystem.BeginHotReload();
+                module.BeginHotReload();
             }
         });
 
@@ -89,65 +90,65 @@ public abstract class ApplicationBase : IApplication
 
     public void EndHotReload(IHotReloadContext context)
     {
-        IterateOverSystems<IHotReloadAwareSubsystem>(subsystem => subsystem.EndHotReload());
+        IterateOverModules<IHotReloadAwareModule>(module => module.EndHotReload());
     }
 
-    private bool InitializeSubsystems()
+    private bool InitializeModules()
     {
-        foreach (var subsystem in _subsystems) {
-            if (subsystem is IApplicationInitializableSubsystem applicationSubsystem) {
-                if (!applicationSubsystem.Init()) {
+        foreach (var module in _modules) {
+            if (module is IInitializableModule initModule) {
+                if (!initModule.Init()) {
                     return false;
                 }
             }
         }
 
-        _systemLogger = GetSubsystem<ILogSubsystem>().CreateLogger("System");
+        _systemLogger = GetModule<ILogModule>().CreateLogger("System");
 
         return true;
     }
 
-    private void PreTickSubsystems()
+    private void PreTickModules()
     {
-        IterateOverSystems<IApplicationPreTickableSubsystem>(subsystem => subsystem.PreTick());
+        IterateOverModules<IPreTickableModule>(module => module.PreTick());
     }
 
-    private void TickSubsystems()
+    private void TickModules()
     {
-        GetSubsystem<IEventBus>().Emit();
+        GetModule<IEventBus>().Emit();
 
-        IterateOverSystems<IApplicationTickableSubsystem>(subsystem => subsystem.Tick());
+        IterateOverModules<ITickableModule>(module => module.Tick());
     }
 
-    private void PostTickSubsystems()
+    private void PostTickModules()
     {
-        IterateOverSystems<IApplicationPostTickableSubsystem>(subsystem => subsystem.PostTick());
+        IterateOverModules<IPostTickableModule>(module => module.PostTick());
     }
 
-    private void RenderSubsystems()
+    private void RenderModule()
     {
-        IterateOverSystems<IApplicationRenderableSubsystem>(subsystem => subsystem.Render());
+        IterateOverModules<IRenderableModule>(module => module.Render());
     }
 
-    private void IterateOverSystems<T>(Action<T> callback)
+    private void IterateOverModules<T>(Action<T> callback)
     {
-        foreach (var subsystem in _subsystems) {
-            if (subsystem is T applicationSubsystem) {
-                callback(applicationSubsystem);
+        foreach (var module in _modules) {
+            if (module is T cast) {
+                callback(cast);
             }
         }
     }
 
-    protected virtual void RegisterSubsystems()
+    protected virtual void RegisterModules()
     {
-        AddSubsystem(new LogSubsystem());
-        AddSubsystem(new EventBus());
-        AddSubsystem(new GraphicsSubsystem(this, GetSubsystem<ILogSubsystem>()));
-        AddSubsystem(new ContentSubsystem(GetSubsystem<ILogSubsystem>()));
-        AddSubsystem(new WorldSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
-        AddSubsystem(new SceneSubsystem(GetSubsystem<IWorldSubsystem>()));
-        AddSubsystem(new InputSubsystem(GetSubsystem<ILogSubsystem>(), _platform));
-        AddSubsystem(new PhysicsSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
+        AddModule(new LogModule());
+        AddModule(new EventBus());
+        AddModule(new GraphicsModule(this, GetModule<ILogModule>(), _platform));
+        AddModule(new ContentModule(GetModule<ILogModule>()));
+        AddModule(new WorldModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
+        AddModule(new SceneModule(GetModule<IWorldModule>()));
+        AddModule(new InputModule(GetModule<ILogModule>(), _platform));
+        AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
     }
 
     public void Run()
@@ -170,13 +171,13 @@ public abstract class ApplicationBase : IApplication
 
             _platform.Tick();
 
-            PreTickSubsystems();
-            TickSubsystems();
-            PostTickSubsystems();
+            PreTickModules();
+            TickModules();
+            PostTickModules();
 
             _platform.PostTick();
 
-            RenderSubsystems();
+            RenderModule();
 
             _platform.Render();
 
@@ -195,9 +196,9 @@ public abstract class ApplicationBase : IApplication
         ChangeState(State.TearingDown);
     }
 
-    public void AddSubsystem(IApplicationSubsystem subsystem)
+    public void AddModule(IModule module)
     {
-        _subsystems.Add(subsystem);
+        _modules.Add(module);
     }
 
     public ISystemComposition CreateDefaultSystemComposition(IScene scene)
