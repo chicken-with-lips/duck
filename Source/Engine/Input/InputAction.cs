@@ -4,17 +4,17 @@ namespace Duck.Input;
 
 public class InputAction
 {
-    public string Name => _name;
+    public string Name { get; }
+
     public InputActionBinding[] Bindings => _bindings.ToArray();
     public bool IsActivated { get; set; }
     public float Value => IsActivated ? 1.0f : 0.0f;
 
-    private readonly string _name;
     private readonly List<InputActionBinding> _bindings = new();
 
     internal InputAction(string name, InputActionBinding[] bindings)
     {
-        _name = name;
+        Name = name;
         _bindings.AddRange(bindings);
     }
 }

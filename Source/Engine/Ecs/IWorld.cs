@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public interface IWorld
+[AutoSerializable]
+public partial interface IWorld
 {
     const int NotFound = -1;
 

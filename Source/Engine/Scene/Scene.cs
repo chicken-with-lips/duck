@@ -1,16 +1,20 @@
 using Duck.Ecs;
+using Duck.Serialization;
 
 namespace Duck.Scene;
 
-public class Scene : IScene
+[AutoSerializable]
+public partial class Scene : IScene
 {
     #region Properties
 
-    public IWorld World { get; }
-
+    public IWorld World => _world;
+    
     #endregion
-
+    
     #region Members
+
+    private readonly IWorld _world;
 
     #endregion
 
@@ -18,7 +22,7 @@ public class Scene : IScene
 
     internal Scene(IWorld world)
     {
-        World = world;
+        _world = world;
     }
 
     #endregion

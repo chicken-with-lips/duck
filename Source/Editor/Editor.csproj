@@ -17,5 +17,4 @@
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
       <ProjectReference Include="..\Engine\Graphics\Graphics.csproj" />
     </ItemGroup>
-
 </Project>

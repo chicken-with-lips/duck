@@ -8,6 +8,7 @@ using Duck.Physics;
 using Duck.Platform;
 using Duck.Platform.Default;
 using Duck.Scene;
+using Duck.Serialization;
 using Duck.ServiceBus;
 
 namespace Duck.GameFramework;
@@ -23,6 +24,7 @@ public abstract class ApplicationBase : IApplication
     private readonly List<IApplicationSubsystem> _subsystems = new();
 
     private bool _isEditor;
+    private bool _isHotReloading;
 
     #endregion
 
@@ -41,6 +43,8 @@ public abstract class ApplicationBase : IApplication
         }
 
         ChangeState(State.Initializing);
+
+        Instanciator.Init();
 
         _platform.Initialize();
 
@@ -64,11 +68,35 @@ public abstract class ApplicationBase : IApplication
         throw new ApplicationSubsystemNotFoundException();
     }
 
+    public IHotReloadContext BeginHotReload()
+    {
+        var serializationContext = new SerializationContext(true);
+        var serializer = new GraphSerializer(serializationContext);
+
+        IterateOverSystems<IHotReloadAwareSubsystem>(subsystem => {
+            if (subsystem is not ISerializable serializable) {
+                _systemLogger.LogError("Hot reloadable system is not serializable: " + subsystem.GetType().Name);
+            } else {
+                serializable.Serialize(serializer, serializationContext);
+                subsystem.BeginHotReload();
+            }
+        });
+
+        serializer.Close();
+
+        return new HotReloadContext(serializer);
+    }
+
+    public void EndHotReload(IHotReloadContext context)
+    {
+        IterateOverSystems<IHotReloadAwareSubsystem>(subsystem => subsystem.EndHotReload());
+    }
+
     private bool InitializeSubsystems()
     {
         foreach (var subsystem in _subsystems) {
-            if (subsystem is IApplicationInitializableSubsystem initializable) {
-                if (!initializable.Init()) {
+            if (subsystem is IApplicationInitializableSubsystem applicationSubsystem) {
+                if (!applicationSubsystem.Init()) {
                     return false;
                 }
             }
@@ -81,29 +109,31 @@ public abstract class ApplicationBase : IApplication
 
     private void PreTickSubsystems()
     {
-        foreach (var subsystem in _subsystems) {
-            if (subsystem is IApplicationPreTickableSubsystem tickable) {
-                tickable.PreTick();
-            }
-        }
+        IterateOverSystems<IApplicationPreTickableSubsystem>(subsystem => subsystem.PreTick());
     }
 
     private void TickSubsystems()
     {
         GetSubsystem<IEventBus>().Emit();
 
-        foreach (var subsystem in _subsystems) {
-            if (subsystem is IApplicationTickableSubsystem tickable) {
-                tickable.Tick();
-            }
-        }
+        IterateOverSystems<IApplicationTickableSubsystem>(subsystem => subsystem.Tick());
     }
 
     private void PostTickSubsystems()
     {
+        IterateOverSystems<IApplicationPostTickableSubsystem>(subsystem => subsystem.PostTick());
+    }
+
+    private void RenderSubsystems()
+    {
+        IterateOverSystems<IApplicationRenderableSubsystem>(subsystem => subsystem.Render());
+    }
+
+    private void IterateOverSystems<T>(Action<T> callback)
+    {
         foreach (var subsystem in _subsystems) {
-            if (subsystem is IApplicationPostTickableSubsystem tickable) {
-                tickable.PostTick();
+            if (subsystem is T applicationSubsystem) {
+                callback(applicationSubsystem);
             }
         }
     }
@@ -112,16 +142,12 @@ public abstract class ApplicationBase : IApplication
     {
         AddSubsystem(new LogSubsystem());
         AddSubsystem(new EventBus());
-        // AddSubsystem(new RenderingSubsystem(this, GetSubsystem<ILogSubsystem>()));
+        AddSubsystem(new GraphicsSubsystem(this, GetSubsystem<ILogSubsystem>()));
         AddSubsystem(new ContentSubsystem(GetSubsystem<ILogSubsystem>()));
         AddSubsystem(new WorldSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
         AddSubsystem(new SceneSubsystem(GetSubsystem<IWorldSubsystem>()));
         AddSubsystem(new InputSubsystem(GetSubsystem<ILogSubsystem>(), _platform));
         AddSubsystem(new PhysicsSubsystem(GetSubsystem<ILogSubsystem>(), GetSubsystem<IEventBus>()));
-
-        if (_isEditor) {
-        } else {
-        }
     }
 
     public void Run()
@@ -134,7 +160,7 @@ public abstract class ApplicationBase : IApplication
 
         Time.FrameTimer?.Start();
 
-        while (_state == State.Running) {
+        while (_state is State.Running or State.HotReloading) {
             // if (_platform.Window.CloseRequested) {
             // Shutdown();
             // break;
@@ -142,12 +168,19 @@ public abstract class ApplicationBase : IApplication
 
             Time.FrameTimer?.Update();
 
+            _platform.Tick();
+
             PreTickSubsystems();
             TickSubsystems();
-
-            _platform.Window?.ClearEvents();
-
             PostTickSubsystems();
+
+            _platform.PostTick();
+
+            RenderSubsystems();
+
+            _platform.Render();
+
+            Thread.Sleep(16);
         }
     }
 
@@ -193,6 +226,17 @@ public abstract class ApplicationBase : IApplication
         Initializing,
         Initialized,
         Running,
+        HotReloading,
         TearingDown,
+    }
+}
+
+public class HotReloadContext : IHotReloadContext
+{
+    public ISerializer Serializer { get; }
+
+    public HotReloadContext(ISerializer serializer)
+    {
+        Serializer = serializer;
     }
 }

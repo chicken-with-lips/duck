@@ -35,6 +35,7 @@ public class InputSubsystem : IInputSubsystem, IApplicationTickableSubsystem
 
     public void Tick()
     {
+        
         int mouseDeltaXId = (int)InputName.MouseDeltaX;
         int mouseDeltaYId = (int)InputName.MouseDeltaY;
 
@@ -96,6 +97,16 @@ public class InputSubsystem : IInputSubsystem, IApplicationTickableSubsystem
         }
 
         return _actions[name];
+    }
+
+    public bool IsKeyDown(InputName input)
+    {
+        return !IsKeyUp(input);
+    }
+
+    public bool IsKeyUp(InputName input)
+    {
+        return _states[(int)input] == 0;
     }
 
     private void UpdateAxis(InputAxis axis)

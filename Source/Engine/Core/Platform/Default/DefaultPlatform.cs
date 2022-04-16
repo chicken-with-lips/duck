@@ -25,11 +25,28 @@ public class DefaultPlatform : IPlatform
 
     public void Initialize()
     {
-        // _window = new DefaultWindow(
-            // Configuration.Default
-        // );
+        _window = new DefaultWindow(
+            Configuration.Default
+        );
+
         _frameTimer = new FrameTimer();
+
         Time.FrameTimer = _frameTimer;
+    }
+
+    public void Tick()
+    {
+        _window?.Update();
+    }
+
+    public void PostTick()
+    {
+        _window?.ClearEvents();
+    }
+
+    public void Render()
+    {
+        _window?.Render();
     }
 
     #endregion

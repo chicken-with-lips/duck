@@ -9,8 +9,9 @@ public interface IWindow
     Vector2 CursorPosition { get; }
     public IWindowEvent[] Events { get; }
 
-    void Update();
     void ClearEvents();
+    void Update();
+    void Render();
 }
 
 public struct Configuration

@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Scene.Components;
 
-public struct ParentComponent
+[AutoSerializable]
+public partial struct ParentComponent
 {
-    public int ParentEntityId;
+    public int ParentEntityId = default;
 }

@@ -1,30 +1,20 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public class Entity : IEntity
+[AutoSerializable]
+public partial class Entity : IEntity
 {
-    public IWorld World {
-        get;
-
-        // FIXME: used to restore the World reference after a reload. serialization library doesn't handle circular
-        // references
-        internal set;
-    }
+    public IWorld World => _world;
 
     private int[] _components;
     private bool _isAllocated;
+    private IWorld _world;
 
-    /// <summary>
-    /// Used for serialization.
-    /// </summary>
-#pragma warning disable 8618
-    internal Entity()
-#pragma warning restore 8618
-    {
-    }
-
-    public Entity(int index)
+    public Entity(IWorld world, int index)
     {
         Id = index;
+        _world = world;
 
         _components = new int[100];
 

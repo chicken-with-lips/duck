@@ -7,4 +7,6 @@ public interface IInputSubsystem : IApplicationSubsystem
 
     public InputAxis GetAxis(string name);
     public InputAction GetAction(string name);
+    bool IsKeyDown(InputName input);
+    bool IsKeyUp(InputName input);
 }

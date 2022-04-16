@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public class ComponentPoolCollection : IComponentPoolCollection
+[AutoSerializable]
+public partial class ComponentPoolCollection : IComponentPoolCollection
 {
     private IComponentPoolBase[] _componentPools;
     private int _nextComponentPoolIndex;

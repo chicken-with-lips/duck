@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Duck;
+using Duck.GameFramework;
 using Duck.GameHost;
 using Duck.Logging;
 
@@ -20,7 +22,7 @@ public class EditorClientHost
 
     #region Members
 
-    private readonly IApplication _application;
+    private readonly ApplicationBase _application;
     private readonly ILogger _logger;
     private EditorClientAssemblyLoadContext? _assemblyContext;
     private IGameClient? _hostedClient;
@@ -29,7 +31,7 @@ public class EditorClientHost
 
     #region Methods
 
-    public EditorClientHost(IApplication application, ILogger logger)
+    public EditorClientHost(ApplicationBase application, ILogger logger)
     {
         _application = application;
         _logger = logger;
@@ -50,7 +52,7 @@ public class EditorClientHost
 
         IsBusy = true;
 
-        // _assemblyContext = new EditorClientAssemblyLoadContext("Editor", true);
+        _assemblyContext = new EditorClientAssemblyLoadContext("Editor", true);
 
         var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var assemblies = new[] {
@@ -74,11 +76,9 @@ public class EditorClientHost
         var gameDll = "/home/jolly_samurai/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
 
 
-        // using (_assemblyContext?.EnterContextualReflection()) {
+        using (_assemblyContext?.EnterContextualReflection()) {
             using (var stream = File.OpenRead(gameDll)) {
-                // var assembly = _assemblyContext.LoadFromStream(stream);
-
-                var assembly = Assembly.LoadFile(gameDll);
+                var assembly = _assemblyContext?.LoadFromStream(stream);
 
                 // var clientTypes = assembly
                 //     .GetTypes()
@@ -90,11 +90,11 @@ public class EditorClientHost
                 //     return false;
                 // }
 
-                var clientType = assembly.GetType("Game.GameClient");
+                var clientType = assembly?.GetType("Game.GameClient");
                 var x = Activator.CreateInstance(clientType);
                 _hostedClient = x as IGameClient;
             }
-        // }
+        }
 
         IsBusy = false;
         IsLoaded = true;
@@ -122,17 +122,44 @@ public class EditorClientHost
             return false;
         }
 
-        _hostedClient = null;
-        _assemblyContext?.Unload();
-        _assemblyContext = null;
+        // IsBusy = true;
+        IsLoaded = false;
 
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
+        var hotReloadContext = DoUnload(out var assemblyRef);
+
+        var unloadTimer = new Stopwatch();
+        unloadTimer.Start();
+
+        while (assemblyRef.IsAlive) {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            if (unloadTimer.Elapsed.TotalSeconds > 0.1) {
+                _logger.LogError("Waiting for game context to shutdown...");
+                unloadTimer.Restart();
+            }
+        }
+
+        IsBusy = false;
 
         return true;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private IHotReloadContext DoUnload(out WeakReference contextRef)
+    {
+        contextRef = new WeakReference(_assemblyContext, true);
+
+        var hotReloadContext = _application.BeginHotReload();
+
+        _hostedClient = null;
+        _assemblyContext?.Unload();
+        _assemblyContext = null;
+
+        return hotReloadContext;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public bool Reload()
     {
         return Unload()
@@ -143,7 +170,7 @@ public class EditorClientHost
     private void AssertContextIsReady()
     {
         if (!IsLoaded || IsBusy) {
-            // throw new Exception("Client is not loaded or is busy");
+            throw new Exception("Client is not loaded or is busy");
         }
     }
 
@@ -152,7 +179,7 @@ public class EditorClientHost
     {
         AssertContextIsReady();
 
-        // using (_assemblyContext?.EnterContextualReflection()) {
+        using (_assemblyContext?.EnterContextualReflection()) {
             var type = Type.GetType("Duck.GameFramework.GameClient.GameClientInitializationContext, Duck.GameFramework");
             var context = (IGameClientInitializationContext)Activator.CreateInstance(type, new object[] {
                 _application,
@@ -160,7 +187,7 @@ public class EditorClientHost
             });
 
             _hostedClient?.Initialize(context);
-        // }
+        }
 
         return true;
     }

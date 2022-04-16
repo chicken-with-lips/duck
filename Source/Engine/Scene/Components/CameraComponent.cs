@@ -1,5 +1,8 @@
+using Duck.Serialization;
+
 namespace Duck.Scene.Components;
 
-public struct CameraComponent
+[AutoSerializable]
+public partial struct CameraComponent
 {
 }

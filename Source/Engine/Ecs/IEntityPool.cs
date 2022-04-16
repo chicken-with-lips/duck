@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public interface IEntityPool
+[AutoSerializable]
+public partial interface IEntityPool
 {
     public int Count { get; }
     public IEntity Allocate();

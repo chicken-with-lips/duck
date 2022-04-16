@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public interface IEntity
+[AutoSerializable]
+public partial interface IEntity
 {
     public int Id { get; }
 

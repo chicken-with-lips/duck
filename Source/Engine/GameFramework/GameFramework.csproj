@@ -9,13 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Content\Content.csproj" />
-      <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Ecs\Ecs.csproj" />
-      <ProjectReference Include="..\Input\Input.csproj" />
-      <ProjectReference Include="..\Physics\Physics.csproj" />
-      <ProjectReference Include="..\Scene\Scene.csproj" />
-      <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
+        <ProjectReference Include="..\Content\Content.csproj" />
+        <ProjectReference Include="..\Core\Core.csproj" />
+        <ProjectReference Include="..\Ecs\Ecs.csproj" />
+        <ProjectReference Include="..\Input\Input.csproj" />
+        <ProjectReference Include="..\Physics\Physics.csproj" />
+        <ProjectReference Include="..\Scene\Scene.csproj" />
+        <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
+        <ProjectReference Include="..\Serialization\Serialization.csproj" />
     </ItemGroup>
 
 </Project>

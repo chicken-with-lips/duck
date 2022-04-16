@@ -6,11 +6,20 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Scene</AssemblyName>
         <RootNamespace>Duck.Scene</RootNamespace>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Ecs\Ecs.csproj" />
+      <ProjectReference Include="..\Serialization\Serialization.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!-- Exclude the output of source generators from the compilation -->
+        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
     </ItemGroup>
 
 </Project>

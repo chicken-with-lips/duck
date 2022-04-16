@@ -1,8 +1,10 @@
 using Duck.Ecs;
+using Duck.Serialization;
 
 namespace Duck.Scene;
 
-public interface IScene
+[AutoSerializable]
+public partial interface IScene
 {
     public IWorld World { get; }
 }

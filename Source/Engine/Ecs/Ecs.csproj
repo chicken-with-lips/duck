@@ -6,11 +6,21 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Ecs</AssemblyName>
         <RootNamespace>Duck.Ecs</RootNamespace>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
+      <ProjectReference Include="..\Serialization\Serialization.csproj" />
       <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!-- Exclude the output of source generators from the compilation -->
+        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
     </ItemGroup>
 
 </Project>

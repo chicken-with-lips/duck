@@ -1,8 +1,10 @@
 using Duck.Ecs;
+using Duck.Serialization;
 
 namespace Duck.Scene;
 
-public class SceneSubsystem : ISceneSubsystem
+[AutoSerializable]
+public partial class SceneSubsystem : ISceneSubsystem, IHotReloadAwareSubsystem
 {
     #region Members
 
@@ -25,6 +27,15 @@ public class SceneSubsystem : ISceneSubsystem
         _loadedScenes.Add(scene);
 
         return scene;
+    }
+
+    public void BeginHotReload()
+    {
+        _loadedScenes.Clear();
+    }
+
+    public void EndHotReload()
+    {
     }
 
     #endregion

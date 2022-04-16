@@ -22,11 +22,10 @@ class EditorClientAssemblyLoadContext : AssemblyLoadContext
 
         // return null;
         // string file = "/home/jolly_samurai/Projects/chicken-with-lips/infectic/Code/bin/Debug/net6.0/" + assemblyName.Name + ".dll";
-        string file = "/home/jolly_samurai/Projects/chicken-with-lips/Duck/Build/Debug/net6.0/" + assemblyName.Name + ".dll";
+        string file = "/home/jolly_samurai/Projects/chicken-with-lips/Duck/Build/Debug/net6.0/Game/net6.0/" + assemblyName.Name + ".dll";
 
         if (File.Exists(file)) {
-            return this.LoadFromAssemblyPath(file);
-            // return Assembly.LoadFile(file);
+            return LoadFromAssemblyPath(file);
         }
 
         return null;

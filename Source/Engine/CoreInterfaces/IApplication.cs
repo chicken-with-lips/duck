@@ -1,3 +1,5 @@
+using Duck.Serialization;
+
 namespace Duck;
 
 public interface IApplication
@@ -33,4 +35,20 @@ public interface IApplicationPreTickableSubsystem : IApplicationSubsystem
 public interface IApplicationPostTickableSubsystem : IApplicationSubsystem
 {
     public void PostTick();
+}
+
+public interface IApplicationRenderableSubsystem : IApplicationSubsystem
+{
+    public void Render();
+}
+
+public interface IHotReloadAwareSubsystem : IApplicationSubsystem
+{
+    public void BeginHotReload();
+    public void EndHotReload();
+}
+
+public interface IHotReloadContext
+{
+    public ISerializer Serializer { get; }
 }

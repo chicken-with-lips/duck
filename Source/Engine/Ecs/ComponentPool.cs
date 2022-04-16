@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public class ComponentPool<T> : IComponentPool<T> where T : struct
+[AutoSerializable]
+public partial class ComponentPool<T> : IComponentPool<T> where T : struct
 {
     private ComponentData<T>[] _components;
     private int _nextComponentIndex = 0;
@@ -12,11 +15,6 @@ public class ComponentPool<T> : IComponentPool<T> where T : struct
     internal ComponentPool()
 #pragma warning restore 8618
     {
-    }
-
-    public object X()
-    {
-        return _components[0].Data;
     }
 
     public ComponentPool(int typeIndex, int initialSize)

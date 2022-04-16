@@ -1,7 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-[Serializable]
-public class World : IWorld
+[AutoSerializable]
+public partial class World : IWorld
 {
     #region Members
 

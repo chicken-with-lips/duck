@@ -1,6 +1,9 @@
+using Duck.Serialization;
+
 namespace Duck.Ecs;
 
-public interface IComponentPoolCollection
+[AutoSerializable]
+public partial interface IComponentPoolCollection
 {
     public ComponentReference GetComponentReference<T>(int typeIndex, int componentIndex) where T : struct;
     public ref T GetComponent<T>(int typeIndex, int componentIndex) where T : struct;

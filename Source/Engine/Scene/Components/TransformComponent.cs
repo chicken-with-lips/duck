@@ -1,8 +1,10 @@
+using Duck.Serialization;
 using Silk.NET.Maths;
 
 namespace Duck.Scene.Components
 {
-    public struct TransformComponent
+    [AutoSerializable]
+    public partial struct TransformComponent
     {
         #region Properties
 
@@ -46,17 +48,17 @@ namespace Duck.Scene.Components
 
         #region Members
 
-        private Vector3D<float> _translation;
-        private Quaternion<float> _rotation;
-        private Vector3D<float> _scale;
+        private Vector3D<float> _translation = default;
+        private Quaternion<float> _rotation = default;
+        private Vector3D<float> _scale = default;
 
-        private Vector3D<float> _up;
-        private Vector3D<float> _forward;
-        private Vector3D<float> _right;
+        private Vector3D<float> _up = default;
+        private Vector3D<float> _forward = default;
+        private Vector3D<float> _right = default;
 
-        private bool _isTranslationDirty;
-        private bool _isRotationDirty;
-        private bool _isScaleDirty;
+        private bool _isTranslationDirty = default;
+        private bool _isRotationDirty = default;
+        private bool _isScaleDirty = default;
 
         #endregion
 

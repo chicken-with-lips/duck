@@ -40,8 +40,11 @@ public class DefaultWindow : IWindow
         silkOptions.Size = new Vector2D<int>(_config.Width, _config.Height);
         silkOptions.WindowBorder = _config.IsResizable ? WindowBorder.Resizable : WindowBorder.Fixed;
         silkOptions.Title = _config.Title;
+        silkOptions.IsEventDriven = true;
+        silkOptions.FramesPerSecond = 60;
 
         _silkWindow = SilKWindow.Create(silkOptions);
+
         _silkWindow.Load += () => {
             _silkInput = _silkWindow.CreateInput();
 
@@ -71,6 +74,11 @@ public class DefaultWindow : IWindow
     {
         _silkWindow.DoEvents();
         _silkWindow.DoUpdate();
+    }
+
+    public void Render()
+    {
+        _silkWindow.DoRender();
     }
 
     public void ClearEvents()

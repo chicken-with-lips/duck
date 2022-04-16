@@ -1,6 +1,10 @@
 using System;
+using System.Diagnostics;
 using Duck;
+using Duck.GameFramework;
+using Duck.Input;
 using Duck.Logging;
+using Silk.NET.Input;
 
 namespace Editor.Host;
 
@@ -9,7 +13,7 @@ public class EditorClientHostSubsystem : IApplicationTickableSubsystem
     private readonly ILogger _logger;
     private readonly EditorClientHost _clientHost;
 
-    public EditorClientHostSubsystem(IApplication application, ILogSubsystem logSubsystem)
+    public EditorClientHostSubsystem(ApplicationBase application, ILogSubsystem logSubsystem)
     {
         _logger = logSubsystem.CreateLogger("GameHost");
         _logger.LogInformation("Initializing game host subsystem.");

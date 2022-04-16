@@ -52,15 +52,5 @@ public class WorldSubsystem : IWorldSubsystem, IApplicationPreTickableSubsystem
         return world;
     }
 
-    public void Serialize(IWorld world, IBufferWriter<byte> destination)
-    {
-        new WorldSerializer().Serialize(world, destination);
-    }
-
-    public IWorld Deserialize(ReadOnlyMemory<byte> data)
-    {
-        return new WorldSerializer().Deserialize(data);
-    }
-
     #endregion
 }
