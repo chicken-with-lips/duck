@@ -3,12 +3,31 @@ namespace Duck.Content;
 public interface IAsset
 {
     public Guid Id { get; }
-    public Uri Uri { get; }
     public AssetStatus Status { get; }
+    public AssetImportData ImportData { get; }
+    public bool IsLoaded { get; }
+
+    public void ChangeStateToLoaded();
+}
+
+public interface IAsset<T> : IAsset
+    where T : class, IAsset
+{
+    public AssetReference<T> MakeReference();
 }
 
 public enum AssetStatus
 {
     Loaded,
     Unloaded,
+}
+
+public struct AssetImportData
+{
+    public Uri Uri { get; }
+
+    public AssetImportData(Uri uri)
+    {
+        Uri = uri;
+    }
 }

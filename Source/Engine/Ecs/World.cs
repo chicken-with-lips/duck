@@ -115,6 +115,11 @@ public partial class World : IWorld
         return ref GetEntity(entityId).Get<T>();
     }
 
+    public bool HasComponent<T>(int entityId) where T : struct
+    {
+        return GetEntity(entityId).Has<T>();
+    }
+
     public IFilter<T> CompileFilter<T>(IFilter<T> filter) where T : struct
     {
         if (!_filters.ContainsKey(filter.Id)) {

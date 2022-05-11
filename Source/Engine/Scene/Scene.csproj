@@ -11,8 +11,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Content\Content.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Ecs\Ecs.csproj" />
+      <ProjectReference Include="..\Graphics\Graphics.csproj" />
       <ProjectReference Include="..\Serialization\Serialization.csproj" />
     </ItemGroup>
 

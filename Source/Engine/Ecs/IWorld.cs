@@ -22,6 +22,7 @@ public partial interface IWorld
     public ref T GetComponent<T>(int typeIndex, int componentIndex) where T : struct;
     public ref T GetComponent<T>(ComponentReference componentReference) where T : struct;
     public ref T GetComponent<T>(int entityId) where T : struct;
+    public bool HasComponent<T>(int entityId) where T : struct;
     public ComponentReference GetComponentReference<T>(int typeIndex, int componentIndex) where T : struct;
 
     public IEntity GetEntity(int entityId);

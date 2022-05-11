@@ -1,4 +1,5 @@
 using Duck.Ecs;
+using Duck.Scene.Components;
 using Duck.Serialization;
 
 namespace Duck.Scene;
@@ -7,4 +8,7 @@ namespace Duck.Scene;
 public partial interface IScene
 {
     public IWorld World { get; }
+    public int[] Renderables { get; }
+
+    public IScene AddRenderable(int entityId);
 }

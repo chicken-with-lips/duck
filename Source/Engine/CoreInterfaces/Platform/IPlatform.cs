@@ -2,10 +2,11 @@ namespace Duck.Platform;
 
 public interface IPlatform
 {
-    public IWindow? Window { get; }
-
-    public void Initialize();
+    public IWindow[] Windows { get; }
+    
     public void Tick();
     public void PostTick();
-    public void Render();
+
+    public IFrameTimer CreateFrameTimer();
+    public IWindow CreateWindow();
 }

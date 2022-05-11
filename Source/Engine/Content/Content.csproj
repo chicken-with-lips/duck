@@ -13,8 +13,4 @@
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="StbImageSharp" Version="2.27.8" />
-    </ItemGroup>
-
 </Project>

@@ -71,7 +71,7 @@ namespace Duck.Scene.Components
 
         private void UpdateVectors()
         {
-            _forward = Vector3D.Normalize(Vector3D.Transform(-Vector3D<float>.UnitZ, _rotation));
+            _forward = Vector3D.Normalize(Vector3D.Transform(Vector3D<float>.UnitZ, _rotation));
             _right = Vector3D.Normalize(Vector3D.Cross(_forward, Vector3D<float>.UnitY));
             _up = Vector3D.Cross(_forward, _right);
         }

@@ -1,7 +1,7 @@
+using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.GameHost;
-using Duck.GameFramework;
 using Duck.Input;
 using Duck.Scene;
 
@@ -9,6 +9,12 @@ namespace Duck.GameFramework.GameClient;
 
 public abstract class GameClientBase : IGameClient
 {
+    #region Properties
+
+    public IApplication Application => _application;
+
+    #endregion
+
     #region Members
 
     private IScene? _scene;
@@ -17,9 +23,15 @@ public abstract class GameClientBase : IGameClient
 
     #endregion
 
-    #region IClient
+    #region Methods
 
-    public void Initialize(IGameClientInitializationContext context)
+    public T GetModule<T>()
+        where T : IModule
+    {
+        return Application.GetModule<T>();
+    }
+
+    public virtual void Initialize(IGameClientInitializationContext context)
     {
         var app = context.Application;
         var sceneModule = app.GetModule<ISceneModule>();
@@ -29,7 +41,8 @@ public abstract class GameClientBase : IGameClient
         _systemComposition = CreateDefaultSystemComposition(_scene);
 
         InitializeInput(app.GetModule<IInputModule>());
-        InitializeSystems(_systemComposition, context);
+        InitializeContent(app.GetModule<IContentModule>());
+        InitializeGame(_systemComposition, context);
 
         _systemComposition.Init();
     }
@@ -44,9 +57,10 @@ public abstract class GameClientBase : IGameClient
     }
 
     protected abstract void InitializeInput(IInputModule input);
-    protected abstract void InitializeSystems(ISystemComposition composition, IGameClientInitializationContext context);
+    protected abstract void InitializeContent(IContentModule content);
+    protected abstract void InitializeGame(ISystemComposition composition, IGameClientInitializationContext context);
 
-    public void Tick()
+    public virtual void Tick()
     {
         _systemComposition?.Tick();
     }

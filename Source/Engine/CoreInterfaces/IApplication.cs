@@ -37,9 +37,19 @@ public interface IPostTickableModule : IModule
     public void PostTick();
 }
 
+public interface IPreRenderableModule : IModule
+{
+    public void PreRender();
+}
+
 public interface IRenderableModule : IModule
 {
     public void Render();
+}
+
+public interface IPostRenderableModule : IModule
+{
+    public void PostRender();
 }
 
 public interface IHotReloadAwareModule : IModule

@@ -53,6 +53,7 @@ public enum InputName : int
     NumPad9 = 329,
 
     Space = 32,
+    Escape = 256,
 
     LeftControl = 341,
     RightControl = 345,

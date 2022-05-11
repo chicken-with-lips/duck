@@ -8,25 +8,32 @@
         <RootNamespace>Duck.Graphics</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Content\Content.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Ecs\Ecs.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Systems\SyncRenderTransformsSystem.cs" />
-      <Compile Remove="Systems\BoxPrimitiveLifecycleSystem.cs" />
-      <Compile Remove="Systems\CameraLifecycleSystem.cs" />
       <Compile Remove="Systems\GenerateFilamentIdentitySystem.cs" />
-      <Compile Remove="Systems\MeshLifecycleSystem.cs" />
-      <Compile Remove="Systems\SyncParentTransformConnectionsSystem.cs" />
       <Compile Remove="Components\BoundingBoxComponent.cs" />
       <Compile Remove="Components\FilamentIdentityComponent.cs" />
       <Compile Remove="Components\TransformComponent.cs" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Systems" />
+      <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.OpenGL" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.15.0" />
+      <PackageReference Include="StbImageSharp" Version="2.27.8" />
     </ItemGroup>
 
 </Project>

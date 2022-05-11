@@ -3,12 +3,13 @@ using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Exceptions;
 using Duck.Graphics;
+using Duck.Graphics.OpenGL;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
 using Duck.Platform;
-using Duck.Platform.Default;
 using Duck.Scene;
+using Duck.Scene.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
 
@@ -18,11 +19,11 @@ public abstract class ApplicationBase : IApplication
 {
     #region Members
 
+    private readonly IPlatform _platform;
+    private readonly List<IModule> _modules = new();
+
     private State _state = State.Uninitialized;
     private ILogger _systemLogger;
-    private readonly IPlatform _platform;
-
-    private readonly List<IModule> _modules = new();
 
     private bool _isEditor;
     private bool _isHotReloading;
@@ -31,7 +32,7 @@ public abstract class ApplicationBase : IApplication
 
     public ApplicationBase(bool isEditor)
     {
-        _platform = new DefaultPlatform();
+        _platform = new OpenGLPlatform(this);
         _isEditor = isEditor;
 
         RegisterModules();
@@ -47,7 +48,7 @@ public abstract class ApplicationBase : IApplication
 
         Instanciator.Init();
 
-        _platform.Initialize();
+        Time.FrameTimer = _platform.CreateFrameTimer();
 
         if (!InitializeModules()) {
             return false;
@@ -125,9 +126,19 @@ public abstract class ApplicationBase : IApplication
         IterateOverModules<IPostTickableModule>(module => module.PostTick());
     }
 
-    private void RenderModule()
+    private void PreRenderModules()
+    {
+        IterateOverModules<IPreRenderableModule>(module => module.PreRender());
+    }
+
+    private void RenderModules()
     {
         IterateOverModules<IRenderableModule>(module => module.Render());
+    }
+
+    private void PostRenderModules()
+    {
+        IterateOverModules<IPostRenderableModule>(module => module.PostRender());
     }
 
     private void IterateOverModules<T>(Action<T> callback)
@@ -143,10 +154,10 @@ public abstract class ApplicationBase : IApplication
     {
         AddModule(new LogModule());
         AddModule(new EventBus());
-        AddModule(new GraphicsModule(this, GetModule<ILogModule>(), _platform));
         AddModule(new ContentModule(GetModule<ILogModule>()));
-        AddModule(new WorldModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new SceneModule(GetModule<IWorldModule>()));
+        AddModule(new GraphicsModule(this, _platform, GetModule<ILogModule>(), GetModule<IContentModule>()));
+        AddModule(new EcsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
+        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
     }
@@ -162,11 +173,6 @@ public abstract class ApplicationBase : IApplication
         Time.FrameTimer?.Start();
 
         while (_state is State.Running or State.HotReloading) {
-            // if (_platform.Window.CloseRequested) {
-            // Shutdown();
-            // break;
-            // }
-
             Time.FrameTimer?.Update();
 
             _platform.Tick();
@@ -177,9 +183,9 @@ public abstract class ApplicationBase : IApplication
 
             _platform.PostTick();
 
-            RenderModule();
-
-            _platform.Render();
+            PreRenderModules();
+            RenderModules();
+            PostRenderModules();
 
             Thread.Sleep(16);
         }
@@ -204,11 +210,13 @@ public abstract class ApplicationBase : IApplication
     public ISystemComposition CreateDefaultSystemComposition(IScene scene)
     {
         var c = new SystemComposition(scene.World);
-        // c
-        // .Add(new GenerateFilamentIdentitySystem())
-        // .Add(new CameraLifecycleSystem())
-        // .Add(new BoxPrimitiveLifecycleSystem())
-        // .Add(new MeshLifecycleSystem())
+        c
+            // .Add(new GenerateFilamentIdentitySystem())
+            // .Add(new CameraLifecycleSystem())
+            // .Add(new BoxPrimitiveLifecycleSystem())
+            .Add(new CameraSystem(scene, GetModule<IGraphicsModule>()))
+            .Add(new MeshLoadSystem(scene, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
+            .Add(new MeshRenderSystem(scene, GetModule<IGraphicsModule>()));
         // .Add(new PhysicsBoxShapeLifecycleSystem())
         // .Add(new SyncPhysicsTransformsSystem())
         // .Add(new SyncRenderTransformsSystem());

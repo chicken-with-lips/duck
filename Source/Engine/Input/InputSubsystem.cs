@@ -1,7 +1,7 @@
-using System.Numerics;
 using Duck.Input.Exception;
 using Duck.Logging;
 using Duck.Platform;
+using Silk.NET.Maths;
 
 namespace Duck.Input;
 
@@ -35,30 +35,32 @@ public class InputModule : IInputModule, ITickableModule
 
     public void Tick()
     {
-        
         int mouseDeltaXId = (int)InputName.MouseDeltaX;
         int mouseDeltaYId = (int)InputName.MouseDeltaY;
 
         _states[mouseDeltaXId] = 0;
         _states[mouseDeltaYId] = 0;
 
-        if (_isFirstTick) {
-            var cursorPosition = _platform.Window?.CursorPosition ?? Vector2.Zero;
 
-            _mouseX = (int)cursorPosition.X;
-            _mouseY = (int)cursorPosition.Y;
-            _isFirstTick = false;
-        }
+        foreach (var window in _platform.Windows) {
+            if (_isFirstTick) {
+                var cursorPosition = window?.CursorPosition ?? Vector2D<float>.Zero;
 
-        foreach (var windowEvent in _platform.Window?.Events ?? Array.Empty<IWindowEvent>()) {
-            if (windowEvent is KeyEvent keyEvent && (int)keyEvent.Key < _states.Length) {
-                _states[(int)keyEvent.Key] = keyEvent.IsDown ? 1 : 0;
-            } else if (windowEvent is MousePositionEvent mousePositionEvent) {
-                _states[mouseDeltaXId] = (int)(_mouseX - mousePositionEvent.X);
-                _states[mouseDeltaYId] = (int)(_mouseY - mousePositionEvent.Y);
+                _mouseX = (int)cursorPosition.X;
+                _mouseY = (int)cursorPosition.Y;
+                _isFirstTick = false;
+            }
 
-                _mouseX = (int)mousePositionEvent.X;
-                _mouseY = (int)mousePositionEvent.Y;
+            foreach (var windowEvent in window.Events ?? Array.Empty<IWindowEvent>()) {
+                if (windowEvent is KeyEvent keyEvent && (int)keyEvent.Key < _states.Length) {
+                    _states[(int)keyEvent.Key] = keyEvent.IsDown ? 1 : 0;
+                } else if (windowEvent is MousePositionEvent mousePositionEvent) {
+                    _states[mouseDeltaXId] = (int)(_mouseX - mousePositionEvent.X);
+                    _states[mouseDeltaYId] = (int)(_mouseY - mousePositionEvent.Y);
+
+                    _mouseX = (int)mousePositionEvent.X;
+                    _mouseY = (int)mousePositionEvent.Y;
+                }
             }
         }
 

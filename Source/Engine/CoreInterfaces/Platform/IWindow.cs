@@ -1,4 +1,5 @@
-using System.Numerics;
+using Silk.NET.Core.Contexts;
+using Silk.NET.Maths;
 
 namespace Duck.Platform;
 
@@ -6,12 +7,11 @@ public interface IWindow
 {
     bool CloseRequested { get; }
     double ElapsedTime { get; }
-    Vector2 CursorPosition { get; }
+    Vector2D<float> CursorPosition { get; }
     public IWindowEvent[] Events { get; }
 
     void ClearEvents();
     void Update();
-    void Render();
 }
 
 public struct Configuration
