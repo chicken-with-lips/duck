@@ -53,7 +53,7 @@ public class InputAxisBuilder
         return this;
     }
 
-    public void Register(IInputModule input)
+    public void Build(IInputModule input)
     {
         if (string.IsNullOrEmpty(_name)) {
             throw new MissingNameException();

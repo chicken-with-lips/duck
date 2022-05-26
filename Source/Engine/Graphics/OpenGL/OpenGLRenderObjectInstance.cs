@@ -12,8 +12,9 @@ public class OpenGLRenderObjectInstance : OpenGLRenderObjectBase, IRenderObjectI
 
     public override uint Id => _id;
     public uint ParentId => _renderObject.Id;
+    public override uint VertexCount => _renderObject.VertexCount;
+    public override uint IndexCount => _renderObject.IndexCount;
 
-    
     #endregion
 
     #region Members

@@ -6,6 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <OutputPath>../../Build/Debug/net6.0/</OutputPath>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Engine\Core\Core.csproj" />
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />

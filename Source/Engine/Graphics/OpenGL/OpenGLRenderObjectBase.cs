@@ -12,6 +12,8 @@ public abstract class OpenGLRenderObjectBase : IRenderObject
     #region Properties
 
     public abstract uint Id { get; }
+    public abstract uint VertexCount { get; }
+    public abstract uint IndexCount { get; }
 
     #endregion
 

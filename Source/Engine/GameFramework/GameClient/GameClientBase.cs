@@ -40,8 +40,6 @@ public abstract class GameClientBase : IGameClient
         _scene = sceneModule.Create();
         _systemComposition = CreateDefaultSystemComposition(_scene);
 
-        InitializeInput(app.GetModule<IInputModule>());
-        InitializeContent(app.GetModule<IContentModule>());
         InitializeGame(_systemComposition, context);
 
         _systemComposition.Init();
@@ -56,8 +54,6 @@ public abstract class GameClientBase : IGameClient
         return new SystemComposition(scene.World);
     }
 
-    protected abstract void InitializeInput(IInputModule input);
-    protected abstract void InitializeContent(IContentModule content);
     protected abstract void InitializeGame(ISystemComposition composition, IGameClientInitializationContext context);
 
     public virtual void Tick()

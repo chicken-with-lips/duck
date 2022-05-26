@@ -39,16 +39,19 @@ public class StaticMeshLoader : IAssetLoader
             .Build(_graphicsDevice);
         indexBuffer.SetData(0, meshAsset.IndexBuffer);
 
-        var shaderProgram = (OpenGLShaderProgram) _contentModule.LoadImmediate(meshAsset.ShaderProgram);
-        var texture = (OpenGLTexture2D) _contentModule.LoadImmediate(meshAsset.Texture);
+        var shaderProgram = (OpenGLShaderProgram)_contentModule.LoadImmediate(meshAsset.ShaderProgram);
 
         var renderObject = _graphicsDevice.CreateRenderObject(
             vertexBuffer,
             indexBuffer
         );
         renderObject
-            .SetTexture(0, texture)
             .SetShaderProgram(shaderProgram);
+
+        foreach (var tuple in meshAsset.GetTextures()) {
+            var texture = (OpenGLTexture2D)_contentModule.LoadImmediate(tuple.Texture);
+            renderObject.SetTexture(tuple.Slot, texture);
+        }
 
         return new OpenGLStaticMesh(renderObject);
     }

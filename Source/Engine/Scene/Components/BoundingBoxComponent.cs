@@ -1,11 +1,8 @@
-using Duck.Serialization;
 using Silk.NET.Maths;
 
-namespace Duck.Scene.Components
+namespace Duck.Scene.Components;
+
+public struct BoundingBoxComponent
 {
-    [AutoSerializable]
-    public partial struct BoundingBoxComponent
-    {
-        public Box3D<float> Box = default;
-    }
+    public Box3D<float> Box;
 }

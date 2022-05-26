@@ -10,6 +10,8 @@ public interface IRenderObject
     public const int MaxTextureSlots = 8;
 
     public uint Id { get; }
+    public uint VertexCount { get; }
+    public uint IndexCount { get; }
 
     public IRenderObject SetTexture(uint slot, IPlatformAsset<Texture2D> texture);
     public IRenderObject SetShaderProgram(IPlatformAsset<ShaderProgram> program);

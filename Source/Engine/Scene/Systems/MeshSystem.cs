@@ -64,8 +64,10 @@ public class MeshRenderSystem : SystemBase
 
             var renderObjectInstance = _graphicsModule.GraphicsDevice.GetRenderObjectInstance(instanceComponent.Id);
             renderObjectInstance
-                .SetParameter("WorldPosition", 
-                    Matrix4X4.CreateScale(transformComponent.Scale) * Matrix4X4.CreateTranslation(transformComponent.Translation)
+                .SetParameter("WorldPosition",
+                    Matrix4X4.CreateScale(transformComponent.Scale)
+                    * Matrix4X4.CreateFromQuaternion(transformComponent.Rotation)
+                    * Matrix4X4.CreateTranslation(transformComponent.Position)
                 );
         }
     }

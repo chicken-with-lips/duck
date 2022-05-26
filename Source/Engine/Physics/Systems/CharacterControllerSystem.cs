@@ -1,14 +1,12 @@
-using BepuPhysics;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
-using Duck.Physics.CharacterController;
 using Duck.Physics.Components;
 
 namespace Duck.Physics.Systems;
 
-public class CharacterControllerSystem : SystemBase
+/*public class CharacterControllerSystem : SystemBase
 {
-    private readonly IFilter<CharacterControllerComponent, PhysicsBodyComponent> _filter;
+    private readonly IFilter<CharacterControllerComponent, BodyDetailsComponent> _filter;
 
     private readonly Simulation _simulation;
     private readonly CharacterControllerIntegration _characterControllerIntegration;
@@ -20,7 +18,7 @@ public class CharacterControllerSystem : SystemBase
         _simulation = physicsWorld.Simulation;
         _characterControllerIntegration = physicsWorld.CharacterControllerIntegration;
 
-        _filter = Filter<CharacterControllerComponent, PhysicsBodyComponent>(world)
+        _filter = Filter<CharacterControllerComponent, BodyDetailsComponent>(world)
             .Build();
     }
 
@@ -50,9 +48,9 @@ public class CharacterControllerSystem : SystemBase
     {
         foreach (int entityId in _filter.EntityAddedList) {
             ref CharacterControllerComponent controllerComponent = ref _filter.Get1(entityId);
-            PhysicsBodyComponent bodyComponent = _filter.Get2(entityId);
+            BodyDetailsComponent bodyDetailsComponent = _filter.Get2(entityId);
 
-            _characterControllerIntegration.Allocate(entityId, ref controllerComponent, bodyComponent);
+            _characterControllerIntegration.Allocate(entityId, ref controllerComponent, bodyDetailsComponent);
         }
 
         if (_filter.EntityRemovedList.Length > 0) {
@@ -61,3 +59,4 @@ public class CharacterControllerSystem : SystemBase
         }
     }
 }
+*/

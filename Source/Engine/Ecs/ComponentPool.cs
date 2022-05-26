@@ -49,7 +49,7 @@ public partial class ComponentPool<T> : IComponentPool<T> where T : struct
         _nextComponentIndex += 1;
 
         _components[cmpIndex].EntityId = entityId;
-        _components[cmpIndex].Data = default;
+        _components[cmpIndex].Data = Activator.CreateInstance<T>();
 
         return new ComponentReference() {
             TypeIndex = TypeIndex,

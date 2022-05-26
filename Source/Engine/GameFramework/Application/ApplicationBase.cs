@@ -7,6 +7,7 @@ using Duck.Graphics.OpenGL;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
+using Duck.Physics.Systems;
 using Duck.Platform;
 using Duck.Scene;
 using Duck.Scene.Systems;
@@ -211,15 +212,11 @@ public abstract class ApplicationBase : IApplication
     {
         var c = new SystemComposition(scene.World);
         c
-            // .Add(new GenerateFilamentIdentitySystem())
-            // .Add(new CameraLifecycleSystem())
-            // .Add(new BoxPrimitiveLifecycleSystem())
             .Add(new CameraSystem(scene, GetModule<IGraphicsModule>()))
             .Add(new MeshLoadSystem(scene, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
-            .Add(new MeshRenderSystem(scene, GetModule<IGraphicsModule>()));
-        // .Add(new PhysicsBoxShapeLifecycleSystem())
-        // .Add(new SyncPhysicsTransformsSystem())
-        // .Add(new SyncRenderTransformsSystem());
+            .Add(new MeshRenderSystem(scene, GetModule<IGraphicsModule>()))
+            .Add(new RigidBodyLifecycleSystem(scene.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodySynchronizationSystem(scene.World, GetModule<IPhysicsModule>()));
 
         return c;
     }

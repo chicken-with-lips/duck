@@ -1,5 +1,4 @@
-using BepuUtilities;
-using BepuUtilities.Memory;
+using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
 using Duck.Logging;
 using Duck.Physics.Events;
@@ -14,8 +13,10 @@ public class PhysicsModule : IPhysicsModule, IPostTickableModule
     private readonly IEventBus _eventBus;
     private readonly ILogger _logger;
 
-    private readonly BufferPool _bufferPool = new();
-    private readonly IThreadDispatcher _threadDispatcher;
+    private readonly PxDefaultCpuDispatcher _cpuDispatcher;
+    private readonly PxFoundation _foundation;
+    private readonly PxPhysics _physics;
+
     private readonly Dictionary<IWorld, IPhysicsWorld> _physicsWorlds = new();
 
     private float _timeAccumulator;
@@ -30,12 +31,15 @@ public class PhysicsModule : IPhysicsModule, IPostTickableModule
 
         _logger = logModule.CreateLogger("Physics");
 
-        // this uses defaults from the demo
-        var targetThreadCount = System.Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
-        _threadDispatcher = new ThreadDispatcher(targetThreadCount);
+        var targetThreadCount = (uint) System.Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
+
+        _foundation = PxFoundation.Create(PxVersion.Version);
+        _physics = PxPhysics.Create(_foundation, PxVersion.Version);
+        _physics.InitExtensions();
+        _cpuDispatcher = PxDefaultCpuDispatcher.Create(targetThreadCount);
 
         _logger.LogInformation("Initialized physics module.");
-        _logger.LogInformation("Thread count: {0}", targetThreadCount);
+        _logger.LogInformation("Thread count: {0}", _cpuDispatcher.WorkerCount);
     }
 
     public void PostTick()
@@ -58,7 +62,7 @@ public class PhysicsModule : IPhysicsModule, IPostTickableModule
             return p;
         }
 
-        IPhysicsWorld physicsWorld = new PhysicsWorld(world, _bufferPool, _threadDispatcher);
+        IPhysicsWorld physicsWorld = new PhysicsWorld(world, _physics, _cpuDispatcher);
 
         _physicsWorlds.Add(world, physicsWorld);
 

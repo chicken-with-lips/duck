@@ -17,14 +17,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\physx\PhysX.Net\PhysX.Net.csproj" />
       <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
       <ProjectReference Include="..\Ecs\Ecs.csproj" />
       <ProjectReference Include="..\Scene\Scene.csproj" />
       <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="BepuPhysics" Version="2.4.0" />
     </ItemGroup>
 
 </Project>

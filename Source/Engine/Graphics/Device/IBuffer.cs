@@ -2,8 +2,10 @@ namespace Duck.Graphics.Device;
 
 public interface IBuffer
 {
-    public void Bind();
     public Type DataType { get; }
+    public uint ElementCount { get; }
+
+    public void Bind();
 }
 
 public interface IBuffer<TDataType> : IBuffer

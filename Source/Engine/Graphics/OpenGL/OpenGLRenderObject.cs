@@ -9,6 +9,8 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
     #region Properties
 
     public override uint Id { get; }
+    public override uint VertexCount { get; }
+    public override uint IndexCount { get; }
 
     #endregion
 
@@ -25,6 +27,8 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
         _graphicsDevice = graphicsDevice;
 
         Id = _graphicsDevice.API.GenVertexArray();
+        VertexCount = vertexBuffer.ElementCount;
+        IndexCount = indexBuffer.ElementCount;
 
         Bind();
         vertexBuffer.Bind();

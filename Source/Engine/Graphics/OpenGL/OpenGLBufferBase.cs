@@ -10,9 +10,10 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
     #region Properties
 
     public Type DataType => typeof(TDataType);
+    public uint ElementCount { get; private set; }
 
     #endregion
-    
+
     #region Members
 
     private readonly OpenGLGraphicsDevice _graphicsDevice;
@@ -58,6 +59,7 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
         Bind();
 
         _api.BufferData(_bufferType, (nuint)(data.Length * sizeof(TDataType)), data, _usage);
+        ElementCount = (uint)data.Length;
     }
 
     public unsafe void SetData(uint index, in ReadOnlyMemory<TDataType> data)
@@ -67,6 +69,7 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
         Bind();
 
         _api.BufferData<TDataType>(_bufferType, (nuint)(data.Length * sizeof(TDataType)), data.ToArray(), _usage);
+        ElementCount = (uint)data.Length;
     }
 
     #endregion

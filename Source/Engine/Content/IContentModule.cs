@@ -3,6 +3,7 @@ namespace Duck.Content;
 public interface IContentModule : IModule
 {
     public IAssetDatabase Database { get; }
+    public string ContentRootDirectory { get; set; }
 
     public IContentModule RegisterAssetLoader<T, U>(IAssetLoader loader)
         where T : class, IAsset

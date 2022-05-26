@@ -87,7 +87,7 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
                 _api.BindTexture(TextureTarget.Texture2D, glTexture2D.TextureId);
             }
 
-            _api.DrawElements(PrimitiveType.Triangles, (uint)36, DrawElementsType.UnsignedInt, null);
+            _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);
         }
     }
 

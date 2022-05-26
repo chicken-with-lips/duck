@@ -1,6 +1,3 @@
-using System.Numerics;
-using BepuPhysics;
-using BepuPhysics.Collidables;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Components;
@@ -58,26 +55,6 @@ public struct CharacterControllerComponent
     /// Depth threshold beyond which a contact is considered a support if the previous frame had support, even if it isn't deep enough to meet the MinimumSupportDepth.
     /// </summary>
     public float MinimumSupportContinuationDepth;
-
-    /// <summary>
-    /// Whether the character is currently supported.
-    /// </summary>
-    public bool Supported;
-
-    /// <summary>
-    /// Collidable supporting the character, if any. Only valid if Supported is true.
-    /// </summary>
-    public CollidableReference Support;
-
-    /// <summary>
-    /// Handle of the character's motion constraint, if any. Only valid if Supported is true.
-    /// </summary>
-    public ConstraintHandle MotionConstraintHandle;
-
-    /// <summary>
-    /// Handle of the body associated with the character.
-    /// </summary>
-    public BodyHandle BodyHandle;
 
     /// <summary>
     /// Flag that the physics body should awake.

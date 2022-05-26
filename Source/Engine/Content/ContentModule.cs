@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection;
 using Duck.Logging;
 
 namespace Duck.Content;
@@ -8,6 +9,7 @@ public class ContentModule : IContentModule
     #region Properties
 
     public IAssetDatabase Database => _database;
+    public string ContentRootDirectory { get; set; }
 
     #endregion
 
@@ -29,6 +31,8 @@ public class ContentModule : IContentModule
         _logger.LogInformation("Initializing asset module.");
 
         _database = new AssetDatabase();
+
+        ContentRootDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
     }
 
     public IContentModule RegisterAssetLoader<T, U>(IAssetLoader loader)
@@ -86,7 +90,7 @@ public class ContentModule : IContentModule
             ReadOnlySpan<byte> data;
 
             if (asset.ImportData.Uri.IsFile) {
-                data = File.ReadAllBytes("/home/jolly_samurai/Projects/chicken-with-lips/infectic" + asset.ImportData.Uri.AbsolutePath);
+                data = File.ReadAllBytes(ContentRootDirectory + asset.ImportData.Uri.AbsolutePath);
             } else {
                 data = new byte[] { };
             }

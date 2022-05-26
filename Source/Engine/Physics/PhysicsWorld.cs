@@ -1,8 +1,6 @@
-using BepuPhysics;
-using BepuUtilities;
-using BepuUtilities.Memory;
+using System.Numerics;
+using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
-using Duck.Physics.CharacterController;
 using Silk.NET.Maths;
 
 namespace Duck.Physics;
@@ -11,40 +9,41 @@ public class PhysicsWorld : IPhysicsWorld
 {
     #region Properties
 
-    public Simulation Simulation => _simulation;
-    public CharacterControllerIntegration CharacterControllerIntegration => _characterControllerIntegration;
+    internal PxPhysics Physics => _physics;
+    internal PxScene Scene => _scene;
+
+    public Vector3D<float> Gravity {
+        get => _scene.Gravity.ToGeneric();
+        set => _scene.Gravity = value.ToSystem();
+    }
 
     #endregion
 
     #region Members
 
-    private readonly IWorld _world;
-    private readonly IThreadDispatcher _threadDispatcher;
-    private readonly Simulation _simulation;
-    private readonly CharacterControllerIntegration _characterControllerIntegration;
+    private readonly PxPhysics _physics;
+    private readonly PxScene _scene;
 
     #endregion
 
     #region Methods
 
-    public PhysicsWorld(IWorld world, BufferPool bufferPool, IThreadDispatcher threadDispatcher)
+    public PhysicsWorld(IWorld world, PxPhysics physics, PxCpuDispatcher cpuDispatcher)
     {
-        _characterControllerIntegration = new CharacterControllerIntegration();
+        _physics = physics;
 
-        _world = world;
-        _threadDispatcher = threadDispatcher;
-        _simulation = Simulation.Create(
-            bufferPool,
-            new NarrowPhaseCallbacks(_characterControllerIntegration, _world),
-            new PoseIntegratorCallbacks(new Vector3D<float>(0, -10f, 0).ToSystem()),
-            new SolveDescription(),
-            new DefaultTimestepper()
-        );
+        var sceneDesc = new PxSceneDesc(_physics.TolerancesScale) {
+            CpuDispatcher = cpuDispatcher,
+            Gravity = new Vector3(0, -9.8f, 0),
+        };
+
+        _scene = _physics.CreateScene(sceneDesc);
     }
 
     public void Step(float timeStep)
     {
-        _simulation.Timestep(timeStep, _threadDispatcher);
+        _scene.Simulate(timeStep);
+        _scene.FetchResults(true);
     }
 
     #endregion

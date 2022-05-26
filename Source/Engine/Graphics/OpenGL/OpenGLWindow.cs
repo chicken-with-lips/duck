@@ -65,8 +65,9 @@ public class OpenGLWindow : IWindow
             var mouse = _silkInput.Mice.FirstOrDefault();
 
             if (mouse != null) {
-                mouse.Cursor.CursorMode = CursorMode.Raw;
-                mouse.Cursor.IsConfined = true;
+                // mouse.Cursor.CursorMode = CursorMode.Raw;
+                // mouse.Cursor.IsConfined = true;
+
                 mouse.MouseMove += OnCursorPosition;
 
                 _cursorPosition = new Vector2D<float>(

@@ -50,7 +50,9 @@ namespace Game.Host
             IsBusy = true;
 
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var assemblyFileName = Path.Combine(directory, "Game.dll");
+            // var assemblyFileName = Path.Combine(directory, "Game.dll");
+
+            var assemblyFileName = "/home/jolly_samurai/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
             var assembly = Assembly.LoadFrom(assemblyFileName);
 
             var clientTypes = assembly
@@ -94,13 +96,13 @@ namespace Game.Host
                 return false;
             }
 
-            var type = Type.GetType("Duck.GameHost.IGameClientInitializationContext, Duck.CoreInterfaces");
-            var context = (IGameClientInitializationContext) Activator.CreateInstance(type, new object[] {
+            var type = Type.GetType("Duck.GameFramework.GameClient.GameClientInitializationContext, Duck.GameFramework");
+            var context = (IGameClientInitializationContext)Activator.CreateInstance(type, new object[] {
                 _application,
                 isHotReload
             });
 
-            _hostedClient.Initialize(context);
+            _hostedClient?.Initialize(context);
 
             return true;
         }

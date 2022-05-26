@@ -34,8 +34,8 @@ public class CameraSystem : SystemBase
 
             _graphicsModule.GraphicsDevice.ViewMatrix =
                 Matrix4X4.CreateLookAt(
-                    transformComponent.Translation,
-                    transformComponent.Translation + transformComponent.Forward,
+                    transformComponent.Position,
+                    transformComponent.Position + transformComponent.Forward,
                     transformComponent.Up
                 );
         }

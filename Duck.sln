@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "..\infectic\Code\Game.csproj", "{2F67CC82-D480-463D-B7A1-5E94A24E2E34}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Source\Editor\Editor.csproj", "{EE32A8CB-6FC9-4869-BB43-24BC8E7C0105}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{DC961BFE-E377-4B7F-B1ED-FC89DF347FA6}"
@@ -34,17 +32,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serialization", "Source\Eng
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerializationGenerators", "Source\Engine\SerializationGenerators\SerializationGenerators.csproj", "{D7A6AD75-1DBD-4D22-9A44-54344C40E9DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysX.Net", "..\physx\PhysX.Net\PhysX.Net.csproj", "{B0591BFA-2207-460D-B9EC-ED366817BF9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "..\asteroids\Code\Game.csproj", "{99FB5074-B21B-4E43-82A9-6AAFCEE8E07A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2F67CC82-D480-463D-B7A1-5E94A24E2E34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F67CC82-D480-463D-B7A1-5E94A24E2E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F67CC82-D480-463D-B7A1-5E94A24E2E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F67CC82-D480-463D-B7A1-5E94A24E2E34}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F67CC82-D480-463D-B7A1-5E94A24E2E34}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{EE32A8CB-6FC9-4869-BB43-24BC8E7C0105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE32A8CB-6FC9-4869-BB43-24BC8E7C0105}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE32A8CB-6FC9-4869-BB43-24BC8E7C0105}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -118,6 +115,14 @@ Global
 		{D7A6AD75-1DBD-4D22-9A44-54344C40E9DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7A6AD75-1DBD-4D22-9A44-54344C40E9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7A6AD75-1DBD-4D22-9A44-54344C40E9DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0591BFA-2207-460D-B9EC-ED366817BF9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0591BFA-2207-460D-B9EC-ED366817BF9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0591BFA-2207-460D-B9EC-ED366817BF9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0591BFA-2207-460D-B9EC-ED366817BF9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99FB5074-B21B-4E43-82A9-6AAFCEE8E07A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99FB5074-B21B-4E43-82A9-6AAFCEE8E07A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99FB5074-B21B-4E43-82A9-6AAFCEE8E07A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99FB5074-B21B-4E43-82A9-6AAFCEE8E07A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{03A087CC-F852-4DA1-A63A-A6407209E6C0} = {DC961BFE-E377-4B7F-B1ED-FC89DF347FA6}

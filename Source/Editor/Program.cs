@@ -1,11 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Duck.Ecs;
-using Duck.Logging;
-using Duck.Scene;
-using Duck.Scene.Components;
-using Duck.Serialization;
-using Duck.ServiceBus;
-using Silk.NET.Maths;
 
 namespace Editor;
 

@@ -1,7 +1,5 @@
-namespace Duck.Graphics.Components
-{
-    public struct BoxPrimitiveComponent
-    {
+namespace Duck.Graphics.Components;
 
-    }
+public struct BoxPrimitiveComponent
+{
 }
