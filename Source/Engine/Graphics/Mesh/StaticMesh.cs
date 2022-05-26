@@ -11,7 +11,7 @@ public class StaticMesh : AssetBase<StaticMesh>
     #region Properties
 
     public AssetReference<ShaderProgram> ShaderProgram { get; }
-    public BufferObject<float> VertexBuffer { get; }
+    public BufferObject<Vertex> VertexBuffer { get; }
     public BufferObject<uint> IndexBuffer { get; }
 
     #endregion

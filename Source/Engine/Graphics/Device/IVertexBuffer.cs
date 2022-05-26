@@ -54,7 +54,8 @@ public class VertexBufferBuilder<TDataType>
 public enum VertexAttribute : byte
 {
     Position = 0,
-    Uv0 = 1,
+    Normal = 1,
+    Uv0 = 2,
 }
 
 public enum AttributeType

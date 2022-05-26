@@ -29,8 +29,9 @@ public class StaticMeshLoader : IAssetLoader
             throw new Exception("FIXME: errors");
         }
 
-        var vertexBuffer = VertexBufferBuilder<float>.Create(BufferUsage.Static)
+        var vertexBuffer = VertexBufferBuilder<Vertex>.Create(BufferUsage.Static)
             .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
+            .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
             .Attribute(VertexAttribute.Uv0, 0, AttributeType.Float2)
             .Build(_graphicsDevice);
         vertexBuffer.SetData(0, meshAsset.VertexBuffer);
