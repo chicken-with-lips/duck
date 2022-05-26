@@ -29,7 +29,7 @@ public class EcsModule : IEcsModule, IPreTickableModule
         _eventBus = eventBus;
 
         _logger = logModule.CreateLogger("Ecs");
-        _logger.LogInformation("Initialized ECS world module.");
+        _logger.LogInformation("Created ECS world module.");
     }
 
     public void PreTick()

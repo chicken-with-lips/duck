@@ -29,7 +29,7 @@ public class LogModule : ILogModule
         });
 
         _logger = CreateLogger("Log");
-        _logger.LogInformation("Initialized logging module.");
+        _logger.LogInformation("Created logging module.");
     }
 
     public ILogger CreateLogger(string categoryName)

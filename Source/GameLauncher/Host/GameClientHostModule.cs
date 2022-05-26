@@ -14,11 +14,13 @@ public class GameClientHostModule : IInitializableModule, ITickableModule
     {
         _app = app;
         _logger = logModule.CreateLogger("GameHost");
+        
+        _logger.LogInformation("Created client host module.");
     }
 
     public bool Init()
     {
-        _logger.LogInformation("Initializing client host module.");
+        _logger.LogInformation("Initializing client host module...");
 
         _clientHost = new GameClientHost(_app, _logger);
 

@@ -39,7 +39,7 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
         // sort by index
         Array.Sort(attributes, (a, b) => a.Attribute.CompareTo(b.Attribute));
 
-        var vertexSize = OpenGLUtil.VertexSize(vertexBuffer.DataType, attributes);
+        var vertexSize = OpenGLUtil.VertexSize(attributes);
 
         for (var i = 0; i < attributes.Length; i++) {
             _graphicsDevice.API.VertexAttribPointer(
@@ -48,11 +48,13 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
                 OpenGLUtil.Convert(attributes[i].AttributeType),
                 false,
                 vertexSize,
-                (void*)OpenGLUtil.ByteOffset(vertexBuffer.DataType, attributes, i)
+                (void*)OpenGLUtil.ByteOffset(attributes, i)
             );
 
             _graphicsDevice.API.EnableVertexAttribArray((uint)attributes[i].Attribute);
         }
+
+        _graphicsDevice.API.BindVertexArray(0);
     }
 
     ~OpenGLRenderObject()

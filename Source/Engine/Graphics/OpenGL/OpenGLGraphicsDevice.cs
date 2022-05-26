@@ -47,6 +47,7 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
 
         _api.Enable(GLEnum.DepthTest);
         _api.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        _api.CullFace(CullFaceMode.FrontAndBack);
     }
 
     public unsafe void Render()
@@ -60,25 +61,16 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
             if (renderObjectInstance.GetShaderProgram() is OpenGLShaderProgram glShaderProgram) {
                 _api.UseProgram(glShaderProgram.ProgramId);
 
-                // Matrix4X4<float> trans = Matrix4X4<float>.Identity;
-                // trans *= Matrix4X4.CreateFromAxisAngle(Vector3D<float>.UnitZ, MathHelper.ToRadians(Time.Elapsed));
-                // trans *= Matrix4X4.CreateScale(0.5f, 0.5f, 0.5f);
-                // trans *= Matrix4X4.CreateTranslation(0.5f, -0.5f, 0f);
-                //
-                //
-                // Matrix4X4<float> model = Matrix4X4<float>.Identity * Matrix4X4.CreateRotationX(Time.Elapsed * MathHelper.ToRadians(50f));
                 Matrix4X4<float> model = renderObjectInstance.HasParameter("WorldPosition") ? renderObjectInstance.GetParameterMatrix4X4("WorldPosition") : Matrix4X4<float>.Identity;
-                // Matrix4X4<float> view = Matrix4X4<float>.Identity * Matrix4X4.CreateTranslation(0f, -3, -3f);
                 Matrix4X4<float> view = this.ViewMatrix;
-                
                 Matrix4X4<float> projection = Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), 1024f / 768f, 0.1f, 10000f);
-                //
+
                 int modelLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "in_Model");
                 _api.UniformMatrix4(modelLoc, 1, false, (float*)&model);
-                //
+
                 int viewLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "in_View");
                 _api.UniformMatrix4(viewLoc, 1, false, (float*)&view);
-                //
+
                 int projLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "in_Projection");
                 _api.UniformMatrix4(projLoc, 1, false, (float*)&projection);
             }

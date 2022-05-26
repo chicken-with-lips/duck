@@ -33,51 +33,32 @@ public static class OpenGLUtil
         };
     }
 
-    public static unsafe uint VertexSize(Type type, AttributeDecl[] attributes)
+    public static int ComponentSize(AttributeType type)
+    {
+        return type switch {
+            AttributeType.Float2 => 4,
+            AttributeType.Float3 => 4,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    public static uint VertexSize(AttributeDecl[] attributes)
     {
         uint size = 0;
-        int vertexSize = Marshal.SizeOf(type);
 
         for (var i = 0; i < attributes.Length; i++) {
-            size += (uint)(ComponentCount(attributes[i].AttributeType) * vertexSize);
+            size += (uint)(ComponentCount(attributes[i].AttributeType) * ComponentSize(attributes[i].AttributeType));
         }
 
         return size;
     }
 
-    public static unsafe uint VertexSize<TVertexType>(AttributeDecl[] attributes)
-        where TVertexType : unmanaged
-    {
-        uint size = 0;
-        int vertexSize = sizeof(TVertexType);
-
-        for (var i = 0; i < attributes.Length; i++) {
-            size += (uint)(ComponentCount(attributes[i].AttributeType) * vertexSize);
-        }
-
-        return size;
-    }
-
-    public static int ByteOffset(Type type, in AttributeDecl[] attributes, int attributeIndex)
+    public static int ByteOffset(in AttributeDecl[] attributes, int attributeIndex)
     {
         var offset = 0;
-        var vertexSize = Marshal.SizeOf(type);
 
         for (var i = 0; i < attributeIndex; i++) {
-            offset += ComponentCount(attributes[i].AttributeType) * vertexSize;
-        }
-
-        return offset;
-    }
-
-    public static unsafe int ByteOffset<TVertexType>(in AttributeDecl[] attributes, int attributeIndex)
-        where TVertexType : unmanaged
-    {
-        var offset = 0;
-        var vertexSize = sizeof(TVertexType);
-
-        for (var i = 0; i < attributeIndex; i++) {
-            offset += ComponentCount(attributes[i].AttributeType) * vertexSize;
+            offset += ComponentCount(attributes[i].AttributeType) * ComponentSize(attributes[i].AttributeType);
         }
 
         return offset;
