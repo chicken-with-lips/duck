@@ -29,6 +29,8 @@ public class StaticMeshLoader : IAssetLoader
             throw new Exception("FIXME: errors");
         }
 
+        // TODO: vertex type should come from the asset
+
         var vertexBuffer = VertexBufferBuilder<Vertex>.Create(BufferUsage.Static)
             .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
             .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
@@ -46,8 +48,7 @@ public class StaticMeshLoader : IAssetLoader
             vertexBuffer,
             indexBuffer
         );
-        renderObject
-            .SetShaderProgram(shaderProgram);
+        renderObject.SetShaderProgram(shaderProgram);
 
         foreach (var tuple in meshAsset.GetTextures()) {
             var texture = (OpenGLTexture2D)_contentModule.LoadImmediate(tuple.Texture);

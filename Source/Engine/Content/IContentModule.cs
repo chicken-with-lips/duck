@@ -5,6 +5,14 @@ public interface IContentModule : IModule
     public IAssetDatabase Database { get; }
     public string ContentRootDirectory { get; set; }
 
+    public IContentModule RegisterSourceAssetImporter(ISourceAssetImporter importer);
+
+    public ISourceAssetImporter<TAsset>? FindSourceAssetImporter<TAsset>(string file)
+        where TAsset : class, IAsset;
+
+    public TAsset? Import<TAsset>(string file)
+        where TAsset : class, IAsset;
+
     public IContentModule RegisterAssetLoader<T, U>(IAssetLoader loader)
         where T : class, IAsset
         where U : class, IPlatformAsset;

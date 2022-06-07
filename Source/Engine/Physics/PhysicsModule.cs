@@ -1,4 +1,5 @@
 using ChickenWithLips.PhysX.Net;
+using ChickenWithLips.PhysX.Net.Native;
 using Duck.Ecs;
 using Duck.Logging;
 using Duck.Physics.Events;
@@ -6,7 +7,7 @@ using Duck.ServiceBus;
 
 namespace Duck.Physics;
 
-public class PhysicsModule : IPhysicsModule, IPostTickableModule
+public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableModule
 {
     #region Members
 
@@ -16,6 +17,7 @@ public class PhysicsModule : IPhysicsModule, IPostTickableModule
     private readonly PxDefaultCpuDispatcher _cpuDispatcher;
     private readonly PxFoundation _foundation;
     private readonly PxPhysics _physics;
+    private readonly PxPvd _physicsDebugger;
 
     private readonly Dictionary<IWorld, IPhysicsWorld> _physicsWorlds = new();
 
@@ -31,15 +33,31 @@ public class PhysicsModule : IPhysicsModule, IPostTickableModule
 
         _logger = logModule.CreateLogger("Physics");
 
-        var targetThreadCount = (uint) System.Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
+        var targetThreadCount = (uint)System.Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
 
         _foundation = PxFoundation.Create(PxVersion.Version);
-        _physics = PxPhysics.Create(_foundation, PxVersion.Version);
-        _physics.InitExtensions();
         _cpuDispatcher = PxDefaultCpuDispatcher.Create(targetThreadCount);
 
-        _logger.LogInformation("Initialized physics module.");
+        var transport = PxPvdTransport.CreateDefaultSocketTransport("192.168.1.77", 5425, 10000);
+
+        _physicsDebugger = new PxPvd(_foundation);
+
+        if (!_physicsDebugger.Connect(transport, PxPvdInstrumentationFlag.All)) {
+            Console.Write("FIXME: could not connect to pvd");
+        }
+
+        _physics = PxPhysics.Create(_foundation, PxVersion.Version, true, _physicsDebugger);
+        _physics.InitExtensions(_physicsDebugger);
+
+        _logger.LogInformation("Created physics module.");
         _logger.LogInformation("Thread count: {0}", _cpuDispatcher.WorkerCount);
+    }
+
+    public void PreTick()
+    {
+        foreach (var world in _physicsWorlds.Values) {
+            world.EmitEvents(_eventBus);
+        }
     }
 
     public void PostTick()
@@ -66,12 +84,14 @@ public class PhysicsModule : IPhysicsModule, IPostTickableModule
 
         _physicsWorlds.Add(world, physicsWorld);
 
-        _eventBus.Enqueue(new PhysicsWorldWasCreated {
-            World = physicsWorld,
-        });
+        
+        _eventBus.Enqueue(
+            new PhysicsWorldWasCreated(physicsWorld)
+        );
 
         return physicsWorld;
     }
+
 
     #endregion
 }

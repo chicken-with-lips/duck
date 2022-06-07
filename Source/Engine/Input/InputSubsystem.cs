@@ -30,7 +30,7 @@ public class InputModule : IInputModule, ITickableModule
         _platform = platform;
 
         _logger = logModule.CreateLogger("Input");
-        _logger.LogInformation("Initializing input module.");
+        _logger.LogInformation("Created input module.");
     }
 
     public void Tick()

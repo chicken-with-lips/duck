@@ -24,7 +24,7 @@ public class StaticMesh : AssetBase<StaticMesh>
 
     public StaticMesh(
         AssetImportData importData,
-        BufferObject<float> vertexBuffer,
+        BufferObject<Vertex> vertexBuffer,
         BufferObject<uint> indexBuffer,
         AssetReference<ShaderProgram> shaderProgram)
         : base(importData)

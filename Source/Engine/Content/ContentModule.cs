@@ -19,6 +19,7 @@ public class ContentModule : IContentModule
     private readonly ILogger _logger;
 
     private readonly HashSet<IAssetLoader> _assetLoaders = new();
+    private readonly HashSet<ISourceAssetImporter> _sourceAssetImporters = new();
     private readonly Dictionary<Type, IPlatformAssetCollection> _assetCaches = new();
 
     #endregion
@@ -28,11 +29,51 @@ public class ContentModule : IContentModule
     public ContentModule(ILogModule logModule)
     {
         _logger = logModule.CreateLogger("Asset");
-        _logger.LogInformation("Initializing asset module.");
+        _logger.LogInformation("Created asset module.");
 
         _database = new AssetDatabase();
 
         ContentRootDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+    }
+
+    public IContentModule RegisterSourceAssetImporter(ISourceAssetImporter importer)
+    {
+        _sourceAssetImporters.Add(importer);
+
+        return this;
+    }
+
+    public ISourceAssetImporter<TAsset>? FindSourceAssetImporter<TAsset>(string file)
+        where TAsset : class, IAsset
+    {
+        file = Path.Combine(ContentRootDirectory, file);
+
+        foreach (var sourceAssetImporter in _sourceAssetImporters) {
+            if (sourceAssetImporter.OutputType == typeof(TAsset)
+                && sourceAssetImporter.CanImport(file)) {
+                return sourceAssetImporter as ISourceAssetImporter<TAsset>;
+            }
+        }
+
+        return null;
+    }
+
+    public TAsset? Import<TAsset>(string file) where TAsset : class, IAsset
+    {
+        var importer = FindSourceAssetImporter<TAsset>(file);
+        file = Path.Combine(ContentRootDirectory, file);
+
+        if (null != importer) {
+            var asset = importer.Import(file);
+
+            if (null != asset) {
+                Database.Register(asset);
+
+                return asset;
+            }
+        }
+
+        return null;
     }
 
     public IContentModule RegisterAssetLoader<T, U>(IAssetLoader loader)

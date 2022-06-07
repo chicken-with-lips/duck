@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Silk.NET.Maths;
 
 namespace Duck.Graphics.Device;
 
@@ -75,5 +76,19 @@ public readonly struct AttributeDecl
         Attribute = attribute;
         BufferIndex = bufferIndex;
         AttributeType = attributeType;
+    }
+}
+
+public readonly struct Vertex
+{
+    public readonly Vector3D<float> Position;
+    public readonly Vector3D<float> Normal;
+    public readonly Vector2D<float> TexCoords;
+
+    public Vertex(Vector3D<float> position, Vector3D<float> normal, Vector2D<float> texCoords)
+    {
+        Position = position;
+        Normal = normal;
+        TexCoords = texCoords;
     }
 }

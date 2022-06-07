@@ -7,8 +7,6 @@ namespace Duck.Physics.Components;
 public partial struct RigidBodyComponent
 {
     public BodyType Type = BodyType.Static;
-    public BodyShape Shape = BodyShape.Box;
-    public RigidBodyCapsuleSettings CapsuleSettings = default;
     public Lock AxisLock = default;
 
     public bool IsGravityEnabled = true;
@@ -23,27 +21,11 @@ public partial struct RigidBodyComponent
     {
     }
 
-    public struct RigidBodyCapsuleSettings
-    {
-        public float Radius = 5f;
-        public float Length = 5f;
-
-        public RigidBodyCapsuleSettings()
-        {
-        }
-    }
-
     public enum BodyType
     {
         Dynamic,
         Kinematic,
         Static
-    }
-
-    public enum BodyShape
-    {
-        Box,
-        Capsule
     }
 
     [Flags]

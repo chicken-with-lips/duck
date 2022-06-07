@@ -10,6 +10,7 @@ public class Instanciator : IInstanciator
     public bool CanInstanciate(string typeName)
     {
         switch(typeName) {
+            case "Duck.Scene.Components.BoundingSphereComponent":
             case "Duck.Scene.Components.CameraComponent":
             case "Duck.Scene.Components.MeshComponent":
             case "Duck.Scene.Components.ParentComponent":
@@ -26,6 +27,7 @@ public class Instanciator : IInstanciator
     public object Instanciate(string typeName, IDeserializer deserializer, IDeserializationContext context)
     {
         return typeName switch {
+            "Duck.Scene.Components.BoundingSphereComponent" => new Duck.Scene.Components.BoundingSphereComponent(deserializer, context),
             "Duck.Scene.Components.CameraComponent" => new Duck.Scene.Components.CameraComponent(deserializer, context),
             "Duck.Scene.Components.MeshComponent" => new Duck.Scene.Components.MeshComponent(deserializer, context),
             "Duck.Scene.Components.ParentComponent" => new Duck.Scene.Components.ParentComponent(deserializer, context),
