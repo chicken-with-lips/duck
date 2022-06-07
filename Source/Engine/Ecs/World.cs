@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Duck.Serialization;
 
 namespace Duck.Ecs;
@@ -13,6 +14,12 @@ public partial class World : IWorld
     private readonly FilterEvaluator _filterEvaluator = new();
     private readonly Dictionary<string, IFilter> _filters = new();
 
+    private readonly ConcurrentBag<int> _entitiesRemoved1 = new();
+    private readonly ConcurrentBag<int> _entitiesRemoved2 = new();
+
+    private ConcurrentBag<int> _entitiesRemovedPreviousFrame;
+    private ConcurrentBag<int> _entitiesRemovedCurrentFrame;
+
     #endregion
 
     public World()
@@ -24,6 +31,9 @@ public partial class World : IWorld
     {
         _entityPool = new EntityPool(this, config.EntityPoolInitialSize);
         _componentPools = new ComponentPoolCollection(config.ComponentPoolCount, config.ComponentPoolInitialSize);
+
+        _entitiesRemovedCurrentFrame = _entitiesRemoved1;
+        _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
     #region IWorld
@@ -45,9 +55,18 @@ public partial class World : IWorld
 
     public void BeginFrame()
     {
+        RemoveComponentsFromDeletedEntities();
+
         foreach (var filter in Filters) {
             filter.SwapDirtyBuffers();
         }
+
+        SwapDeletedEntityBuffers();
+    }
+
+    public void EndFrame()
+    {
+        RemoveDeletedEntities();
     }
 
     public IEntity CreateEntity()
@@ -55,14 +74,24 @@ public partial class World : IWorld
         return _entityPool.Allocate();
     }
 
+    public void DeleteEntity(IEntity entity)
+    {
+        _entitiesRemovedCurrentFrame.Add(entity.Id);
+    }
+
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct
     {
         return _componentPools.AllocateComponent<T>(entity);
     }
 
+    public void DeallocateComponent(Type componentType, int componentIndex)
+    {
+        _componentPools.DeallocateComponent(componentType, componentIndex);
+    }
+
     public void DeallocateComponent<T>(int componentIndex) where T : struct
     {
-        _componentPools.DeallocateComponent<T>(componentIndex);
+        DeallocateComponent(typeof(T), componentIndex);
     }
 
     public void InternalNotifyComponentAllocated(ComponentReference componentReference)
@@ -73,6 +102,11 @@ public partial class World : IWorld
     public void InternalNotifyComponentDeallocated(IEntity entity)
     {
         EvaluateFilters(entity, false);
+    }
+
+    public Type GetTypeFromIndex(int typeIndex)
+    {
+        return _componentPools.GetTypeFromIndex(typeIndex);
     }
 
     public int GetTypeIndexForComponent<T>() where T : struct
@@ -165,6 +199,29 @@ public partial class World : IWorld
                 filter.QueueRemoval(entity);
             }
         }
+    }
+
+    private void RemoveComponentsFromDeletedEntities()
+    {
+        foreach (var entityId in _entitiesRemovedCurrentFrame) {
+            GetEntity(entityId).RemoveAll();
+        }
+    }
+
+    private void RemoveDeletedEntities()
+    {
+        foreach (var entityId in _entitiesRemovedPreviousFrame) {
+            _entityPool.Deallocate(
+                GetEntity(entityId)
+            );
+        }
+    }
+
+    private void SwapDeletedEntityBuffers()
+    {
+        _entitiesRemovedPreviousFrame = _entitiesRemovedCurrentFrame;
+        _entitiesRemovedCurrentFrame = _entitiesRemovedCurrentFrame == _entitiesRemoved1 ? _entitiesRemoved2 : _entitiesRemoved1;
+        _entitiesRemovedCurrentFrame.Clear();
     }
 }
 

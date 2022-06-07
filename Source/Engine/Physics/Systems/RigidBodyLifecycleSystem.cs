@@ -11,8 +11,10 @@ public abstract class RigidBodyLifecycleSystem : SystemBase
 {
     #region Methods
 
-    protected PxRigidActor CreateBody(IEntity entity, PhysicsWorld world, PxPhysics physics, ref PhysXIntegrationComponent physxComponent, PxGeometry geometry, RigidBodyComponent rigidBodyComponent, TransformComponent transformComponent)
+    protected PxRigidActor CreateBody(IEntity entity, PhysicsWorld world, PxPhysics physics, PxGeometry geometry, RigidBodyComponent rigidBodyComponent, TransformComponent transformComponent)
     {
+        ref PhysXIntegrationComponent physxComponent = ref entity.Get<PhysXIntegrationComponent>();
+
         var position = transformComponent.Position.ToSystem();
         var rotation = transformComponent.Rotation.ToSystem();
 
@@ -51,8 +53,31 @@ public abstract class RigidBodyLifecycleSystem : SystemBase
         }
 
         world.MapActorToEntity(entity, physxComponent.Body);
+        world.Scene.AddActor(physxComponent.Body);
 
         return physxComponent.Body;
+    }
+
+    protected void RemoveBody(ref PhysXIntegrationComponent physxComponent, PhysicsWorld world)
+    {
+        world.UnmapActor(physxComponent.Body);
+        world.Scene.RemoveActor(physxComponent.Body);
+    }
+
+    #endregion
+}
+
+public abstract class RigidBodyLifecycleRemoveSystem : SystemBase
+{
+    #region Methods
+    protected void RemoveBody(IEntity entity, PhysicsWorld world)
+    {
+        ref PhysXIntegrationComponent physxComponent = ref entity.Get<PhysXIntegrationComponent>();
+        
+        world.UnmapActor(physxComponent.Body);
+        world.Scene.RemoveActor(physxComponent.Body);
+
+        entity.Remove<PhysXIntegrationComponent>();
     }
 
     #endregion

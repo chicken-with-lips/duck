@@ -29,6 +29,10 @@ public partial class Entity : IEntity
 
     public ref T Get<T>() where T : struct
     {
+        if (!IsAllocated) {
+            throw new Exception("FIXME: errors");
+        }
+
         var typeIndex = World.GetTypeIndexForComponent<T>();
 
         if (_components[typeIndex] != IWorld.NotFound) {
@@ -43,9 +47,22 @@ public partial class Entity : IEntity
         return ref World.GetComponent<T>(typeIndex, componentReference.ComponentIndex);
     }
 
-    public void Remove<T>() where T : struct
+    public void RemoveAll()
     {
-        var typeIndex = World.GetTypeIndexForComponent<T>();
+        for (var typeIndex = 0; typeIndex < _components.Length; typeIndex++) {
+            if (_components[typeIndex] == IWorld.NotFound) {
+                continue;
+            }
+
+            Remove(
+                World.GetTypeFromIndex(typeIndex)
+            );
+        }
+    }
+
+    public void Remove(Type componentType)
+    {
+        var typeIndex = World.GetTypeIndexForComponent(componentType);
 
         if (_components[typeIndex] == IWorld.NotFound) {
             return;
@@ -55,8 +72,13 @@ public partial class Entity : IEntity
 
         _components[typeIndex] = IWorld.NotFound;
 
-        World.DeallocateComponent<T>(cmpIndex);
+        World.DeallocateComponent(componentType, cmpIndex);
         World.InternalNotifyComponentDeallocated(this);
+    }
+
+    public void Remove<T>() where T : struct
+    {
+        Remove(typeof(T));
     }
 
     public ComponentReference GetComponentReference<T>() where T : struct

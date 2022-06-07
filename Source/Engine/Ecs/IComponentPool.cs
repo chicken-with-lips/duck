@@ -6,17 +6,17 @@ namespace Duck.Ecs;
 public partial interface IComponentPoolBase
 {
     public int TypeIndex { get; }
+    public Type ComponentType { get; }
     public int ComponentCount { get; }
     public bool AppliesTo(Type type);
     public ComponentReference GetComponentReference(int componentIndex);
+    public ComponentReference Allocate(int entityId);
+    public void Deallocate(int componentIndex);
 }
 
 [AutoSerializable]
 public partial interface IComponentPool<T> : IComponentPoolBase where T : struct
 {
-    public ComponentReference Allocate(int entityId);
-    public void Deallocate(int componentIndex);
-
     public ref T Get(int componentIndex);
 }
 

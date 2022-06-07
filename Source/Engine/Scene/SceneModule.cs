@@ -42,8 +42,6 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, IHotReloa
     {
         foreach (var scene in _loadedScenes) {
             foreach (var entityId in scene.Renderables) {
-                var transformComponent = scene.World.GetComponent<TransformComponent>(entityId);
-
                 if (scene.World.HasComponent<RenderableInstanceComponent>(entityId)) {
                     var instanceComponent = scene.World.GetComponent<RenderableInstanceComponent>(entityId);
                     _graphicsModule.GraphicsDevice.ScheduleRenderable(instanceComponent.Id);

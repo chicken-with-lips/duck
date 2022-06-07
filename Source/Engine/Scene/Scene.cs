@@ -36,5 +36,12 @@ public partial class Scene : IScene
         return this;
     }
 
+    public IScene RemoveRenderable(int entityId)
+    {
+        _renderables.Remove(entityId);
+
+        return this;
+    }
+
     #endregion
 }

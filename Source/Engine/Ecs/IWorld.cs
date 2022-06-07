@@ -11,12 +11,16 @@ public partial interface IWorld
 
     public void InitFilters();
     public void BeginFrame();
+    public void EndFrame();
     public IEntity CreateEntity();
+    public void DeleteEntity(IEntity entity);
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct;
+    public void DeallocateComponent(Type componentType, int componentIndex);
     public void DeallocateComponent<T>(int componentIndex) where T : struct;
     public void InternalNotifyComponentAllocated(ComponentReference componentReference);
     public void InternalNotifyComponentDeallocated(IEntity entity);
 
+    public Type GetTypeFromIndex(int typeIndex);
     public int GetTypeIndexForComponent<T>() where T : struct;
     public int GetTypeIndexForComponent(Type type);
     public ref T GetComponent<T>(int typeIndex, int componentIndex) where T : struct;

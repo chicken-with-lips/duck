@@ -215,8 +215,10 @@ public abstract class ApplicationBase : IApplication
             .Add(new CameraSystem(scene, GetModule<IGraphicsModule>()))
             .Add(new MeshLoadSystem(scene, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
             .Add(new MeshRenderSystem(scene, GetModule<IGraphicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_Box(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_Sphere(scene.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_AddBox(scene.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_RemoveBox(scene.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_AddSphere(scene.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_RemoveSphere(scene.World, GetModule<IPhysicsModule>()))
             .Add(new RigidBodySynchronizationSystem(scene.World, GetModule<IPhysicsModule>()));
 
         return c;
