@@ -9,6 +9,8 @@ public partial interface IEntity
 
     public ref T Get<T>() where T : struct;
 
+    public void RemoveAll();
+    public void Remove(Type componentType);
     public void Remove<T>() where T : struct;
 
     public bool Has(Type type);

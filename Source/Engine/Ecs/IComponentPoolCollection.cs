@@ -11,6 +11,7 @@ public partial interface IComponentPoolCollection
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct;
     public void DeallocateComponent<T>(int componentIndex) where T : struct;
 
+    public Type GetTypeFromIndex(int typeIndex);
     public int GetTypeIndexForComponent<T>() where T : struct;
     public int GetTypeIndexForComponent(Type type);
 }

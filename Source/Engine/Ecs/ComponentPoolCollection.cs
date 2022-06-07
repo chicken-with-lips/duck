@@ -5,9 +5,9 @@ namespace Duck.Ecs;
 [AutoSerializable]
 public partial class ComponentPoolCollection : IComponentPoolCollection
 {
-    private IComponentPoolBase[] _componentPools;
+    private readonly IComponentPoolBase[] _componentPools;
+    private readonly int _initialPoolSize;
     private int _nextComponentPoolIndex;
-    private int _initialPoolSize;
 
     /// <summary>
     /// Used for serialization.
@@ -49,9 +49,25 @@ public partial class ComponentPoolCollection : IComponentPoolCollection
         return GetOrAllocateComponentPool<T>().Allocate(entity.Id);
     }
 
+    public void DeallocateComponent(Type componentType, int componentIndex)
+    {
+        GetComponentPool(componentType)?.Deallocate(componentIndex);
+    }
+
     public void DeallocateComponent<T>(int componentIndex) where T : struct
     {
-        GetOrAllocateComponentPool<T>().Deallocate(componentIndex);
+        DeallocateComponent(typeof(T), componentIndex);
+    }
+
+    public Type GetTypeFromIndex(int typeIndex)
+    {
+        foreach (var pool in _componentPools) {
+            if (pool.TypeIndex == typeIndex) {
+                return pool.ComponentType;
+            }
+        }
+
+        throw new Exception("FIXME: errors");
     }
 
     public int GetTypeIndexForComponent<T>() where T : struct

@@ -40,6 +40,10 @@ public class MeshLoadSystem : SystemBase
                 _scene.AddRenderable(entityId);
             }
         }
+
+        foreach (var entityId in _filter.EntityRemovedList) {
+            _scene.RemoveRenderable(entityId);
+        }
     }
 }
 

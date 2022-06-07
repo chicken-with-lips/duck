@@ -76,6 +76,13 @@ public class PhysicsWorld : IPhysicsWorld
                     GetEntityForActor(pairHeader.Actors[1])
                 )
             );
+
+            eventBus.Enqueue(
+                new PhysicsCollision(
+                    GetEntityForActor(pairHeader.Actors[1]),
+                    GetEntityForActor(pairHeader.Actors[0])
+                )
+            );
         }
     }
 
@@ -90,6 +97,11 @@ public class PhysicsWorld : IPhysicsWorld
     internal void MapActorToEntity(IEntity entity, PxActor actor)
     {
         _actorToEntityMap.Add(actor, entity);
+    }
+    
+    internal void UnmapActor(PxActor actor)
+    {
+        _actorToEntityMap.Remove(actor);
     }
 
     internal IEntity GetEntityForActor(PxActor actor)

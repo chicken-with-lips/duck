@@ -40,6 +40,12 @@ namespace Duck.Ecs
             return _entityList[entityId];
         }
 
+        public void Deallocate(IEntity entity)
+        {
+            // FIXME:
+            ((Entity) _entityList[entity.Id]).IsAllocated = false;
+        }
+
         public IEntity Get(int entityId)
         {
             return _entityList[entityId];

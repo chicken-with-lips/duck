@@ -11,4 +11,5 @@ public partial interface IScene
     public int[] Renderables { get; }
 
     public IScene AddRenderable(int entityId);
+    public IScene RemoveRenderable(int entityId);
 }

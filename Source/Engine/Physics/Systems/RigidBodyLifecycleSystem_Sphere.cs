@@ -1,14 +1,12 @@
-using System.Numerics;
 using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
-using Duck.Ecs.Systems;
 using Duck.Physics.Components;
 using Duck.Scene.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
 
-public class RigidBodyLifecycleSystem_Sphere : RigidBodyLifecycleSystem
+public class RigidBodyLifecycleSystem_AddSphere : RigidBodyLifecycleSystem
 {
     #region Members
 
@@ -19,7 +17,7 @@ public class RigidBodyLifecycleSystem_Sphere : RigidBodyLifecycleSystem
 
     #region Methods
 
-    public RigidBodyLifecycleSystem_Sphere(IWorld world, IPhysicsModule physicsModule)
+    public RigidBodyLifecycleSystem_AddSphere(IWorld world, IPhysicsModule physicsModule)
     {
         _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
 
@@ -30,7 +28,6 @@ public class RigidBodyLifecycleSystem_Sphere : RigidBodyLifecycleSystem
     public override void Run()
     {
         var physics = _physicsWorld.Physics;
-        var scene = _physicsWorld.Scene;
 
         foreach (var entityId in _filter.EntityAddedList) {
             IEntity entity = _filter.GetEntity(entityId);
@@ -46,23 +43,49 @@ public class RigidBodyLifecycleSystem_Sphere : RigidBodyLifecycleSystem
                 transformComponent.Scale
             );
 
-            var body = CreateBody(
+            CreateBody(
                 entity,
                 _physicsWorld,
                 physics,
-                ref physxComponent,
                 geometry,
                 rigidBodyComponent,
                 transformComponent
             );
-
-            scene.AddActor(body);
         }
     }
 
     private static PxGeometry CreateGeometry(BoundingSphereComponent sphere, Vector3D<float> scale)
     {
         return new PxSphereGeometry(sphere.Radius);
+    }
+
+    #endregion
+}
+
+public class RigidBodyLifecycleSystem_RemoveSphere : RigidBodyLifecycleSystem
+{
+    #region Members
+
+    private readonly IFilter<BoundingSphereComponent, PhysXIntegrationComponent> _filter;
+    private readonly PhysicsWorld _physicsWorld;
+
+    #endregion
+
+    #region Methods
+
+    public RigidBodyLifecycleSystem_RemoveSphere(IWorld world, IPhysicsModule physicsModule)
+    {
+        _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
+
+        _filter = Filter<BoundingSphereComponent, PhysXIntegrationComponent>(world)
+            .Build();
+    }
+
+    public override void Run()
+    {
+        foreach (var entityId in _filter.EntityRemovedList) {
+            RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
+        }
     }
 
     #endregion

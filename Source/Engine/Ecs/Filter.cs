@@ -35,6 +35,11 @@ public abstract class FilterBase : IFilter
 
     public abstract void SwapDirtyBuffers();
 
+    public IEntity GetEntity(int entityId)
+    {
+        return World.GetEntity(entityId);
+    }
+
     #endregion
 }
 
@@ -104,11 +109,6 @@ public class Filter<T> : FilterBase, IFilter<T>
 
     #region IFilter<T>
 
-    public IEntity GetEntity(int entityId)
-    {
-        return World.GetEntity(entityId);
-    }
-
     public ref T Get(int entityId)
     {
         return ref World.GetComponent<T>(_entityMap[entityId]);
@@ -143,7 +143,9 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
         : base(world, id, componentPredicates)
     {
         _entitiesAddedCurrentFrame = _entitiesAdded1;
+        _entitiesAddedPreviousFrame = _entitiesAdded2;
         _entitiesRemovedCurrentFrame = _entitiesRemoved1;
+        _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
     public override void QueueAddition(IEntity entity)
@@ -186,7 +188,7 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
             _entityMap.TryAdd(kvp.Key, kvp.Value);
         }
 
-        foreach (var kvp in _entitiesRemovedCurrentFrame) {
+        foreach (var kvp in _entitiesRemovedPreviousFrame) {
             _entityMap.Remove(kvp.Key);
         }
 

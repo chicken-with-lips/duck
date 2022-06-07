@@ -31,6 +31,7 @@ public partial class ComponentPool<T> : IComponentPool<T> where T : struct
     #region IComponentPool
 
     public int TypeIndex { get; }
+    public Type ComponentType => typeof(T);
 
     public int ComponentCount => _nextComponentIndex;
 
