@@ -80,6 +80,7 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
             }
 
             _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);
+            _api.BindVertexArray(0);
         }
     }
 
