@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace Duck.Graphics.Device;
 
-public interface IIndexBuffer : IBuffer
+public interface IIndexBuffer : IBuffer, IDisposable
 {
 }
 

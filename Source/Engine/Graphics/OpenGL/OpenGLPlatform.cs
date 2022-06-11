@@ -16,7 +16,7 @@ public class OpenGLPlatform : IPlatform
     public IWindow[] Windows => _windows.ToArray();
 
     #endregion
-    
+
     #region Members
 
     private readonly IApplication _app;
@@ -50,7 +50,7 @@ public class OpenGLPlatform : IPlatform
         return window;
     }
 
-    public IGraphicsDevice CreateGraphicsDevice()
+    public IGraphicsDevice CreateGraphicsDevice(AssetReference<ShaderProgram> debugShader)
     {
         if (_windows.Count == 0 || null == _glContext) {
             throw new Exception("FIXME: a window must be created first");
@@ -65,6 +65,8 @@ public class OpenGLPlatform : IPlatform
             .RegisterAssetLoader<ShaderProgram, OpenGLShaderProgram>(new ShaderProgramLoader(device, content))
             .RegisterAssetLoader<Texture2D, OpenGLTexture2D>(new Texture2DLoader(device))
             .RegisterAssetLoader<StaticMesh, OpenGLStaticMesh>(new StaticMeshLoader(device, content));
+
+        device.Init((OpenGLShaderProgram)content.LoadImmediate(debugShader));
 
         return device;
     }

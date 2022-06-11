@@ -29,12 +29,12 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
 
         // TODO: handle multiple meshes
 
-        var vertices = new List<Vertex>();
+        var vertices = new List<TexturedVertex>();
         var indices = new List<uint>();
 
         for (var vertIndex = 0; vertIndex < scene->MMeshes[0]->MNumVertices; vertIndex++) {
             vertices.Add(
-                new Vertex(
+                new TexturedVertex(
                     scene->MMeshes[0]->MVertices[vertIndex].ToGeneric(),
                     scene->MMeshes[0]->MNormals[vertIndex].ToGeneric(),
                     new Vector2D<float>()
@@ -62,7 +62,7 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
 
         return new StaticMesh(
             new AssetImportData(new Uri("memory://" + file)),
-            new BufferObject<Vertex>(vertices.ToArray()),
+            new BufferObject<TexturedVertex>(vertices.ToArray()),
             new BufferObject<uint>(indices.ToArray()),
             _defaultShader
         );

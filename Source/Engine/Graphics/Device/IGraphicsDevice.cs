@@ -1,3 +1,4 @@
+using Duck.Graphics.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Graphics.Device;
@@ -21,11 +22,13 @@ public interface IGraphicsDevice
         where TVertexType : unmanaged
         where TIndexType : unmanaged;
 
+    public void DestroyRenderObject(IRenderObject renderObject);
 
     public IRenderObjectInstance CreateRenderObjectInstance(IRenderObject renderObject);
 
-    public void ScheduleRenderable(IRenderObjectInstance renderObject);
-    public void ScheduleRenderable(uint renderObjectId);
+    public void ScheduleRenderable(IRenderObjectInstance renderObjectInstance);
+    public void ScheduleRenderable(IRenderObject renderObject);
+    public void ScheduleRenderableInstance(uint renderObjectInstanceId);
     public IRenderObjectInstance GetRenderObjectInstance(uint instanceComponentId);
 }
 

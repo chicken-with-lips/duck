@@ -1,9 +1,6 @@
-using Duck.Content;
 using Duck.Ecs;
 using Duck.Graphics;
 using Duck.Graphics.Components;
-using Duck.Graphics.Device;
-using Duck.Scene.Components;
 using Duck.Serialization;
 
 namespace Duck.Scene;
@@ -15,18 +12,16 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, IHotReloa
 
     private readonly IEcsModule _ecsModule;
     private readonly IGraphicsModule _graphicsModule;
-    private readonly IContentModule _contentModule;
     private readonly List<IScene> _loadedScenes = new();
 
     #endregion
 
     #region Methods
 
-    public SceneModule(IEcsModule ecsModule, IGraphicsModule graphicsModule, IContentModule contentModule)
+    public SceneModule(IEcsModule ecsModule, IGraphicsModule graphicsModule)
     {
         _ecsModule = ecsModule;
         _graphicsModule = graphicsModule;
-        _contentModule = contentModule;
     }
 
     public IScene Create()
@@ -44,7 +39,7 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, IHotReloa
             foreach (var entityId in scene.Renderables) {
                 if (scene.World.HasComponent<RenderableInstanceComponent>(entityId)) {
                     var instanceComponent = scene.World.GetComponent<RenderableInstanceComponent>(entityId);
-                    _graphicsModule.GraphicsDevice.ScheduleRenderable(instanceComponent.Id);
+                    _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.Id);
                 }
             }
         }

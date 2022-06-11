@@ -23,8 +23,8 @@ public struct Configuration
     public bool IsResizable;
 
     public static Configuration Default => new() {
-        Width = 1024,
-        Height = 768,
+        Width = 1280,
+        Height = 1024,
         Title = "Duck",
         IsResizable = true,
     };

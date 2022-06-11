@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Duck.Serialization;
 using Silk.NET.Maths;
 
-namespace Duck.Scene.Components;
+namespace Duck.Graphics.Components;
 
 [AutoSerializable]
 public partial struct TransformComponent

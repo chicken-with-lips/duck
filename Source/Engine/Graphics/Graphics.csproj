@@ -26,7 +26,6 @@
       <Compile Remove="Systems\GenerateFilamentIdentitySystem.cs" />
       <Compile Remove="Components\BoundingBoxComponent.cs" />
       <Compile Remove="Components\FilamentIdentityComponent.cs" />
-      <Compile Remove="Components\TransformComponent.cs" />
     </ItemGroup>
 
     <ItemGroup>

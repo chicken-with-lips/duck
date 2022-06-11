@@ -1,10 +1,8 @@
-using Duck.Content;
 using Duck.Graphics.Device;
-using Duck.Graphics.Shaders;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
+public class OpenGLRenderObject : OpenGLRenderObjectBase
 {
     #region Properties
 
@@ -80,9 +78,11 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
 
     #region IDisposable implementation
 
+    public override bool IsDisposed => _isDisposed;
+
     private bool _isDisposed = false;
 
-    public void Dispose()
+    public override void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
@@ -94,9 +94,10 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase, IDisposable
             return;
         }
 
-        _graphicsDevice.API.DeleteVertexArray(Id);
-
         _isDisposed = true;
+
+        _graphicsDevice.API.DeleteVertexArray(Id);
+        _graphicsDevice.DestroyRenderObject(this);
     }
 
     #endregion

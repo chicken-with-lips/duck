@@ -1,8 +1,8 @@
 using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
+using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Duck.Scene.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
