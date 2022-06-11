@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Duck.Content;
+using Duck.Graphics.Components;
 using Duck.Graphics.Device;
 using Duck.Graphics.Shaders;
 using Duck.Graphics.Textures;
@@ -10,10 +11,14 @@ namespace Duck.Graphics.OpenGL;
 public abstract class OpenGLRenderObjectBase : IRenderObject
 {
     #region Properties
+    
+    public abstract bool IsDisposed { get; }
 
     public abstract uint Id { get; }
     public abstract uint VertexCount { get; }
     public abstract uint IndexCount { get; }
+
+    public IBoundingVolume BoundingVolume { get; set; }
 
     #endregion
 
@@ -44,9 +49,18 @@ public abstract class OpenGLRenderObjectBase : IRenderObject
         return this;
     }
 
+    public IRenderObject SetParameter(string name, Vector3D<float> value)
+    {
+        _parameters[name] = new TypedParameterValue<Vector3D<float>>() {
+            Value = value
+        };
+
+        return this;
+    }
+
     public IRenderObject SetParameter(string name, Matrix4X4<float> value)
     {
-        _parameters[name] = new Matrix4X4ParameterValue {
+        _parameters[name] = new TypedParameterValue<Matrix4X4<float>>() {
             Value = value
         };
 
@@ -65,13 +79,10 @@ public abstract class OpenGLRenderObjectBase : IRenderObject
         return _shaderProgram;
     }
 
-    public virtual Matrix4X4<float> GetParameterMatrix4X4(string name)
+    public virtual TParameterType GetParameter<TParameterType>(string name)
+        where TParameterType : unmanaged
     {
-        if (_parameters[name] is Matrix4X4ParameterValue matValue) {
-            return matValue.Value;
-        }
-
-        throw new Exception("FIXME: errors");
+        return ((IParameterValue<TParameterType>) _parameters[name]).GetValue();
     }
 
     public bool HasParameter(string name)
@@ -79,14 +90,28 @@ public abstract class OpenGLRenderObjectBase : IRenderObject
         return _parameters.ContainsKey(name);
     }
 
+    public abstract void Dispose();
+
     #endregion
 
     private interface IParameterValue
     {
     }
 
-    private struct Matrix4X4ParameterValue : IParameterValue
+    private interface IParameterValue<TDataType> : IParameterValue
+        where TDataType : unmanaged
     {
-        public Matrix4X4<float> Value;
+        public TDataType GetValue();
+    }
+
+    private struct TypedParameterValue<TDataType> : IParameterValue<TDataType>
+        where TDataType : unmanaged
+    {
+        public TDataType Value;
+
+        public TDataType GetValue()
+        {
+            return Value;
+        }
     }
 }

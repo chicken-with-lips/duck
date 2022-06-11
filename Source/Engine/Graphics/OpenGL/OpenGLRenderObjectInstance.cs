@@ -42,9 +42,14 @@ public class OpenGLRenderObjectInstance : OpenGLRenderObjectBase, IRenderObjectI
         return base.GetShaderProgram() ?? _renderObject.GetShaderProgram();
     }
 
-    public override Matrix4X4<float> GetParameterMatrix4X4(string name)
+    public override TParameterType GetParameter<TParameterType>(string name)
     {
-        return HasParameter(name) ? base.GetParameterMatrix4X4(name) : _renderObject.GetParameterMatrix4X4(name);
+        return HasParameter(name) ? base.GetParameter<TParameterType>(name) : _renderObject.GetParameter<TParameterType>(name);
+    }
+
+    public override bool IsDisposed { get; }
+    public override void Dispose()
+    {
     }
 
     #endregion

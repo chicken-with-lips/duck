@@ -4,6 +4,7 @@ using Duck.Ecs.Systems;
 using Duck.Exceptions;
 using Duck.Graphics;
 using Duck.Graphics.OpenGL;
+using Duck.Graphics.Systems;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
@@ -158,7 +159,7 @@ public abstract class ApplicationBase : IApplication
         AddModule(new ContentModule(GetModule<ILogModule>()));
         AddModule(new GraphicsModule(this, _platform, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new EcsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>(), GetModule<IContentModule>()));
+        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
     }
@@ -214,7 +215,7 @@ public abstract class ApplicationBase : IApplication
         c
             .Add(new CameraSystem(scene, GetModule<IGraphicsModule>()))
             .Add(new MeshLoadSystem(scene, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
-            .Add(new MeshRenderSystem(scene, GetModule<IGraphicsModule>()))
+            .Add(new ScheduleRenderableSystem(scene.World, GetModule<IGraphicsModule>()))
             .Add(new RigidBodyLifecycleSystem_AddBox(scene.World, GetModule<IPhysicsModule>()))
             .Add(new RigidBodyLifecycleSystem_RemoveBox(scene.World, GetModule<IPhysicsModule>()))
             .Add(new RigidBodyLifecycleSystem_AddSphere(scene.World, GetModule<IPhysicsModule>()))

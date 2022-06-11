@@ -29,6 +29,7 @@ public class GraphicsModule : IGraphicsModule,
 
     private IGraphicsDevice? _graphicsDevice;
     private IAsset<ShaderProgram> _defaultShader;
+    private IAsset<ShaderProgram> _debugShader;
 
     #endregion
 
@@ -52,10 +53,16 @@ public class GraphicsModule : IGraphicsModule,
         _logger.LogInformation("Initializing graphics module...");
 
         _platform.CreateWindow();
-        _graphicsDevice = _platform.CreateGraphicsDevice();
         _defaultShader = _contentModule.Database.Register(CreateDefaultShader());
+        _debugShader = _contentModule.Database.Register(CreateDebugShader());
 
-        _contentModule.RegisterSourceAssetImporter(new FbxAssetImporter(_defaultShader.MakeReference()));
+        _contentModule.RegisterSourceAssetImporter(
+            new FbxAssetImporter(_defaultShader.MakeReference())
+        );
+
+        _graphicsDevice = _platform.CreateGraphicsDevice(
+            _debugShader.MakeReference()
+        );
 
         return true;
     }
@@ -93,6 +100,18 @@ public class GraphicsModule : IGraphicsModule,
     {
         var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/shader.fs"))));
         var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/shader.vs"))));
+
+        return new ShaderProgram(
+            new AssetImportData(new Uri("memory://generated")),
+            vertShader.MakeReference(),
+            fragShader.MakeReference()
+        );
+    }
+
+    private IAsset<ShaderProgram> CreateDebugShader()
+    {
+        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/debug.fs"))));
+        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/debug.vs"))));
 
         return new ShaderProgram(
             new AssetImportData(new Uri("memory://generated")),

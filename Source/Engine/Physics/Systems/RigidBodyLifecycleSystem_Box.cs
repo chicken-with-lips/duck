@@ -1,8 +1,7 @@
-using System.Numerics;
 using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
+using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Duck.Scene.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
@@ -56,7 +55,7 @@ public class RigidBodyLifecycleSystem_AddBox : RigidBodyLifecycleSystem
 
     private static PxBoxGeometry CreateGeometry(Box3D<float> boundingBox, Vector3D<float> scale)
     {
-        return new PxBoxGeometry(boundingBox.Size.ToSystem() / 2f);
+        return new PxBoxGeometry(boundingBox.GetScaled(scale, boundingBox.Center).Size.ToSystem() / 2f);
     }
 
     #endregion

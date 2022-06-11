@@ -3,7 +3,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Graphics.Device;
 
-public interface IVertexBuffer : IBuffer
+public interface IVertexBuffer : IBuffer, IDisposable
 {
     public AttributeDecl[] Attributes { get; }
 }
@@ -79,16 +79,26 @@ public readonly struct AttributeDecl
     }
 }
 
-public readonly struct Vertex
+public readonly struct TexturedVertex
 {
     public readonly Vector3D<float> Position;
     public readonly Vector3D<float> Normal;
     public readonly Vector2D<float> TexCoords;
 
-    public Vertex(Vector3D<float> position, Vector3D<float> normal, Vector2D<float> texCoords)
+    public TexturedVertex(Vector3D<float> position, Vector3D<float> normal, Vector2D<float> texCoords)
     {
         Position = position;
         Normal = normal;
         TexCoords = texCoords;
+    }
+}
+
+public readonly struct DebugVertex
+{
+    public readonly Vector3D<float> Position;
+
+    public DebugVertex(Vector3D<float> position)
+    {
+        Position = position;
     }
 }

@@ -1,7 +1,7 @@
 using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
+using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Duck.Scene.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
@@ -56,7 +56,7 @@ public class RigidBodyLifecycleSystem_AddSphere : RigidBodyLifecycleSystem
 
     private static PxGeometry CreateGeometry(BoundingSphereComponent sphere, Vector3D<float> scale)
     {
-        return new PxSphereGeometry(sphere.Radius);
+        return new PxSphereGeometry(sphere.Radius * MathF.Max(MathF.Max(scale.X, scale.Y), scale.Z));
     }
 
     #endregion

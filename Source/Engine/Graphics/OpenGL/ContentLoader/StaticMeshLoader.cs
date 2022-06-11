@@ -31,7 +31,7 @@ public class StaticMeshLoader : IAssetLoader
 
         // TODO: vertex type should come from the asset
 
-        var vertexBuffer = VertexBufferBuilder<Vertex>.Create(BufferUsage.Static)
+        var vertexBuffer = VertexBufferBuilder<TexturedVertex>.Create(BufferUsage.Static)
             .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
             .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
             .Attribute(VertexAttribute.Uv0, 0, AttributeType.Float2)

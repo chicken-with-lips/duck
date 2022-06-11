@@ -1,8 +1,8 @@
 using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
+using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Duck.Scene.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
@@ -70,10 +70,11 @@ public abstract class RigidBodyLifecycleSystem : SystemBase
 public abstract class RigidBodyLifecycleRemoveSystem : SystemBase
 {
     #region Methods
+
     protected void RemoveBody(IEntity entity, PhysicsWorld world)
     {
         ref PhysXIntegrationComponent physxComponent = ref entity.Get<PhysXIntegrationComponent>();
-        
+
         world.UnmapActor(physxComponent.Body);
         world.Scene.RemoveActor(physxComponent.Body);
 
