@@ -1,3 +1,4 @@
+using System.Numerics;
 using ChickenWithLips.PhysX.Net;
 using Duck.Ecs;
 using Duck.Graphics.Components;
@@ -38,16 +39,11 @@ public class RigidBodyLifecycleSystem_AddSphere : RigidBodyLifecycleSystem
             TransformComponent transformComponent = _filter.Get2(entityId);
             BoundingSphereComponent sphereComponent = _filter.Get3(entityId);
 
-            var geometry = CreateGeometry(
-                sphereComponent,
-                transformComponent.Scale
-            );
-
             CreateBody(
                 entity,
                 _physicsWorld,
                 physics,
-                geometry,
+                PhysXHelper.CreateSphereGeometry(sphereComponent, transformComponent.Scale),
                 rigidBodyComponent,
                 transformComponent
             );
