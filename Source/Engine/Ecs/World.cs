@@ -76,7 +76,12 @@ public partial class World : IWorld
 
     public void DeleteEntity(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.Add(entity.Id);
+        DeleteEntity(entity.Id);
+    }
+
+    public void DeleteEntity(int entityId)
+    {
+        _entitiesRemovedCurrentFrame.Add(entityId);
     }
 
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct
