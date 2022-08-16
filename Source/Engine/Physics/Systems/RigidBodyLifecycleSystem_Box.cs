@@ -1,4 +1,4 @@
-using ChickenWithLips.PhysX.Net;
+using ChickenWithLips.PhysX;
 using Duck.Ecs;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;

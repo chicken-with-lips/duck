@@ -11,14 +11,20 @@ public abstract class GameClientBase : IGameClient
 {
     #region Properties
 
-    public IApplication Application => _application;
+    public IApplication Application {
+        get {
+            if (_application == null) {
+                throw new Exception("TODO: errors");
+            }
+
+            return _application;
+        }
+    }
 
     #endregion
 
     #region Members
 
-    private IScene? _scene;
-    private ISystemComposition? _systemComposition;
     private IApplication? _application;
 
     #endregion
@@ -34,31 +40,17 @@ public abstract class GameClientBase : IGameClient
     public virtual void Initialize(IGameClientInitializationContext context)
     {
         var app = context.Application;
-        var sceneModule = app.GetModule<ISceneModule>();
 
         _application = app;
-        _scene = sceneModule.Create();
-        _systemComposition = CreateDefaultSystemComposition(_scene);
 
-        InitializeGame(_systemComposition, context);
-
-        _systemComposition.Init();
+        InitializeClient(context);
     }
 
-    protected virtual ISystemComposition CreateDefaultSystemComposition(IScene scene)
-    {
-        if (_application is ApplicationBase app) {
-            return app.CreateDefaultSystemComposition(scene);
-        }
 
-        return new SystemComposition(scene.World);
-    }
-
-    protected abstract void InitializeGame(ISystemComposition composition, IGameClientInitializationContext context);
+    protected abstract void InitializeClient(IGameClientInitializationContext context);
 
     public virtual void Tick()
     {
-        _systemComposition?.Tick();
     }
 
     #endregion

@@ -1,5 +1,4 @@
-using ChickenWithLips.PhysX.Net;
-using ChickenWithLips.PhysX.Net.Native;
+using ChickenWithLips.PhysX;
 using Duck.Ecs;
 using Duck.Logging;
 using Duck.Physics.Events;
@@ -43,7 +42,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
         _physicsDebugger = new PxPvd(_foundation);
 
         if (!_physicsDebugger.Connect(transport, PxPvdInstrumentationFlag.All)) {
-            Console.Write("FIXME: could not connect to pvd");
+            Console.WriteLine("FIXME: could not connect to pvd");
         }
 
         _physics = PxPhysics.Create(_foundation, PxVersion.Version, true, _physicsDebugger);

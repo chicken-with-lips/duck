@@ -8,20 +8,20 @@ public class MaterialInstance : AssetBase<MaterialInstance>
     #region Properties
 
     public MaterialParameterCollection Parameters { get; }
-    public AssetReference<Material> MaterialAssetReference { get; }
+    public IAssetReference<Material> MaterialAssetReference { get; }
 
     #endregion
 
     #region Methods
 
-    public MaterialInstance(AssetImportData importData, AssetReference<Material> materialAssetReference)
+    public MaterialInstance(AssetImportData importData, IAssetReference<Material> materialAssetReference)
         : base(importData)
     {
         Parameters = new();
         MaterialAssetReference = materialAssetReference;
     }
 
-    public void SetParameter(string name, AssetReference<Texture2D> texture)
+    public void SetParameter(string name, IAssetReference<Texture2D> texture)
     {
         Parameters.SetParameter(name, texture);
     }

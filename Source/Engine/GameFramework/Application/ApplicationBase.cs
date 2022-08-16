@@ -1,6 +1,5 @@
 using Duck.Content;
 using Duck.Ecs;
-using Duck.Ecs.Systems;
 using Duck.Exceptions;
 using Duck.Graphics;
 using Duck.Graphics.OpenGL;
@@ -14,6 +13,9 @@ using Duck.Scene;
 using Duck.Scene.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
+using Duck.Ui;
+using Duck.Ui.Systems;
+using Tracy.Net;
 
 namespace Duck.GameFramework;
 
@@ -25,7 +27,7 @@ public abstract class ApplicationBase : IApplication
     private readonly List<IModule> _modules = new();
 
     private State _state = State.Uninitialized;
-    private ILogger _systemLogger;
+    private ILogger? _systemLogger;
 
     private bool _isEditor;
     private bool _isHotReloading;
@@ -36,8 +38,6 @@ public abstract class ApplicationBase : IApplication
     {
         _platform = new OpenGLPlatform(this);
         _isEditor = isEditor;
-
-        RegisterModules();
     }
 
     public bool Initialize()
@@ -46,11 +46,16 @@ public abstract class ApplicationBase : IApplication
             throw new Exception("Application already initialized");
         }
 
+        TracyClient.ZoneBegin("Application::Init");
+
         ChangeState(State.Initializing);
 
         Instanciator.Init();
+        RegisterModules();
 
         Time.FrameTimer = _platform.CreateFrameTimer();
+
+        InitializeApp();
 
         if (!InitializeModules()) {
             return false;
@@ -58,7 +63,13 @@ public abstract class ApplicationBase : IApplication
 
         ChangeState(State.Initialized);
 
+        TracyClient.ZoneEnd();
+
         return true;
+    }
+
+    protected virtual void InitializeApp()
+    {
     }
 
     public T GetModule<T>() where T : IModule
@@ -77,9 +88,9 @@ public abstract class ApplicationBase : IApplication
         var serializationContext = new SerializationContext(true);
         var serializer = new GraphSerializer(serializationContext);
 
-        IterateOverModules<IHotReloadAwareModule>(module => {
+        IterateOverModules<IHotReloadAwareModule>("HotReload", module => {
             if (module is not ISerializable serializable) {
-                _systemLogger.LogError("Hot reloadable module is not serializable: " + module.GetType().Name);
+                _systemLogger?.LogError("Hot reloadable module is not serializable: " + module.GetType().Name);
             } else {
                 serializable.Serialize(serializer, serializationContext);
                 module.BeginHotReload();
@@ -93,14 +104,20 @@ public abstract class ApplicationBase : IApplication
 
     public void EndHotReload(IHotReloadContext context)
     {
-        IterateOverModules<IHotReloadAwareModule>(module => module.EndHotReload());
+        IterateOverModules<IHotReloadAwareModule>("EndHotReload", module => module.EndHotReload());
     }
 
     private bool InitializeModules()
     {
         foreach (var module in _modules) {
             if (module is IInitializableModule initModule) {
-                if (!initModule.Init()) {
+                TracyClient.ZoneBegin("Init::" + module.GetType().FullName);
+
+                var result = initModule.Init();
+
+                TracyClient.ZoneEnd();
+
+                if (!result) {
                     return false;
                 }
             }
@@ -113,41 +130,46 @@ public abstract class ApplicationBase : IApplication
 
     private void PreTickModules()
     {
-        IterateOverModules<IPreTickableModule>(module => module.PreTick());
+        IterateOverModules<IPreTickableModule>("PreTick", module => module.PreTick());
     }
 
     private void TickModules()
     {
         GetModule<IEventBus>().Emit();
 
-        IterateOverModules<ITickableModule>(module => module.Tick());
+        IterateOverModules<ITickableModule>("Tick", module => module.Tick());
     }
 
     private void PostTickModules()
     {
-        IterateOverModules<IPostTickableModule>(module => module.PostTick());
+        IterateOverModules<IPostTickableModule>("PostTick", module => module.PostTick());
     }
 
     private void PreRenderModules()
     {
-        IterateOverModules<IPreRenderableModule>(module => module.PreRender());
+        IterateOverModules<IPreRenderableModule>("PreRender", module => module.PreRender());
     }
 
     private void RenderModules()
     {
-        IterateOverModules<IRenderableModule>(module => module.Render());
+        IterateOverModules<IRenderableModule>("Render", module => module.Render());
     }
 
     private void PostRenderModules()
     {
-        IterateOverModules<IPostRenderableModule>(module => module.PostRender());
+        IterateOverModules<IPostRenderableModule>("PostRender", module => module.PostRender());
     }
 
-    private void IterateOverModules<T>(Action<T> callback)
+    private void ShutdownModules()
+    {
+        IterateOverModules<IShutdownModule>("Shutdown", module => module.Shutdown());
+    }
+
+    private void IterateOverModules<T>(string zoneName, Action<T> callback)
     {
         foreach (var module in _modules) {
             if (module is T cast) {
-                callback(cast);
+                TracyClient.Zone<T>(zoneName + "::" + module.GetType().Name, callback, cast);
             }
         }
     }
@@ -159,9 +181,10 @@ public abstract class ApplicationBase : IApplication
         AddModule(new ContentModule(GetModule<ILogModule>()));
         AddModule(new GraphicsModule(this, _platform, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new EcsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>()));
+        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>(), GetModule<IEventBus>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
+        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IGraphicsModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
     }
 
     public void Run()
@@ -177,19 +200,21 @@ public abstract class ApplicationBase : IApplication
         while (_state is State.Running or State.HotReloading) {
             Time.FrameTimer?.Update();
 
-            _platform.Tick();
+            TracyClient.Zone("Platform::Tick", _platform.Tick);
 
             PreTickModules();
             TickModules();
             PostTickModules();
 
-            _platform.PostTick();
+            TracyClient.Zone("Platform::PostTick", _platform.PostTick);
 
             PreRenderModules();
             RenderModules();
             PostRenderModules();
 
             Thread.Sleep(16);
+
+            TracyClient.FrameMark();
         }
     }
 
@@ -202,6 +227,7 @@ public abstract class ApplicationBase : IApplication
         _systemLogger?.LogInformation("Shutdown requested");
 
         ChangeState(State.TearingDown);
+        ShutdownModules();
     }
 
     public void AddModule(IModule module)
@@ -209,10 +235,9 @@ public abstract class ApplicationBase : IApplication
         _modules.Add(module);
     }
 
-    public ISystemComposition CreateDefaultSystemComposition(IScene scene)
+    public void PopulateSystemCompositionWithDefaults(IScene scene, ISystemComposition composition)
     {
-        var c = new SystemComposition(scene.World);
-        c
+        composition
             .Add(new CameraSystem(scene, GetModule<IGraphicsModule>()))
             .Add(new MeshLoadSystem(scene, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
             .Add(new ScheduleRenderableSystem(scene.World, GetModule<IGraphicsModule>()))
@@ -220,9 +245,10 @@ public abstract class ApplicationBase : IApplication
             .Add(new RigidBodyLifecycleSystem_RemoveBox(scene.World, GetModule<IPhysicsModule>()))
             .Add(new RigidBodyLifecycleSystem_AddSphere(scene.World, GetModule<IPhysicsModule>()))
             .Add(new RigidBodyLifecycleSystem_RemoveSphere(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodySynchronizationSystem(scene.World, GetModule<IPhysicsModule>()));
-
-        return c;
+            .Add(new RigidBodySynchronizationSystem(scene.World, GetModule<IPhysicsModule>()))
+            .Add(new ContextLoadSystem(scene.World, GetModule<UiModule>()))
+            .Add(new UserInterfaceLoadSystem(scene.World, GetModule<IContentModule>(), GetModule<UiModule>()))
+            .Add(new ContextSyncSystem(scene.World, GetModule<UiModule>()));
     }
 
     private void ChangeState(State newState)

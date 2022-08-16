@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" />
         <ProjectReference Include="..\Content\Content.csproj" />
         <ProjectReference Include="..\Core\Core.csproj" />
         <ProjectReference Include="..\Ecs\Ecs.csproj" />
@@ -18,6 +19,7 @@
         <ProjectReference Include="..\Scene\Scene.csproj" />
         <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
         <ProjectReference Include="..\Serialization\Serialization.csproj" />
+        <ProjectReference Include="..\Ui\Ui.csproj" />
     </ItemGroup>
 
 </Project>

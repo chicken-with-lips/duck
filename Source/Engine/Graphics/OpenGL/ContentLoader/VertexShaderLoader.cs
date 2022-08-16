@@ -14,14 +14,14 @@ public class VertexShaderLoader : IAssetLoader
         _api = graphicsDevice.API;
     }
 
-    public bool CanLoad(IAsset asset)
+    public bool CanLoad(IAsset asset, IAssetLoadContext context)
     {
         return asset is VertexShader;
     }
 
-    public IPlatformAsset Load(IAsset asset, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
     {
-        if (!CanLoad(asset) || asset is not VertexShader shaderAsset) {
+        if (!CanLoad(asset, context) || asset is not VertexShader shaderAsset) {
             throw new Exception("FIXME: errors");
         }
 

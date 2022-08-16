@@ -1,4 +1,5 @@
 using Duck.Graphics.Device;
+using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL;
 
@@ -33,10 +34,6 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase
         indexBuffer.Bind();
 
         var attributes = vertexBuffer.Attributes;
-
-        // sort by index
-        Array.Sort(attributes, (a, b) => a.Attribute.CompareTo(b.Attribute));
-
         var vertexSize = OpenGLUtil.VertexSize(attributes);
 
         for (var i = 0; i < attributes.Length; i++) {
@@ -44,7 +41,7 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase
                 (uint)attributes[i].Attribute,
                 OpenGLUtil.ComponentCount(attributes[i].AttributeType),
                 OpenGLUtil.Convert(attributes[i].AttributeType),
-                false,
+                attributes[i].Normalized,
                 vertexSize,
                 (void*)OpenGLUtil.ByteOffset(attributes, i)
             );

@@ -1,4 +1,5 @@
 using Duck.Content;
+using Duck.Graphics.Device;
 using Duck.Graphics.Shaders;
 using Silk.NET.OpenGL;
 
@@ -17,14 +18,14 @@ public class ShaderProgramLoader : IAssetLoader
         _contentModule = contentModule;
     }
 
-    public bool CanLoad(IAsset asset)
+    public bool CanLoad(IAsset asset, IAssetLoadContext context)
     {
         return asset is ShaderProgram;
     }
 
-    public IPlatformAsset Load(IAsset asset, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
     {
-        if (!CanLoad(asset) || asset is not ShaderProgram programAsset) {
+        if (!CanLoad(asset, context) || asset is not ShaderProgram programAsset) {
             throw new Exception("FIXME: errors");
         }
 
@@ -33,8 +34,13 @@ public class ShaderProgramLoader : IAssetLoader
 
         var programId = _api.CreateProgram();
 
-        _api.AttachShader(programId, ((OpenGLVertexShader) vertexShader).ShaderId);
-        _api.AttachShader(programId, ((OpenGLFragmentShader) fragmentShader).ShaderId);
+        _api.AttachShader(programId, ((OpenGLVertexShader)vertexShader).ShaderId);
+        _api.AttachShader(programId, ((OpenGLFragmentShader)fragmentShader).ShaderId);
+
+        foreach (var attributeIndex in Enum.GetValues<VertexAttribute>()) {
+            _api.BindAttribLocation(programId, (uint)attributeIndex, "in" + Enum.GetName(attributeIndex));
+        }
+
         _api.LinkProgram(programId);
 
         _api.GetProgram(programId, GLEnum.LinkStatus, out var status);

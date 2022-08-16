@@ -90,7 +90,7 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
             return;
         }
 
-        _api.DeleteBuffer(_id);
+        //_api.DeleteBuffer(_id);
 
         _isDisposed = true;
     }

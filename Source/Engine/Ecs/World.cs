@@ -76,7 +76,12 @@ public partial class World : IWorld
 
     public void DeleteEntity(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.Add(entity.Id);
+        DeleteEntity(entity.Id);
+    }
+
+    public void DeleteEntity(int entityId)
+    {
+        _entitiesRemovedCurrentFrame.Add(entityId);
     }
 
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct
@@ -129,6 +134,19 @@ public partial class World : IWorld
         return _entityPool.Get(entityId);
     }
 
+    public IEntity[] GetEntitiesByComponent<T>() where T : struct
+    {
+        List<IEntity> ents = new();
+
+        for (var entityId = 0; entityId < _entityPool.Count; entityId++) {
+            if (HasComponent<T>(entityId)) {
+                ents.Add(GetEntity(entityId));
+            }
+        }
+
+        return ents.ToArray();
+    }
+
     public bool IsEntityAllocated(int entityId)
     {
         return _entityPool.IsAllocated(entityId);
@@ -151,7 +169,7 @@ public partial class World : IWorld
 
     public bool HasComponent<T>(int entityId) where T : struct
     {
-        return GetEntity(entityId).Has<T>();
+        return IsEntityAllocated(entityId) && GetEntity(entityId).Has<T>();
     }
 
     public IFilter<T> CompileFilter<T>(IFilter<T> filter) where T : struct

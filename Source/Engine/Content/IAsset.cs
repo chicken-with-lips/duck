@@ -13,7 +13,8 @@ public interface IAsset
 public interface IAsset<T> : IAsset
     where T : class, IAsset
 {
-    public AssetReference<T> MakeReference();
+    public SharedAssetReference<T> MakeSharedReference();
+    public UniqueAssetReference<T> MakeUniqueReference();
 }
 
 public enum AssetStatus

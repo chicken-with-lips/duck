@@ -62,11 +62,22 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         _frameRenderables.Clear();
         _context.MakeCurrent();
 
-        _api.Enable(GLEnum.DepthTest);
+        _api.Viewport(0, 0, 1280, 1024);
+        // _api.Enable(GLEnum.DepthTest);
         _api.Enable(EnableCap.PolygonOffsetFill);
         _api.PolygonOffset(1, 0);
+        
+        // _api.Disable(GLEnum.CullFace);
+        // _api.Enable(GLEnum.StencilTest);
+        // _api.StencilFunc(GLEnum.Always, 1, 0);
+        // _api.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Keep);
 
-        _api.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        _api.Enable(GLEnum.Blend);
+        _api.BlendEquation(GLEnum.FuncAdd);
+        _api.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
+
+        _api.ClearStencil(0);
+        _api.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
     }
 
     public unsafe void Render()
@@ -74,21 +85,21 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         // TODO: move out to render graph
 
         foreach (var renderable in _frameRenderables) {
-            var model = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
+            var transform = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
 
-            DrawRenderable(renderable, model, (renderObject) => {
+            DrawRenderable(renderable, transform, (renderObject) => {
                 _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);
             });
 
             if (renderable.BoundingVolume is BoundingBoxComponent boundingComponent) {
-                DrawDebugBox(renderable, boundingComponent.Box, model);
+                DrawDebugBox(renderable, boundingComponent.Box, transform);
             } else if (renderable.BoundingVolume is BoundingSphereComponent boundingSphereComponent) {
-                DrawDebugSphere(renderable, boundingSphereComponent.Radius, model);
+                DrawDebugSphere(renderable, boundingSphereComponent.Radius, transform);
             }
         }
     }
 
-    private unsafe void DrawRenderable(IRenderObject renderable, Matrix4X4<float> model, RenderCallback renderCallback)
+    private unsafe void DrawRenderable(IRenderObject renderable, Matrix4X4<float> transform, RenderCallback renderCallback)
     {
         if (renderable is OpenGLRenderObject glRenderObject) {
             glRenderObject.Bind();
@@ -97,18 +108,20 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         }
 
         Matrix4X4<float> view = this.ViewMatrix;
-        Matrix4X4<float> projection = Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), 1280f / 1024f, 0.1f, 10000f);
+        // Matrix4X4<float> projection = Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), 1280f / 1024f, 0.1f, 20000f);
+        Matrix4X4<float> projection = Matrix4X4.CreateOrthographicOffCenter(0f, 1280f, 1024f, 0f, -10000f, 10000f);
+        // transform = Matrix4X4.CreateOrthographic(1280, 1024, -10000f, 10000f);
 
         if (renderable.GetShaderProgram() is OpenGLShaderProgram glShaderProgram) {
             _api.UseProgram(glShaderProgram.ProgramId);
 
-            int modelLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "in_Model");
-            _api.UniformMatrix4(modelLoc, 1, false, (float*)&model);
+            int modelLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uTransform");
+            _api.UniformMatrix4(modelLoc, 1, false, (float*)&transform);
 
-            int viewLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "in_View");
+            int viewLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uView");
             _api.UniformMatrix4(viewLoc, 1, false, (float*)&view);
 
-            int projLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "in_Projection");
+            int projLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uProjection");
             _api.UniformMatrix4(projLoc, 1, false, (float*)&projection);
         }
 
@@ -189,22 +202,22 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         return _renderObjectInstances[instanceComponentId];
     }
 
-    private unsafe void DrawDebugBox(IRenderObject parentRenderObject, Box3D<float> box, Matrix4X4<float> model)
+    private unsafe void DrawDebugBox(IRenderObject parentRenderObject, Box3D<float> box, Matrix4X4<float> transform)
     {
-        model = Matrix4X4.CreateScale(box.Size) * model;
+        transform = Matrix4X4.CreateScale(box.Size) * transform;
 
-        DrawRenderable(_debugBox, model, (renderObject) => {
+        DrawRenderable(_debugBox, transform, (renderObject) => {
             _api.DrawElements(PrimitiveType.LineLoop, 4, DrawElementsType.UnsignedShort, null);
             _api.DrawElements(PrimitiveType.LineLoop, 4, DrawElementsType.UnsignedShort, (void*)(4 * sizeof(ushort)));
             _api.DrawElements(PrimitiveType.Lines, 8, DrawElementsType.UnsignedShort, (void*)(8 * sizeof(ushort)));
         });
     }
 
-    private unsafe void DrawDebugSphere(IRenderObject parentRenderObject, float radius, Matrix4X4<float> model)
+    private unsafe void DrawDebugSphere(IRenderObject parentRenderObject, float radius, Matrix4X4<float> transform)
     {
-        model = Matrix4X4.CreateScale(radius, radius, radius) * model;
+        transform = Matrix4X4.CreateScale(radius, radius, radius) * transform;
 
-        DrawRenderable(_debugSphere, model, (renderObject) => {
+        DrawRenderable(_debugSphere, transform, (renderObject) => {
             _api.DrawElements(PrimitiveType.Lines, _debugSphere.IndexCount, DrawElementsType.UnsignedShort, null);
         });
     }

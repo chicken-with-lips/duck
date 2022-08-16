@@ -7,10 +7,6 @@ public abstract class FilterBase : IFilter
 {
     public IWorld World {
         get;
-
-        // FIXME: used to restore the World reference after a reload. serialization library doesn't handle circular
-        // references
-        internal set;
     }
 
     public string Id { get; }
@@ -161,11 +157,6 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
         _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
     }
 
-    public IEntity GetEntity(int entityId)
-    {
-        return World.GetEntity(entityId);
-    }
-
     public ref T1 Get1(int entityId)
     {
         return ref World.GetComponent<T1>(_entityMap[entityId].Item1);
@@ -227,7 +218,10 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
         : base(world, id, componentPredicates)
     {
         _entitiesAddedCurrentFrame = _entitiesAdded1;
+        _entitiesAddedPreviousFrame = _entitiesAdded2;
+
         _entitiesRemovedCurrentFrame = _entitiesRemoved1;
+        _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
     public override void QueueAddition(IEntity entity)
@@ -242,11 +236,6 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
     public override void QueueRemoval(IEntity entity)
     {
         _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
-    }
-
-    public IEntity GetEntity(int entityId)
-    {
-        return World.GetEntity(entityId);
     }
 
     public ref T1 Get1(int entityId)

@@ -20,7 +20,7 @@ public class MaterialParameterCollection : IEnumerable
 {
     private readonly Dictionary<string, IParameter> _properties = new();
 
-    public void SetParameter(string name, AssetReference<Texture2D> texture)
+    public void SetParameter(string name, IAssetReference<Texture2D> texture)
     {
         _properties.Add(name, new Texture2DParameter() {
             Name = name,
@@ -56,7 +56,7 @@ public class MaterialParameterCollection : IEnumerable
     public struct Texture2DParameter : IParameter
     {
         public string Name;
-        public AssetReference<Texture2D> Value;
+        public IAssetReference<Texture2D> Value;
     }
 
     public struct RgbColor : IParameter

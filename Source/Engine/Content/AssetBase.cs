@@ -30,9 +30,14 @@ public abstract class AssetBase<T> : IAsset<T>
         Status = AssetStatus.Loaded;
     }
 
-    public AssetReference<T> MakeReference()
+    public UniqueAssetReference<T> MakeUniqueReference()
     {
-        return new AssetReference<T>(Id);
+        return new UniqueAssetReference<T>(Id);
+    }
+
+    public SharedAssetReference<T> MakeSharedReference()
+    {
+        return new SharedAssetReference<T>(Id);
     }
 
     #endregion

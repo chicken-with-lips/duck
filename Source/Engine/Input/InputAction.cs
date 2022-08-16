@@ -31,7 +31,7 @@ public class InputActionBinding
 
 public class InputActionBuilder
 {
-    private string _name;
+    private string? _name;
     private readonly List<InputActionBinding> _bindings = new();
 
     public InputActionBuilder WithName(string name)

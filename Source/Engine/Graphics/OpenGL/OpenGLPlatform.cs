@@ -50,7 +50,7 @@ public class OpenGLPlatform : IPlatform
         return window;
     }
 
-    public IGraphicsDevice CreateGraphicsDevice(AssetReference<ShaderProgram> debugShader)
+    public IGraphicsDevice CreateGraphicsDevice(IAssetReference<ShaderProgram> debugShader)
     {
         if (_windows.Count == 0 || null == _glContext) {
             throw new Exception("FIXME: a window must be created first");

@@ -2,5 +2,5 @@ namespace Duck.Scene;
 
 public interface ISceneModule : IModule
 {
-    public IScene Create();
+    public IScene Create(string name);
 }

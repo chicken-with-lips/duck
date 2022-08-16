@@ -1,9 +1,9 @@
 using Duck.Content;
-using Duck.Graphics.OpenGL;
+using Duck.Graphics.Textures;
 using Silk.NET.OpenGL;
 using StbImageSharp;
 
-namespace Duck.Graphics.Textures;
+namespace Duck.Graphics.OpenGL.ContentLoader;
 
 public class Texture2DLoader : IAssetLoader
 {
@@ -14,18 +14,25 @@ public class Texture2DLoader : IAssetLoader
         _graphicsDevice = graphicsDevice;
     }
 
-    public bool CanLoad(IAsset asset)
+    public bool CanLoad(IAsset asset, IAssetLoadContext context)
     {
         return asset is Texture2D;
     }
 
-    public IPlatformAsset Load(IAsset asset, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
     {
-        if (!CanLoad(asset) || asset is not Texture2D textureAsset) {
+        if (!CanLoad(asset, context) || asset is not Texture2D textureAsset) {
             throw new Exception("FIXME: errors");
         }
 
-        var image = ImageResult.FromMemory(source.ToArray(), ColorComponents.RedGreenBlueAlpha);
+        byte[]? data = null;
+
+        if (textureAsset.UseRawData) {
+            data = source.ToArray();
+        } else {
+            var image = ImageResult.FromMemory(source.ToArray(), ColorComponents.RedGreenBlueAlpha);
+            data = image.Data;
+        }
 
         var api = _graphicsDevice.API;
         var textureId = api.GenTexture();
@@ -42,12 +49,12 @@ public class Texture2DLoader : IAssetLoader
             GLEnum.Texture2D,
             0,
             InternalFormat.Rgba,
-            (uint)image.Width,
-            (uint)image.Height,
+            (uint)textureAsset.Width,
+            (uint)textureAsset.Height,
             0,
             GLEnum.Rgba,
             GLEnum.UnsignedByte,
-            image.Data
+            data
         );
         api.GenerateMipmap(TextureTarget.Texture2D);
 

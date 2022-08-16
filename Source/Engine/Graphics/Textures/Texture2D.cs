@@ -4,22 +4,29 @@ namespace Duck.Graphics.Textures;
 
 public class Texture2D : AssetBase<Texture2D>
 {
+
     #region Properties
 
-    public int AnisotropyLevel { get; }
-    public MinFilter MinFilter { get; }
-    public MagFilter MagFilter { get; }
-    public WrapMode WrapS { get; }
-    public WrapMode WrapT { get; }
-    public WrapMode WrapR { get; }
+    public int Width { get; }
+    public int Height { get; }
+    public bool UseRawData { get; }
+    public int AnisotropyLevel { get; set; }
+    public MinFilter MinFilter { get; set; }
+    public MagFilter MagFilter { get; set; }
+    public WrapMode WrapS { get; set; }
+    public WrapMode WrapT { get; set; }
+    public WrapMode WrapR { get; set; }
 
     #endregion
 
     #region Methods
 
-    public Texture2D(AssetImportData importData)
+    public Texture2D(AssetImportData importData, int width, int height, bool useRawData = false)
         : base(importData)
     {
+        Width = width;
+        Height = height;
+        UseRawData = useRawData;
         AnisotropyLevel = 1;
         MinFilter = MinFilter.Nearest;
         MagFilter = MagFilter.Linear;
@@ -29,16 +36,6 @@ public class Texture2D : AssetBase<Texture2D>
     }
 
     #endregion
-}
-
-public class OpenGLTexture2D : IPlatformAsset<Texture2D>
-{  
-    public uint TextureId { get; }
-
-    public OpenGLTexture2D(uint textureId)
-    {
-        TextureId = textureId;
-    }
 }
 
 /// <summary>

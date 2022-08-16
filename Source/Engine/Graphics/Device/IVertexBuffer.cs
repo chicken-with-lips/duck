@@ -24,7 +24,7 @@ public class VertexBufferBuilder<TDataType>
         _usage = usage;
     }
 
-    public VertexBufferBuilder<TDataType> Attribute(VertexAttribute attribute, uint bufferIndex, AttributeType attributeType)
+    public VertexBufferBuilder<TDataType> Attribute(VertexAttribute attribute, uint bufferIndex, AttributeType attributeType, bool normalized = false)
     {
         Debug.Assert(bufferIndex == 0, "bufferIndex must be 0");
 
@@ -32,7 +32,8 @@ public class VertexBufferBuilder<TDataType>
             new AttributeDecl(
                 attribute,
                 bufferIndex,
-                attributeType
+                attributeType,
+                normalized
             )
         );
 
@@ -56,13 +57,16 @@ public enum VertexAttribute : byte
 {
     Position = 0,
     Normal = 1,
-    Uv0 = 2,
+    TexCoord0 = 2,
+    Color0 = 3,
 }
 
 public enum AttributeType
 {
     Float2,
     Float3,
+    Float4,
+    UnsignedByte4,
 }
 
 public readonly struct AttributeDecl
@@ -70,12 +74,14 @@ public readonly struct AttributeDecl
     public VertexAttribute Attribute { get; }
     public uint BufferIndex { get; }
     public AttributeType AttributeType { get; }
+    public bool Normalized { get; }
 
-    public AttributeDecl(VertexAttribute attribute, uint bufferIndex, AttributeType attributeType)
+    public AttributeDecl(VertexAttribute attribute, uint bufferIndex, AttributeType attributeType, bool normalized)
     {
         Attribute = attribute;
         BufferIndex = bufferIndex;
         AttributeType = attributeType;
+        Normalized = normalized;
     }
 }
 

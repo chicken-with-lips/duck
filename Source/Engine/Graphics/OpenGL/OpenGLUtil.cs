@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Duck.Graphics.Device;
 using Silk.NET.OpenGL;
 using AttributeType = Duck.Graphics.Device.AttributeType;
@@ -20,6 +19,8 @@ public static class OpenGLUtil
         return type switch {
             AttributeType.Float2 => VertexAttribPointerType.Float,
             AttributeType.Float3 => VertexAttribPointerType.Float,
+            AttributeType.Float4 => VertexAttribPointerType.Float,
+            AttributeType.UnsignedByte4 => VertexAttribPointerType.UnsignedByte,
             _ => throw new NotImplementedException()
         };
     }
@@ -29,6 +30,8 @@ public static class OpenGLUtil
         return type switch {
             AttributeType.Float2 => 2,
             AttributeType.Float3 => 3,
+            AttributeType.Float4 => 4,
+            AttributeType.UnsignedByte4 => 4,
             _ => throw new NotImplementedException()
         };
     }
@@ -38,6 +41,8 @@ public static class OpenGLUtil
         return type switch {
             AttributeType.Float2 => 4,
             AttributeType.Float3 => 4,
+            AttributeType.Float4 => 4,
+            AttributeType.UnsignedByte4 => 1,
             _ => throw new NotImplementedException()
         };
     }

@@ -57,11 +57,11 @@ public class GraphicsModule : IGraphicsModule,
         _debugShader = _contentModule.Database.Register(CreateDebugShader());
 
         _contentModule.RegisterSourceAssetImporter(
-            new FbxAssetImporter(_defaultShader.MakeReference())
+            new FbxAssetImporter(_defaultShader.MakeSharedReference())
         );
 
         _graphicsDevice = _platform.CreateGraphicsDevice(
-            _debugShader.MakeReference()
+            _debugShader.MakeSharedReference()
         );
 
         return true;
@@ -102,9 +102,9 @@ public class GraphicsModule : IGraphicsModule,
         var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/shader.vs"))));
 
         return new ShaderProgram(
-            new AssetImportData(new Uri("memory://generated")),
-            vertShader.MakeReference(),
-            fragShader.MakeReference()
+            new AssetImportData(new Uri("memory://default.shader")),
+            vertShader.MakeSharedReference(),
+            fragShader.MakeSharedReference()
         );
     }
 
@@ -114,9 +114,9 @@ public class GraphicsModule : IGraphicsModule,
         var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/debug.vs"))));
 
         return new ShaderProgram(
-            new AssetImportData(new Uri("memory://generated")),
-            vertShader.MakeReference(),
-            fragShader.MakeReference()
+            new AssetImportData(new Uri("memory://debug.shader")),
+            vertShader.MakeSharedReference(),
+            fragShader.MakeSharedReference()
         );
     }
 

@@ -10,9 +10,9 @@ namespace Duck.Graphics.Content.SourceAssetImporter;
 
 public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
 {
-    private readonly AssetReference<ShaderProgram> _defaultShader;
+    private readonly IAssetReference<ShaderProgram> _defaultShader;
 
-    public FbxAssetImporter(AssetReference<ShaderProgram> defaultShader)
+    public FbxAssetImporter(IAssetReference<ShaderProgram> defaultShader)
     {
         _defaultShader = defaultShader;
     }
@@ -22,7 +22,7 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
         return Path.GetExtension(file).ToLower() == ".fbx";
     }
 
-    public override unsafe StaticMesh? Import(string file)
+    public override unsafe StaticMesh Import(string file)
     {
         var ai = Assimp.GetApi();
         var scene = ai.ImportFile(file, (uint)(PostProcessPreset.TargetRealTimeMaximumQuality | PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs));

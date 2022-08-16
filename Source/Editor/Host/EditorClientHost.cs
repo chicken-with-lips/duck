@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Duck;
@@ -74,7 +73,6 @@ public class EditorClientHost
 
         // var gameDll = Path.Combine(directory, "Game.dll");
         var gameDll = "/home/jolly_samurai/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
-
 
         using (_assemblyContext?.EnterContextualReflection()) {
             using (var stream = File.OpenRead(gameDll)) {

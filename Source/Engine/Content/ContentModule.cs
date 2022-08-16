@@ -28,8 +28,8 @@ public class ContentModule : IContentModule
 
     public ContentModule(ILogModule logModule)
     {
-        _logger = logModule.CreateLogger("Asset");
-        _logger.LogInformation("Created asset module.");
+        _logger = logModule.CreateLogger("Content");
+        _logger.LogInformation("Created content module.");
 
         _database = new AssetDatabase();
 
@@ -86,11 +86,11 @@ public class ContentModule : IContentModule
         return this;
     }
 
-    public IAssetLoader? FindAssetLoader<T>(T asset)
+    public IAssetLoader? FindAssetLoader<T>(T asset, IAssetLoadContext context)
         where T : class, IAsset
     {
         foreach (var assetLoader in _assetLoaders) {
-            if (assetLoader.CanLoad(asset)) {
+            if (assetLoader.CanLoad(asset, context)) {
                 return assetLoader;
             }
         }
@@ -108,21 +108,31 @@ public class ContentModule : IContentModule
         throw new Exception("FIXME: bad asset type");
     }
 
-    public bool IsLoaded<T>(AssetReference<T> assetReference)
+    public bool IsLoaded<T>(IAssetReference<T> assetReference)
         where T : class, IAsset
     {
-        T? asset = _database.GetAsset(assetReference);
+        T? asset = _database.GetAsset<T>(assetReference);
 
         return asset is { IsLoaded: true };
     }
 
-    public IPlatformAsset LoadImmediate<T>(T asset)
+    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference, IAssetLoadContext context, byte[]? fixmeData = null)
         where T : class, IAsset
     {
+        // FIXME: dont pass data directly like this
+
         var cache = GetAssetCacheOrThrow<T>();
 
-        if (!cache.Contains(asset)) {
-            IAssetLoader? assetLoader = FindAssetLoader(asset);
+        if (!cache.Contains(assetReference)) {
+            T? asset = _database.GetAsset<T>(assetReference);
+
+            if (asset == null) {
+                throw new Exception("FIXME: unknown asset");
+            }
+
+            _logger.LogInformation("Loading {0}", asset.ImportData.Uri);
+
+            IAssetLoader? assetLoader = FindAssetLoader(asset, context);
 
             if (assetLoader == null) {
                 throw new Exception("FIXME: unknown loader");
@@ -130,30 +140,27 @@ public class ContentModule : IContentModule
 
             ReadOnlySpan<byte> data;
 
+            // fixme: replace with more appropriate asset location and loading
             if (asset.ImportData.Uri.IsFile) {
-                data = File.ReadAllBytes(ContentRootDirectory + asset.ImportData.Uri.AbsolutePath);
+                var tmp = asset.ImportData.Uri.AbsolutePath;
+                var path = tmp.StartsWith(ContentRootDirectory) ? tmp : ContentRootDirectory + tmp;
+                data = File.ReadAllBytes(path);
             } else {
-                data = new byte[] { };
+                data = fixmeData;
             }
 
-            var platformAsset = assetLoader.Load(asset, data);
+            var platformAsset = assetLoader.Load(asset, context, data);
             asset.ChangeStateToLoaded();
 
-            cache.Add(asset, platformAsset);
+            cache.Add(assetReference, platformAsset);
         }
 
-        return cache.GetBase(asset);
+        return cache.GetBase(assetReference);
     }
 
-    public IPlatformAsset LoadImmediate<T>(AssetReference<T> assetReference) where T : class, IAsset
+    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference) where T : class, IAsset
     {
-        T? asset = _database.GetAsset(assetReference);
-
-        if (asset == null) {
-            throw new Exception("FIXME: unknown asset");
-        }
-
-        return LoadImmediate(asset);
+        return LoadImmediate(assetReference, EmptyAssetLoadContext.Default);
     }
 
     // public ITexture2D LoadTextureImmediate(AssetReference<ITexture2DAsset> assetReference)

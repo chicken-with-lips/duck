@@ -49,6 +49,8 @@ public class OpenGLWindow : IWindow
         silkOptions.Title = _config.Title;
         silkOptions.IsEventDriven = false;
         silkOptions.FramesPerSecond = 60;
+        silkOptions.Samples = 2;
+        silkOptions.PreferredStencilBufferBits = 8;
 
         _silkWindow = SilKWindow.Create(silkOptions);
 
@@ -69,6 +71,8 @@ public class OpenGLWindow : IWindow
                 // mouse.Cursor.IsConfined = true;
 
                 mouse.MouseMove += OnCursorPosition;
+                mouse.MouseDown += OnMouseButton;
+                mouse.MouseUp += OnMouseButton;
 
                 _cursorPosition = new Vector2D<float>(
                     (int)mouse.Position.X,
@@ -119,6 +123,14 @@ public class OpenGLWindow : IWindow
             mouse.Position.X,
             mouse.Position.Y
         );
+    }
+
+    private void OnMouseButton(IMouse mouse, MouseButton button)
+    {
+        _events.Add(new MouseButtonEvent() {
+            ButtonIndex = (int)button,
+            IsDown = mouse.IsButtonPressed(button),
+        });
     }
 
     #endregion

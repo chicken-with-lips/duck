@@ -1,7 +1,7 @@
 using System.Numerics;
-using System.Runtime.InteropServices;
-using ChickenWithLips.PhysX.Net;
+using ChickenWithLips.PhysX;
 using Duck.Ecs;
+using Duck.Graphics.Components;
 using Duck.Physics.Events;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
@@ -86,6 +86,28 @@ public class PhysicsWorld : IPhysicsWorld
         }
     }
 
+    public bool Overlaps(IBoundingVolume volume, Vector3D<float> position, Quaternion<float> rotation)
+    {
+        var transform = new PxTransform(rotation.ToSystem(), position.ToSystem());
+        var flags = PxQueryFlag.AnyHit | PxQueryFlag.Dynamic | PxQueryFlag.Static;
+
+        if (volume is BoundingBoxComponent boxVolume) {
+            return _scene.Overlap(
+                PhysXHelper.CreateBoxGeometry(boxVolume, Vector3D<float>.One),
+                transform,
+                flags
+            );
+        } else if (volume is BoundingSphereComponent sphereVolume) {
+            return _scene.Overlap(
+                PhysXHelper.CreateSphereGeometry(sphereVolume, Vector3D<float>.One),
+                transform,
+                flags
+            );
+        }
+
+        throw new ApplicationException("TODO: errors");
+    }
+
     public void Step(float timeStep)
     {
         _simulationEventCallback.ClearContacts();
@@ -93,12 +115,12 @@ public class PhysicsWorld : IPhysicsWorld
         _scene.Simulate(timeStep);
         _scene.FetchResults(true);
     }
-    
+
     internal void MapActorToEntity(IEntity entity, PxActor actor)
     {
         _actorToEntityMap.Add(actor, entity);
     }
-    
+
     internal void UnmapActor(PxActor actor)
     {
         _actorToEntityMap.Remove(actor);

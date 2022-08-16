@@ -52,6 +52,11 @@ public interface IPostRenderableModule : IModule
     public void PostRender();
 }
 
+public interface IShutdownModule : IModule
+{
+    public void Shutdown();
+}
+
 public interface IHotReloadAwareModule : IModule
 {
     public void BeginHotReload();

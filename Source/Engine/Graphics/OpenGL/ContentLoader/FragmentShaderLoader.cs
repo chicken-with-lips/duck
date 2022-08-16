@@ -14,14 +14,14 @@ public class FragmentShaderLoader : IAssetLoader
         _graphicsDevice = graphicsDevice;
     }
 
-    public bool CanLoad(IAsset asset)
+    public bool CanLoad(IAsset asset, IAssetLoadContext context)
     {
         return asset is FragmentShader;
     }
 
-    public IPlatformAsset Load(IAsset asset, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
     {
-        if (!CanLoad(asset) || asset is not FragmentShader shaderAsset) {
+        if (!CanLoad(asset, context) || asset is not FragmentShader shaderAsset) {
             throw new Exception("FIXME: errors");
         }
 

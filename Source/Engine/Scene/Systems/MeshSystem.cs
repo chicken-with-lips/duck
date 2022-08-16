@@ -29,7 +29,13 @@ public class MeshLoadSystem : SystemBase
     public override void Run()
     {
         foreach (var entityId in _filter.EntityAddedList) {
-            var mesh = _contentModule.LoadImmediate(_filter.Get1(entityId).Mesh);
+            var cmp = _filter.Get1(entityId);
+
+            if (cmp.Mesh == null) {
+                continue;
+            }
+
+            var mesh = _contentModule.LoadImmediate(cmp.Mesh);
 
             if (mesh is IRenderable renderable) {
                 var instance = _graphicsModule.GraphicsDevice.CreateRenderObjectInstance(renderable.RenderObject);

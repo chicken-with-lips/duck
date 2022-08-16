@@ -1,3 +1,4 @@
+using Duck.Graphics.Components;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
 
@@ -15,6 +16,8 @@ public interface IPhysicsWorld
 
     public void Step(float timeStep);
     void EmitEvents(IEventBus eventBus);
+
+    bool Overlaps(IBoundingVolume volume, Vector3D<float> position, Quaternion<float> rotation);
 
     #endregion
 }

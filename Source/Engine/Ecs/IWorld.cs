@@ -14,6 +14,7 @@ public partial interface IWorld
     public void EndFrame();
     public IEntity CreateEntity();
     public void DeleteEntity(IEntity entity);
+    public void DeleteEntity(int entityId);
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct;
     public void DeallocateComponent(Type componentType, int componentIndex);
     public void DeallocateComponent<T>(int componentIndex) where T : struct;
@@ -30,6 +31,8 @@ public partial interface IWorld
     public ComponentReference GetComponentReference<T>(int typeIndex, int componentIndex) where T : struct;
 
     public IEntity GetEntity(int entityId);
+    public IEntity[] GetEntitiesByComponent<T>() where T : struct;
+
     public bool IsEntityAllocated(int entityId);
 
     public IFilter<T> CompileFilter<T>(IFilter<T> filter) where T : struct;

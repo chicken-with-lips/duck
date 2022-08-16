@@ -17,26 +17,53 @@ public interface IContentModule : IModule
         where T : class, IAsset
         where U : class, IPlatformAsset;
 
-    public IAssetLoader? FindAssetLoader<T>(T asset)
+    public IAssetLoader? FindAssetLoader<T>(T asset, IAssetLoadContext context)
         where T : class, IAsset;
 
-    public IPlatformAsset LoadImmediate<T>(T asset)
+    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference, IAssetLoadContext context, byte[]? fixmeData = null)
         where T : class, IAsset;
 
-    public IPlatformAsset LoadImmediate<T>(AssetReference<T> asset)
+    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> asset)
         where T : class, IAsset;
 
-    bool IsLoaded<T>(AssetReference<T> assetReference)
+    bool IsLoaded<T>(IAssetReference<T> assetReference)
         where T : class, IAsset;
 }
 
-public readonly struct AssetReference<T>
+public interface IAssetReference<T>  where T : class, IAsset
+{
+    public Guid AssetId { get; }
+}
+
+public readonly struct SharedAssetReference<T> : IAssetReference<T>
     where T : class, IAsset
 {
-    public readonly Guid Id;
+    public Guid AssetId { get; }
 
-    public AssetReference(Guid id)
+    public SharedAssetReference(Guid assetId)
     {
-        Id = id;
+        AssetId = assetId;
     }
+}
+
+public readonly struct UniqueAssetReference<T> : IAssetReference<T>
+    where T : class, IAsset
+{
+    public Guid AssetId { get; }
+    public Guid UniqueId { get; }
+
+    public UniqueAssetReference(Guid assetId)
+    {
+        AssetId = assetId;
+        UniqueId = Guid.NewGuid();
+    }
+}
+
+public interface IAssetLoadContext
+{
+}
+
+public struct EmptyAssetLoadContext : IAssetLoadContext
+{
+    public static EmptyAssetLoadContext Default => new();
 }

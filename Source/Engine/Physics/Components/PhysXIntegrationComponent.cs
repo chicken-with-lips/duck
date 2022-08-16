@@ -1,4 +1,4 @@
-using ChickenWithLips.PhysX.Net;
+using ChickenWithLips.PhysX;
 using Duck.Serialization;
 
 namespace Duck.Physics.Components;

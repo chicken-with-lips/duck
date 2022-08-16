@@ -18,14 +18,14 @@ public class StaticMeshLoader : IAssetLoader
         _contentModule = contentModule;
     }
 
-    public bool CanLoad(IAsset asset)
+    public bool CanLoad(IAsset asset, IAssetLoadContext context)
     {
         return asset is StaticMesh;
     }
 
-    public IPlatformAsset Load(IAsset asset, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
     {
-        if (!CanLoad(asset) || asset is not StaticMesh meshAsset) {
+        if (!CanLoad(asset, context) || asset is not StaticMesh meshAsset) {
             throw new Exception("FIXME: errors");
         }
 
@@ -34,7 +34,7 @@ public class StaticMeshLoader : IAssetLoader
         var vertexBuffer = VertexBufferBuilder<TexturedVertex>.Create(BufferUsage.Static)
             .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
             .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
-            .Attribute(VertexAttribute.Uv0, 0, AttributeType.Float2)
+            .Attribute(VertexAttribute.TexCoord0, 0, AttributeType.Float2)
             .Build(_graphicsDevice);
         vertexBuffer.SetData(0, meshAsset.VertexBuffer);
 

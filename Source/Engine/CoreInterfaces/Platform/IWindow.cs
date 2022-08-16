@@ -51,3 +51,9 @@ public struct MousePositionEvent : IWindowEvent
     public double X;
     public double Y;
 }
+
+public struct MouseButtonEvent : IWindowEvent
+{
+    public int ButtonIndex;
+    public bool IsDown;
+}

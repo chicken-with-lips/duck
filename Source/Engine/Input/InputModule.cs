@@ -7,6 +7,12 @@ namespace Duck.Input;
 
 public class InputModule : IInputModule, ITickableModule
 {
+    #region Properties
+
+    public int MaxSupportedMouseButtons => 24;
+    
+    #endregion
+
     #region Members
 
     private readonly ILogger _logger;
@@ -16,6 +22,7 @@ public class InputModule : IInputModule, ITickableModule
     private readonly Dictionary<string, InputAxis> _axes = new();
 
     private readonly float[] _states = new float[(int)InputName.Max];
+    private readonly bool[] _mouseButtons = new bool[24];
     private int _mouseX;
     private int _mouseY;
 
@@ -51,9 +58,11 @@ public class InputModule : IInputModule, ITickableModule
                 _isFirstTick = false;
             }
 
-            foreach (var windowEvent in window.Events ?? Array.Empty<IWindowEvent>()) {
+            foreach (var windowEvent in window?.Events ?? Array.Empty<IWindowEvent>()) {
                 if (windowEvent is KeyEvent keyEvent && (int)keyEvent.Key < _states.Length) {
                     _states[(int)keyEvent.Key] = keyEvent.IsDown ? 1 : 0;
+                } else if (windowEvent is MouseButtonEvent mouseButtonEvent) {
+                    _mouseButtons[mouseButtonEvent.ButtonIndex] = mouseButtonEvent.IsDown;
                 } else if (windowEvent is MousePositionEvent mousePositionEvent) {
                     _states[mouseDeltaXId] = (int)(_mouseX - mousePositionEvent.X);
                     _states[mouseDeltaYId] = (int)(_mouseY - mousePositionEvent.Y);
@@ -109,6 +118,16 @@ public class InputModule : IInputModule, ITickableModule
     public bool IsKeyUp(InputName input)
     {
         return _states[(int)input] == 0;
+    }
+
+    public Vector2D<int> GetMousePosition(int index)
+    {
+        return new Vector2D<int>(_mouseX, _mouseY);
+    }
+
+    public bool IsMouseButtonDown(int index)
+    {
+        return _mouseButtons[index];
     }
 
     private void UpdateAxis(InputAxis axis)

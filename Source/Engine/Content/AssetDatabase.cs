@@ -38,9 +38,9 @@ public class AssetDatabase : IAssetDatabase
     //     return new AssetReference<T>(id);
     // }
 
-    public T GetAsset<T>(AssetReference<T> assetReference) where T : class, IAsset
+    public T GetAsset<T>(IAssetReference<T> assetReference) where T : class, IAsset
     {
-        if (!_assetsByGuid.TryGetValue(assetReference.Id, out var asset)) {
+        if (!_assetsByGuid.TryGetValue(assetReference.AssetId, out var asset)) {
             throw new Exception("FIXME: unknown asset");
         }
 
