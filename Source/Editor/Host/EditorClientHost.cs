@@ -71,8 +71,7 @@ public class EditorClientHost
             // _assemblyContext.LoadFromAssemblyPath(Path.Combine(directory, assembly));
         }
 
-        // var gameDll = Path.Combine(directory, "Game.dll");
-        var gameDll = "/home/jolly_samurai/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
+        var gameDll = Path.Combine(directory, "Game.dll");
 
         using (_assemblyContext?.EnterContextualReflection()) {
             using (var stream = File.OpenRead(gameDll)) {

@@ -56,6 +56,7 @@ public class Texture2DLoader : IAssetLoader
             GLEnum.UnsignedByte,
             data
         );
+        OpenGLUtil.LogErrors(api);
         api.GenerateMipmap(TextureTarget.Texture2D);
 
         return new OpenGLTexture2D(textureId);

@@ -10,7 +10,7 @@ public class InputModule : IInputModule, ITickableModule
     #region Properties
 
     public int MaxSupportedMouseButtons => 24;
-    
+
     #endregion
 
     #region Members
@@ -46,8 +46,7 @@ public class InputModule : IInputModule, ITickableModule
         int mouseDeltaYId = (int)InputName.MouseDeltaY;
 
         _states[mouseDeltaXId] = 0;
-        _states[mouseDeltaYId] = 0;
-
+        _states[mouseDeltaYId] = 0; 
 
         foreach (var window in _platform.Windows) {
             if (_isFirstTick) {

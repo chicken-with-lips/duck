@@ -43,3 +43,8 @@ public class UserInterfaceLoader : IAssetLoader
         // TODO: unload rml user interface
     }
 }
+
+internal struct UserInterfaceLoadContext : IAssetLoadContext
+{
+    public RmlContext RmlContext;
+}

@@ -2,6 +2,7 @@ using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Ui.Components;
+using Duck.Ui.Content.ContentLoader;
 using Duck.Ui.RmlUi;
 using Duck.Ui.Scripting;
 
@@ -42,7 +43,7 @@ public class UserInterfaceLoadSystem : SystemBase
             _uiModule.RegisterUserInterface(cmp.Interface, ui);
 
             if (cmp.Script is IUserInterfaceLoaded loaded) {
-                loaded.OnLoaded();
+                loaded.OnLoaded(ui);
             }
         }
 
@@ -50,9 +51,4 @@ public class UserInterfaceLoadSystem : SystemBase
             Console.WriteLine("TODO: remove ui");
         }
     }
-}
-
-internal struct UserInterfaceLoadContext : IAssetLoadContext
-{
-    public RmlContext RmlContext;
 }

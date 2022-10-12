@@ -17,6 +17,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
     private readonly PxFoundation _foundation;
     private readonly PxPhysics _physics;
     private readonly PxPvd _physicsDebugger;
+    private readonly PxTolerancesScale _scale;
 
     private readonly Dictionary<IWorld, IPhysicsWorld> _physicsWorlds = new();
 
@@ -36,6 +37,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
 
         _foundation = PxFoundation.Create(PxVersion.Version);
         _cpuDispatcher = PxDefaultCpuDispatcher.Create(targetThreadCount);
+        _scale = PxTolerancesScale.Default;
 
         var transport = PxPvdTransport.CreateDefaultSocketTransport("192.168.1.77", 5425, 10000);
 
@@ -45,7 +47,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
             Console.WriteLine("FIXME: could not connect to pvd");
         }
 
-        _physics = PxPhysics.Create(_foundation, PxVersion.Version, true, _physicsDebugger);
+        _physics = PxPhysics.Create(_foundation, PxVersion.Version, _scale, true, _physicsDebugger);
         _physics.InitExtensions(_physicsDebugger);
 
         _logger.LogInformation("Created physics module.");

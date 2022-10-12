@@ -35,14 +35,17 @@ public class ShaderProgramLoader : IAssetLoader
         var programId = _api.CreateProgram();
 
         _api.AttachShader(programId, ((OpenGLVertexShader)vertexShader).ShaderId);
+        OpenGLUtil.LogErrors(_api);
+
         _api.AttachShader(programId, ((OpenGLFragmentShader)fragmentShader).ShaderId);
+        OpenGLUtil.LogErrors(_api);
 
         foreach (var attributeIndex in Enum.GetValues<VertexAttribute>()) {
             _api.BindAttribLocation(programId, (uint)attributeIndex, "in" + Enum.GetName(attributeIndex));
+            OpenGLUtil.LogErrors(_api);
         }
 
         _api.LinkProgram(programId);
-
         _api.GetProgram(programId, GLEnum.LinkStatus, out var status);
 
         if (status == 0) {
@@ -56,6 +59,7 @@ public class ShaderProgramLoader : IAssetLoader
     {
         if (asset.IsLoaded && platformAsset is OpenGLShaderProgram programAsset) {
             _api.DeleteProgram(programAsset.ProgramId);
+            OpenGLUtil.LogErrors(_api);
         }
     }
 }

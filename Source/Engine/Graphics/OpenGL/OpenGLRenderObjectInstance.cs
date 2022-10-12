@@ -1,4 +1,5 @@
 using Duck.Content;
+using Duck.Graphics.Components;
 using Duck.Graphics.Device;
 using Duck.Graphics.Shaders;
 using Duck.Graphics.Textures;
@@ -15,12 +16,23 @@ public class OpenGLRenderObjectInstance : OpenGLRenderObjectBase, IRenderObjectI
     public override uint VertexCount => _renderObject.VertexCount;
     public override uint IndexCount => _renderObject.IndexCount;
 
+    public override Projection Projection {
+        get => _renderObject.Projection;
+        set => throw new NotSupportedException();
+    }
+
+    public override IBoundingVolume BoundingVolume {
+        get => _localBoundingVolume ?? _renderObject.BoundingVolume;
+        set => _localBoundingVolume = value;
+    }
+
     #endregion
 
     #region Members
 
     private readonly uint _id;
     private readonly IRenderObject _renderObject;
+    private IBoundingVolume? _localBoundingVolume;
 
     #endregion
 
@@ -48,6 +60,7 @@ public class OpenGLRenderObjectInstance : OpenGLRenderObjectBase, IRenderObjectI
     }
 
     public override bool IsDisposed { get; }
+
     public override void Dispose()
     {
     }

@@ -64,6 +64,8 @@ public class ContentModule : IContentModule
         file = Path.Combine(ContentRootDirectory, file);
 
         if (null != importer) {
+            _logger.LogInformation($"Importing \"{file}\"");
+            
             var asset = importer.Import(file);
 
             if (null != asset) {
@@ -71,6 +73,8 @@ public class ContentModule : IContentModule
 
                 return asset;
             }
+        } else {
+            _logger.LogWarning($"\"{file}\" is not supported by any source asset importers");
         }
 
         return null;

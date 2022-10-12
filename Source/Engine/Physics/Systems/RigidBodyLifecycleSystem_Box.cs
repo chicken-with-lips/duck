@@ -37,7 +37,7 @@ public class RigidBodyLifecycleSystem_AddBox : RigidBodyLifecycleSystem
             TransformComponent transformComponent = _filter.Get2(entityId);
             BoundingBoxComponent boundingBoxComponent = _filter.Get3(entityId);
 
-            var geometry = CreateGeometry(
+            var geometry = PhysXHelper.CreateBoxGeometry(
                 boundingBoxComponent.Box,
                 transformComponent.Scale
             );
@@ -51,11 +51,6 @@ public class RigidBodyLifecycleSystem_AddBox : RigidBodyLifecycleSystem
                 transformComponent
             );
         }
-    }
-
-    private static PxBoxGeometry CreateGeometry(Box3D<float> boundingBox, Vector3D<float> scale)
-    {
-        return new PxBoxGeometry(boundingBox.GetScaled(scale, boundingBox.Center).Size.ToSystem() / 2f);
     }
 
     #endregion

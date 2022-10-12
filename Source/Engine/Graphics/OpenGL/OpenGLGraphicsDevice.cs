@@ -1,16 +1,12 @@
-using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using Duck.Content;
+using System.Drawing;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
-using Duck.Graphics.Shaders;
-using Duck.Graphics.Textures;
 using Duck.Math;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using AttributeType = Duck.Graphics.Device.AttributeType;
+using Boolean = Silk.NET.OpenGL.Boolean;
 
 namespace Duck.Graphics.OpenGL;
 
@@ -59,31 +55,33 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
 
     public void BeginFrame()
     {
-        _frameRenderables.Clear();
         _context.MakeCurrent();
 
         _api.Viewport(0, 0, 1280, 1024);
-        // _api.Enable(GLEnum.DepthTest);
+
         _api.Enable(EnableCap.PolygonOffsetFill);
+
         _api.PolygonOffset(1, 0);
+
+        _api.Disable(GLEnum.CullFace);
         
-        // _api.Disable(GLEnum.CullFace);
-        // _api.Enable(GLEnum.StencilTest);
-        // _api.StencilFunc(GLEnum.Always, 1, 0);
-        // _api.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Keep);
+        _api.Enable(GLEnum.StencilTest);
+        _api.StencilFunc(GLEnum.Always, 1, 0);
+        _api.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Keep);
 
         _api.Enable(GLEnum.Blend);
         _api.BlendEquation(GLEnum.FuncAdd);
         _api.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
 
         _api.ClearStencil(0);
+        _api.ClearColor(Color.Black);
         _api.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
     }
 
     public unsafe void Render()
     {
         // TODO: move out to render graph
-
+        
         foreach (var renderable in _frameRenderables) {
             var transform = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
 
@@ -91,12 +89,18 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
                 _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);
             });
 
-            if (renderable.BoundingVolume is BoundingBoxComponent boundingComponent) {
-                DrawDebugBox(renderable, boundingComponent.Box, transform);
-            } else if (renderable.BoundingVolume is BoundingSphereComponent boundingSphereComponent) {
-                DrawDebugSphere(renderable, boundingSphereComponent.Radius, transform);
-            }
+            // if (renderable.BoundingVolume is BoundingBoxComponent boundingComponent) {
+            //     DrawDebugBox(renderable, boundingComponent.Box, transform);
+            // } else if (renderable.BoundingVolume is BoundingSphereComponent boundingSphereComponent) {
+            //     DrawDebugSphere(renderable, boundingSphereComponent.Radius, transform);
+            // }
         }
+    }
+
+    public void EndFrame()
+    {
+        _context.SwapBuffers();
+        _frameRenderables.Clear();
     }
 
     private unsafe void DrawRenderable(IRenderObject renderable, Matrix4X4<float> transform, RenderCallback renderCallback)
@@ -107,26 +111,41 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
             _renderObjects[glRenderObjectInstance.ParentId].Bind();
         }
 
+        if (renderable.RenderStateFlags.HasFlag(RenderStateFlag.DisableDepthTesting)) {
+            _api.Disable(GLEnum.DepthTest);
+        } else {
+            _api.Enable(GLEnum.DepthTest);
+        }
+
         Matrix4X4<float> view = this.ViewMatrix;
-        // Matrix4X4<float> projection = Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), 1280f / 1024f, 0.1f, 20000f);
-        Matrix4X4<float> projection = Matrix4X4.CreateOrthographicOffCenter(0f, 1280f, 1024f, 0f, -10000f, 10000f);
-        // transform = Matrix4X4.CreateOrthographic(1280, 1024, -10000f, 10000f);
+        Matrix4X4<float> projection = CreateProjectionMatrix(renderable);
 
         if (renderable.GetShaderProgram() is OpenGLShaderProgram glShaderProgram) {
             _api.UseProgram(glShaderProgram.ProgramId);
+            OpenGLUtil.LogErrors(_api);
 
             int modelLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uTransform");
+            OpenGLUtil.LogErrors(_api);
+
             _api.UniformMatrix4(modelLoc, 1, false, (float*)&transform);
+            OpenGLUtil.LogErrors(_api);
 
             int viewLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uView");
+            OpenGLUtil.LogErrors(_api);
+
             _api.UniformMatrix4(viewLoc, 1, false, (float*)&view);
+            OpenGLUtil.LogErrors(_api);
 
             int projLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uProjection");
-            _api.UniformMatrix4(projLoc, 1, false, (float*)&projection);
-        }
+            OpenGLUtil.LogErrors(_api);
 
-        if (renderable.GetTexture(0) is OpenGLTexture2D glTexture2D) {
-            _api.BindTexture(TextureTarget.Texture2D, glTexture2D.TextureId);
+            _api.UniformMatrix4(projLoc, 1, false, (float*)&projection);
+            OpenGLUtil.LogErrors(_api);
+
+            if (renderable.GetTexture(0) is OpenGLTexture2D glTexture2D) {
+                _api.BindTexture(TextureTarget.Texture2D, glTexture2D.TextureId);
+                OpenGLUtil.LogErrors(_api);
+            }
         }
 
         renderCallback(renderable);
@@ -134,9 +153,15 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         _api.BindVertexArray(0);
     }
 
-    public void EndFrame()
+    private Matrix4X4<float> CreateProjectionMatrix(IRenderObject renderable)
     {
-        _context.SwapBuffers();
+        if (renderable.Projection == Projection.Orthographic) {
+            return Matrix4X4.CreateOrthographicOffCenter(0f, 1280f, 1024f, 0f, -10000f, 10000f);
+        } else if (renderable.Projection == Projection.Perspective) {
+            return Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), 1280f / 1024f, 0.1f, 20000f);
+        }
+
+        throw new Exception("Unknown projection type");
     }
 
     public IIndexBuffer<T> CreateIndexBuffer<T>(BufferUsage usage)
@@ -156,6 +181,8 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         where TIndexType : unmanaged
     {
         var obj = new OpenGLRenderObject(this, vertexBuffer, indexBuffer);
+        obj.Projection = Projection.Perspective;
+
         _renderObjects.Add(obj.Id, obj);
 
         return obj;
@@ -180,11 +207,6 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         if (!renderObject.IsDisposed) {
             renderObject.Dispose();
         }
-    }
-
-    public void ScheduleRenderable(IRenderObjectInstance renderObjectInstance)
-    {
-        _frameRenderables.Add(renderObjectInstance);
     }
 
     public void ScheduleRenderable(IRenderObject renderObject)

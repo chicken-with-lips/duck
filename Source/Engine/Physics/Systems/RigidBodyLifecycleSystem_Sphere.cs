@@ -1,8 +1,6 @@
-using ChickenWithLips.PhysX;
 using Duck.Ecs;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
 
@@ -33,7 +31,6 @@ public class RigidBodyLifecycleSystem_AddSphere : RigidBodyLifecycleSystem
             IEntity entity = _filter.GetEntity(entityId);
 
             ref RigidBodyComponent rigidBodyComponent = ref _filter.Get1(entityId);
-            ref PhysXIntegrationComponent physxComponent = ref entity.Get<PhysXIntegrationComponent>();
 
             TransformComponent transformComponent = _filter.Get2(entityId);
             BoundingSphereComponent sphereComponent = _filter.Get3(entityId);
@@ -47,11 +44,6 @@ public class RigidBodyLifecycleSystem_AddSphere : RigidBodyLifecycleSystem
                 transformComponent
             );
         }
-    }
-
-    private static PxGeometry CreateGeometry(BoundingSphereComponent sphere, Vector3D<float> scale)
-    {
-        return new PxSphereGeometry(sphere.Radius * MathF.Max(MathF.Max(scale.X, scale.Y), scale.Z));
     }
 
     #endregion

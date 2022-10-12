@@ -3,7 +3,7 @@ using Duck.Serialization;
 namespace Duck.Ecs;
 
 [AutoSerializable]
-public partial interface IWorld
+public partial interface IWorld : IDisposable
 {
     const int NotFound = -1;
 

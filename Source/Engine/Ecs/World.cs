@@ -27,6 +27,11 @@ public partial class World : IWorld
     {
     }
 
+    ~World()
+    {
+        Dispose(false);
+    }
+
     public World(WorldConfiguration config)
     {
         _entityPool = new EntityPool(this, config.EntityPoolInitialSize);
@@ -42,6 +47,8 @@ public partial class World : IWorld
 
     public void InitFilters()
     {
+        ThrowIfDisposed();
+
         // FIXME:
         // this runs to initialize the filters with any components that are preloaded in to the system (e.g. loading
         // a save. the way this is structured filters will be initialized twice for any system that creates
@@ -55,6 +62,7 @@ public partial class World : IWorld
 
     public void BeginFrame()
     {
+        ThrowIfDisposed();
         RemoveComponentsFromDeletedEntities();
 
         foreach (var filter in Filters) {
@@ -66,76 +74,105 @@ public partial class World : IWorld
 
     public void EndFrame()
     {
+        ThrowIfDisposed();
         RemoveDeletedEntities();
     }
 
     public IEntity CreateEntity()
     {
+        ThrowIfDisposed();
+
         return _entityPool.Allocate();
     }
 
     public void DeleteEntity(IEntity entity)
     {
+        ThrowIfDisposed();
+
         DeleteEntity(entity.Id);
     }
 
     public void DeleteEntity(int entityId)
     {
+        ThrowIfDisposed();
+
         _entitiesRemovedCurrentFrame.Add(entityId);
     }
 
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct
     {
+        ThrowIfDisposed();
+
         return _componentPools.AllocateComponent<T>(entity);
     }
 
     public void DeallocateComponent(Type componentType, int componentIndex)
     {
+        ThrowIfDisposed();
+
         _componentPools.DeallocateComponent(componentType, componentIndex);
     }
 
     public void DeallocateComponent<T>(int componentIndex) where T : struct
     {
+        ThrowIfDisposed();
+
         DeallocateComponent(typeof(T), componentIndex);
     }
 
     public void InternalNotifyComponentAllocated(ComponentReference componentReference)
     {
+        ThrowIfDisposed();
+
         EvaluateFilters(_entityPool.Get(componentReference.EntityId), true);
     }
 
     public void InternalNotifyComponentDeallocated(IEntity entity)
     {
+        ThrowIfDisposed();
+
         EvaluateFilters(entity, false);
     }
 
     public Type GetTypeFromIndex(int typeIndex)
     {
+        ThrowIfDisposed();
+
         return _componentPools.GetTypeFromIndex(typeIndex);
     }
 
     public int GetTypeIndexForComponent<T>() where T : struct
     {
+        ThrowIfDisposed();
+
         return _componentPools.GetTypeIndexForComponent<T>();
     }
 
     public int GetTypeIndexForComponent(Type type)
     {
+        ThrowIfDisposed();
+
         return _componentPools.GetTypeIndexForComponent(type);
     }
 
     public ComponentReference GetComponentReference<T>(int typeIndex, int componentIndex) where T : struct
     {
+        ThrowIfDisposed();
+
         return _componentPools.GetComponentReference<T>(typeIndex, componentIndex);
     }
 
     public IEntity GetEntity(int entityId)
     {
+        ThrowIfDisposed();
+
         return _entityPool.Get(entityId);
     }
 
     public IEntity[] GetEntitiesByComponent<T>() where T : struct
     {
+        ThrowIfDisposed();
+
         List<IEntity> ents = new();
 
         for (var entityId = 0; entityId < _entityPool.Count; entityId++) {
@@ -149,31 +186,43 @@ public partial class World : IWorld
 
     public bool IsEntityAllocated(int entityId)
     {
+        ThrowIfDisposed();
+
         return _entityPool.IsAllocated(entityId);
     }
 
     public ref T GetComponent<T>(int typeIndex, int componentIndex) where T : struct
     {
+        ThrowIfDisposed();
+
         return ref _componentPools.GetComponent<T>(typeIndex, componentIndex);
     }
 
     public ref T GetComponent<T>(ComponentReference componentReference) where T : struct
     {
+        ThrowIfDisposed();
+
         return ref GetComponent<T>(componentReference.TypeIndex, componentReference.ComponentIndex);
     }
 
     public ref T GetComponent<T>(int entityId) where T : struct
     {
+        ThrowIfDisposed();
+
         return ref GetEntity(entityId).Get<T>();
     }
 
     public bool HasComponent<T>(int entityId) where T : struct
     {
+        ThrowIfDisposed();
+
         return IsEntityAllocated(entityId) && GetEntity(entityId).Has<T>();
     }
 
     public IFilter<T> CompileFilter<T>(IFilter<T> filter) where T : struct
     {
+        ThrowIfDisposed();
+
         if (!_filters.ContainsKey(filter.Id)) {
             _filters[filter.Id] = filter;
         }
@@ -185,6 +234,8 @@ public partial class World : IWorld
         where T1 : struct
         where T2 : struct
     {
+        ThrowIfDisposed();
+
         if (!_filters.ContainsKey(filter.Id)) {
             _filters[filter.Id] = filter;
         }
@@ -197,6 +248,8 @@ public partial class World : IWorld
         where T2 : struct
         where T3 : struct
     {
+        ThrowIfDisposed();
+
         if (!_filters.ContainsKey(filter.Id)) {
             _filters[filter.Id] = filter;
         }
@@ -208,6 +261,8 @@ public partial class World : IWorld
 
     private void EvaluateFilters(IEntity entity, bool isAddition)
     {
+        ThrowIfDisposed();
+
         foreach (var filter in _filters.Values) {
             var evalResult = _filterEvaluator.Evaluate(filter, entity);
 
@@ -221,6 +276,8 @@ public partial class World : IWorld
 
     private void RemoveComponentsFromDeletedEntities()
     {
+        ThrowIfDisposed();
+
         foreach (var entityId in _entitiesRemovedCurrentFrame) {
             GetEntity(entityId).RemoveAll();
         }
@@ -228,6 +285,8 @@ public partial class World : IWorld
 
     private void RemoveDeletedEntities()
     {
+        ThrowIfDisposed();
+
         foreach (var entityId in _entitiesRemovedPreviousFrame) {
             _entityPool.Deallocate(
                 GetEntity(entityId)
@@ -241,6 +300,29 @@ public partial class World : IWorld
         _entitiesRemovedCurrentFrame = _entitiesRemovedCurrentFrame == _entitiesRemoved1 ? _entitiesRemoved2 : _entitiesRemoved1;
         _entitiesRemovedCurrentFrame.Clear();
     }
+
+    #region IDisposable
+
+    public bool IsDisposed { get; private set; }
+
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        IsDisposed = true;
+    }
+
+    private void ThrowIfDisposed()
+    {
+        if (IsDisposed) {
+            throw new ObjectDisposedException("World");
+        }
+    }
+
+    #endregion
 }
 
 public class WorldConfiguration

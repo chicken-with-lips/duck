@@ -1,8 +1,6 @@
-using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Ui.Components;
-using Duck.Ui.RmlUi;
 
 namespace Duck.Ui.Systems;
 
@@ -28,6 +26,7 @@ public class ContextSyncSystem : SystemBase
 
             var context = _uiModule.GetContext(cmp.Name);
             context.ShouldReceiveInput = cmp.ShouldReceiveInput;
+            context.Tick();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Duck.Graphics.Device;
 using Silk.NET.OpenGL;
 using AttributeType = Duck.Graphics.Device.AttributeType;
@@ -67,5 +68,14 @@ public static class OpenGLUtil
         }
 
         return offset;
+    }
+
+    public static void LogErrors(GL api, [CallerFilePath] string callingFilePath = "", [CallerLineNumber] int callingFileLineNumber = 0)
+    {
+        GLEnum errorCode;
+        while ((errorCode = api.GetError()) != GLEnum.NoError) {
+            // FIXME:
+            Console.WriteLine("GLError: {0} at {1} (line: {2})", errorCode, callingFilePath, callingFileLineNumber);
+        }
     }
 }

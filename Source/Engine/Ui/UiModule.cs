@@ -14,7 +14,7 @@ using SystemInterface = ChickenWithLips.RmlUi.SystemInterface;
 
 namespace Duck.Ui;
 
-public class UiModule : IUiModule, IInitializableModule, ITickableModule, IPreRenderableModule, IShutdownModule
+public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutdownModule
 {
     #region Members
 
@@ -76,7 +76,7 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IPreRe
     {
         foreach (var kvp in _contexts) {
             var context = kvp.Value;
-            
+
             if (context.ShouldReceiveInput) {
                 context.InjectMouseInput(
                     _inputModule.GetMousePosition(0),
@@ -84,15 +84,6 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IPreRe
                     _inputModule.IsMouseButtonDown(1)
                 );
             }
-            
-            context.Tick();
-        }
-    }
-
-    public void PreRender()
-    {
-        foreach (var kvp in _contexts) {
-            kvp.Value.Render();
         }
     }
 
@@ -102,7 +93,11 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IPreRe
 
     internal RmlContext CreateContext(string name)
     {
-        var context = Rml.CreateContext("ui", new Vector2i(1280, 1024));
+        if (_contexts.ContainsKey(name)) {
+            return _contexts[name];
+        }
+
+        var context = Rml.CreateContext(name, new Vector2i(1280, 1024));
 
         if (context == null) {
             throw new Exception("TODO: errors");

@@ -11,14 +11,16 @@ namespace Duck.Graphics.OpenGL;
 public abstract class OpenGLRenderObjectBase : IRenderObject
 {
     #region Properties
-    
+
     public abstract bool IsDisposed { get; }
 
     public abstract uint Id { get; }
     public abstract uint VertexCount { get; }
     public abstract uint IndexCount { get; }
 
-    public IBoundingVolume BoundingVolume { get; set; }
+    public virtual Projection Projection { get; set; }
+    public virtual IBoundingVolume BoundingVolume { get; set; }
+    public RenderStateFlag RenderStateFlags { get; set; } = RenderStateFlag.None;
 
     #endregion
 
@@ -82,7 +84,7 @@ public abstract class OpenGLRenderObjectBase : IRenderObject
     public virtual TParameterType GetParameter<TParameterType>(string name)
         where TParameterType : unmanaged
     {
-        return ((IParameterValue<TParameterType>) _parameters[name]).GetValue();
+        return ((IParameterValue<TParameterType>)_parameters[name]).GetValue();
     }
 
     public bool HasParameter(string name)

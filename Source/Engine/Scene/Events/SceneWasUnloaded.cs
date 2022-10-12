@@ -2,11 +2,11 @@ using Duck.ServiceBus;
 
 namespace Duck.Scene.Events;
 
-public readonly struct SceneWasLoaded : IEvent
+public readonly struct SceneWasUnloaded : IEvent
 {
     public readonly IScene Scene;
 
-    public SceneWasLoaded(IScene scene)
+    public SceneWasUnloaded(IScene scene)
     {
         Scene = scene;
     }

@@ -1,5 +1,4 @@
-using Duck.Content;
-using Duck.Ui.Assets;
+using ChickenWithLips.RmlUi;
 using Silk.NET.Maths;
 
 namespace Duck.Ui.RmlUi;
@@ -19,13 +18,13 @@ public class RmlContext
         }
     }
 
-    internal ChickenWithLips.RmlUi.Context Context => _context;
+    internal Context Context => _context;
 
     #endregion
 
     #region Members
 
-    private readonly ChickenWithLips.RmlUi.Context _context;
+    private readonly Context _context;
 
 
     private bool _shouldReceiveInput = false;
@@ -36,7 +35,7 @@ public class RmlContext
 
     #endregion
 
-    public RmlContext(ChickenWithLips.RmlUi.Context context)
+    public RmlContext(Context context)
     {
         _context = context;
     }

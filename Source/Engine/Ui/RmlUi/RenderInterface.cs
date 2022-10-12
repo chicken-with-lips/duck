@@ -49,6 +49,9 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
             renderObject.SetShaderProgram(_coloredShader);
         }
 
+        renderObject.Projection = Projection.Orthographic;
+        renderObject.RenderStateFlags = RenderStateFlag.DisableDepthTesting;
+
         _graphicsDevice.ScheduleRenderable(
             renderObject
         );
@@ -72,7 +75,7 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
         texture.WrapT = WrapMode.ClampToEdge;
 
         // fixme: direct reference to opengl
-        var glTexture = (OpenGLTexture2D)_contentModule.LoadImmediate<Texture2D>(
+        var glTexture = (OpenGLTexture2D)_contentModule.LoadImmediate(
             texture.MakeSharedReference(),
             new EmptyAssetLoadContext(),
             source

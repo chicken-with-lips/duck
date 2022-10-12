@@ -26,7 +26,6 @@ public interface IGraphicsDevice
 
     public IRenderObjectInstance CreateRenderObjectInstance(IRenderObject renderObject);
 
-    public void ScheduleRenderable(IRenderObjectInstance renderObjectInstance);
     public void ScheduleRenderable(IRenderObject renderObject);
     public void ScheduleRenderableInstance(uint renderObjectInstanceId);
     public IRenderObjectInstance GetRenderObjectInstance(uint instanceComponentId);

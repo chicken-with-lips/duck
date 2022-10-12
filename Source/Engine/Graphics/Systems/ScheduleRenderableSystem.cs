@@ -42,9 +42,18 @@ public class ScheduleRenderableSystem : SystemBase
                     Box = boundingBox.Box.GetScaled(transformComponent.Scale, boundingBox.Box.Center)
                 };
 
-                renderObjectInstance.BoundingVolume = scaledBoundingBox;
+                renderObjectInstance.BoundingVolume = boundingBox;
             } else if (entity.Has<BoundingSphereComponent>()) {
-                renderObjectInstance.BoundingVolume = entity.Get<BoundingSphereComponent>();
+                var boundingSphere = entity.Get<BoundingSphereComponent>();
+
+                // var scaledBoundingSphere = new BoundingSphereComponent() {
+                //     Radius = boundingSphere.Radius * MathF.Max(MathF.Max(transformComponent.Scale.X, transformComponent.Scale.Y), transformComponent.Scale.Z)
+                // };
+                var scaledBoundingSphere = new BoundingSphereComponent() {
+                    Radius = boundingSphere.Radius
+                };
+
+                renderObjectInstance.BoundingVolume = boundingSphere;
             }
         }
     }

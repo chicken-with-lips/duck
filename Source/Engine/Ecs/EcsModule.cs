@@ -59,5 +59,11 @@ public class EcsModule : IEcsModule, IPreTickableModule, IPostTickableModule
         return world;
     }
 
+    public void Destroy(IWorld world)
+    {
+        _worlds.Remove(world);
+        world.Dispose();
+    }
+
     #endregion
 }

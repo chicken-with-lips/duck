@@ -6,9 +6,9 @@ namespace Duck.Physics;
 
 internal static class PhysXHelper
 {
-    public static PxBoxGeometry CreateBoxGeometry(BoundingBoxComponent box, Vector3D<float> scale)
+    public static PxBoxGeometry CreateBoxGeometry(Box3D<float> box, Vector3D<float> scale)
     {
-        return new PxBoxGeometry(box.Box.GetScaled(scale, box.Box.Center).Size.ToSystem() / 2f);
+        return new PxBoxGeometry(box.GetScaled(scale, box.Center).Size.ToSystem() / 2f);
     }
     
     public static PxSphereGeometry CreateSphereGeometry(BoundingSphereComponent sphere, Vector3D<float> scale)

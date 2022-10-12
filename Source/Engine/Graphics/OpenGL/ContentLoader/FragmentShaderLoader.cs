@@ -27,6 +27,7 @@ public class FragmentShaderLoader : IAssetLoader
 
         var api = _graphicsDevice.API;
         var shaderId = api.CreateShader(ShaderType.FragmentShader);
+
         api.ShaderSource(shaderId, Encoding.UTF8.GetString(source));
         api.CompileShader(shaderId);
 

@@ -52,7 +52,7 @@ namespace Game.Host
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             // var assemblyFileName = Path.Combine(directory, "Game.dll");
 
-            var assemblyFileName = "/home/jolly_samurai/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
+            var assemblyFileName = "/media/jolly_samurai/Data/Projects/chicken-with-lips/duck/Build/Debug/net6.0/Game/net6.0/Game.dll";
             var assembly = Assembly.LoadFrom(assemblyFileName);
 
             var clientTypes = assembly

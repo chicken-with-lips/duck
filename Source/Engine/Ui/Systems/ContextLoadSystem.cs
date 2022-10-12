@@ -1,8 +1,6 @@
-using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Ui.Components;
-using Duck.Ui.RmlUi;
 
 namespace Duck.Ui.Systems;
 

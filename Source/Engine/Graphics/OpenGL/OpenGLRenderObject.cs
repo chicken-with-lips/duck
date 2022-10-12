@@ -10,6 +10,7 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase
     public override uint Id { get; }
     public override uint VertexCount { get; }
     public override uint IndexCount { get; }
+    public override Projection Projection { get; set; }
 
     #endregion
 
@@ -45,8 +46,10 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase
                 vertexSize,
                 (void*)OpenGLUtil.ByteOffset(attributes, i)
             );
+            OpenGLUtil.LogErrors(_graphicsDevice.API);
 
             _graphicsDevice.API.EnableVertexAttribArray((uint)attributes[i].Attribute);
+            OpenGLUtil.LogErrors(_graphicsDevice.API);
         }
 
         _graphicsDevice.API.BindVertexArray(0);
@@ -62,6 +65,7 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase
         ThrowIfDisposed();
 
         _graphicsDevice.API.BindVertexArray(Id);
+        OpenGLUtil.LogErrors(_graphicsDevice.API);
     }
 
     private void ThrowIfDisposed()
@@ -94,6 +98,8 @@ public class OpenGLRenderObject : OpenGLRenderObjectBase
         _isDisposed = true;
 
         _graphicsDevice.API.DeleteVertexArray(Id);
+        OpenGLUtil.LogErrors(_graphicsDevice.API);
+
         _graphicsDevice.DestroyRenderObject(this);
     }
 

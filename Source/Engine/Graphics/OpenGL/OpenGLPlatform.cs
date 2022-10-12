@@ -76,6 +76,13 @@ public class OpenGLPlatform : IPlatform
         return new OpenGLFrameTimer();
     }
 
+    public void PreTick()
+    {
+        foreach (var window in _windows) {
+            window.ClearEvents();
+        }
+    }
+
     public void Tick()
     {
         foreach (var window in _windows) {
@@ -85,10 +92,7 @@ public class OpenGLPlatform : IPlatform
 
     public void PostTick()
     {
-        foreach (var window in _windows) {
-            window.ClearEvents();
-        }
     }
-
+    
     #endregion
 }

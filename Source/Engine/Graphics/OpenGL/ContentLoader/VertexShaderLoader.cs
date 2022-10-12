@@ -26,6 +26,7 @@ public class VertexShaderLoader : IAssetLoader
         }
 
         var shaderId = _api.CreateShader(ShaderType.VertexShader);
+
         _api.ShaderSource(shaderId, Encoding.UTF8.GetString(source));
         _api.CompileShader(shaderId);
 

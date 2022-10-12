@@ -93,7 +93,7 @@ public class PhysicsWorld : IPhysicsWorld
 
         if (volume is BoundingBoxComponent boxVolume) {
             return _scene.Overlap(
-                PhysXHelper.CreateBoxGeometry(boxVolume, Vector3D<float>.One),
+                PhysXHelper.CreateBoxGeometry(boxVolume.Box, Vector3D<float>.One),
                 transform,
                 flags
             );

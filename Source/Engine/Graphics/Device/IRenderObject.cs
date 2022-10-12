@@ -8,15 +8,17 @@ namespace Duck.Graphics.Device;
 
 public interface IRenderObject : IDisposable
 {
-    public bool IsDisposed { get; }
-    
     public const int MaxTextureSlots = 8;
+
+    public bool IsDisposed { get; }
 
     public uint Id { get; }
     public uint VertexCount { get; }
     public uint IndexCount { get; }
 
     public IBoundingVolume BoundingVolume { get; set; }
+    public Projection Projection { get; set; }
+    public RenderStateFlag RenderStateFlags { get; set; }
 
     public IRenderObject SetTexture(uint slot, IPlatformAsset<Texture2D> texture);
     public IRenderObject SetShaderProgram(IPlatformAsset<ShaderProgram> program);
@@ -35,4 +37,17 @@ public interface IRenderObject : IDisposable
 public interface IRenderObjectInstance : IRenderObject
 {
     public uint ParentId { get; }
+}
+
+public enum Projection
+{
+    Perspective,
+    Orthographic
+}
+
+[Flags]
+public enum RenderStateFlag
+{
+    None,
+    DisableDepthTesting
 }

@@ -4,6 +4,7 @@ using Duck.Ecs.Systems;
 using Duck.Graphics;
 using Duck.Graphics.Components;
 using Duck.Scene.Events;
+using Duck.Scene.Scripting;
 using Duck.Serialization;
 using Duck.ServiceBus;
 
@@ -32,21 +33,35 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, ITickable
 
     public IScene Create(string name)
     {
-        var scene = new Scene(name, _ecsModule.Create());
+        var scene = new Scene(name, _ecsModule.Create(), _eventBus);
 
         if (!_loadedScenes.TryAdd(name, scene)) {
             throw new Exception("TODO: errors");
         }
 
-        _eventBus.Enqueue(new SceneWasLoaded(scene));
+        _eventBus.Enqueue(new SceneWasCreated(scene));
 
         return scene;
+    }
+
+    public void Unload(IScene scene)
+    {
+        _loadedScenes.Remove(scene.Name, out var unused);
+        _ecsModule.Destroy(scene.World);
+
+        if (scene.Script is ISceneUnloaded unloaded) {
+            unloaded.OnUnloaded();
+        }
+
+        _eventBus.Enqueue(new SceneWasUnloaded(scene));
     }
 
     public void Tick()
     {
         foreach (var kvp in _loadedScenes) {
-            kvp.Value.SystemComposition.Tick();
+            if (kvp.Value.IsActive) {
+                kvp.Value.Tick();
+            }
         }
     }
 

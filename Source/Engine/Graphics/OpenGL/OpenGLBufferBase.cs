@@ -45,6 +45,7 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
     public void Bind()
     {
         _api.BindBuffer(_bufferType, _id);
+        OpenGLUtil.LogErrors(_api);
     }
 
     public void SetData(uint index, BufferObject<TDataType> buffer)
@@ -59,6 +60,8 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
         Bind();
 
         _api.BufferData(_bufferType, (nuint)(data.Length * sizeof(TDataType)), data, _usage);
+        OpenGLUtil.LogErrors(_api);
+
         ElementCount = (uint)data.Length;
     }
 
@@ -69,6 +72,8 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
         Bind();
 
         _api.BufferData<TDataType>(_bufferType, (nuint)(data.Length * sizeof(TDataType)), data.ToArray(), _usage);
+        OpenGLUtil.LogErrors(_api);
+
         ElementCount = (uint)data.Length;
     }
 
@@ -90,7 +95,8 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
             return;
         }
 
-        //_api.DeleteBuffer(_id);
+        _api.DeleteBuffer(_id);
+        OpenGLUtil.LogErrors(_api);
 
         _isDisposed = true;
     }
