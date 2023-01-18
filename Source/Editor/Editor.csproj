@@ -7,11 +7,12 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>../../Build/Debug</OutputPath>
+      <OutputPath>../../Build/Debug/</OutputPath>
       <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\WickedEngine\WickedEngine.Net\WickedEngine.Net.csproj" />
       <ProjectReference Include="..\Engine\Content\Content.csproj" />
       <ProjectReference Include="..\Engine\Core\Core.csproj" />
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />

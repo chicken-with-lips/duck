@@ -5,7 +5,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL.ContentLoader;
 
-public class VertexShaderLoader : IAssetLoader
+internal class VertexShaderLoader : IAssetLoader
 {
     private readonly GL _api;
 

@@ -147,7 +147,7 @@ public class ContentModule : IContentModule
             // fixme: replace with more appropriate asset location and loading
             if (asset.ImportData.Uri.IsFile) {
                 var tmp = asset.ImportData.Uri.AbsolutePath;
-                var path = tmp.StartsWith(ContentRootDirectory) ? tmp : ContentRootDirectory + tmp;
+                var path = Path.IsPathFullyQualified(tmp) ? tmp : ContentRootDirectory + tmp;
                 data = File.ReadAllBytes(path);
             } else {
                 data = fixmeData;

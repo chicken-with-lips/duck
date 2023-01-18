@@ -24,7 +24,7 @@ public class ContextLoadSystem : SystemBase
         foreach (var entityId in _filter.EntityAddedList) {
             var cmp = _filter.Get(entityId);
 
-            _uiModule.CreateContext(cmp.Name);
+            _uiModule.GetOrCreateContext(cmp.Name);
         }
 
         foreach (var entityId in _filter.EntityRemovedList) {

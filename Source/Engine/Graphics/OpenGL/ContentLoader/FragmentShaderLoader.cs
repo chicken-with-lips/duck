@@ -5,7 +5,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL.ContentLoader;
 
-public class FragmentShaderLoader : IAssetLoader
+internal class FragmentShaderLoader : IAssetLoader
 {
     private readonly OpenGLGraphicsDevice _graphicsDevice;
 

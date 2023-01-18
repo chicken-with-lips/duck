@@ -8,7 +8,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLStaticMesh : IPlatformAsset<StaticMesh>, IRenderable
+internal class OpenGLStaticMesh : IPlatformAsset<StaticMesh>, IRenderable
 {
     public IRenderObject RenderObject { get; }
 

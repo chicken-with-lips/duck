@@ -8,7 +8,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Graphics.OpenGL;
 
-public abstract class OpenGLRenderObjectBase : IRenderObject
+internal abstract class OpenGLRenderObjectBase : IRenderObject
 {
     #region Properties
 

@@ -5,9 +5,7 @@ namespace Duck.Ecs;
 
 public abstract class FilterBase : IFilter
 {
-    public IWorld World {
-        get;
-    }
+    public IWorld World { get; }
 
     public string Id { get; }
 
@@ -26,8 +24,8 @@ public abstract class FilterBase : IFilter
 
     public FilterComponentPredicate[] ComponentPredicates { get; }
 
-    public abstract void QueueAddition(IEntity entity);
-    public abstract void QueueRemoval(IEntity entity);
+    public abstract void AddEntity(IEntity entity, bool immediate);
+    public abstract void RemoveEntity(IEntity entity);
 
     public abstract void SwapDirtyBuffers();
 
@@ -71,14 +69,26 @@ public class Filter<T> : FilterBase, IFilter<T>
     public override int[] EntityAddedList => _entitiesAddedPreviousFrame.Keys.ToArray();
     public override int[] EntityRemovedList => _entitiesRemovedPreviousFrame.Keys.ToArray();
 
-    public override void QueueAddition(IEntity entity)
+    public override void AddEntity(IEntity entity, bool immediate)
     {
-        _entitiesAddedCurrentFrame.TryAdd(entity.Id, entity.GetComponentReference<T>());
+        if (!_entityMap.ContainsKey(entity.Id)) {
+            _entitiesAddedCurrentFrame.TryAdd(entity.Id, entity.GetComponentReference<T>());
+        }
+
+        if (immediate) {
+            _entityMap.TryAdd(entity.Id, entity.GetComponentReference<T>());
+        }
+
+        _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void QueueRemoval(IEntity entity)
+    public override void RemoveEntity(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        if (_entityMap.ContainsKey(entity.Id)) {
+            _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        }
+
+        _entitiesAddedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
     public override void SwapDirtyBuffers()
@@ -144,17 +154,32 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
         _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
-    public override void QueueAddition(IEntity entity)
+    public override void AddEntity(IEntity entity, bool immediate)
     {
-        _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference>(
-            entity.GetComponentReference<T1>(),
-            entity.GetComponentReference<T2>()
-        ));
+        if (!_entityMap.ContainsKey(entity.Id)) {
+            _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference>(
+                entity.GetComponentReference<T1>(),
+                entity.GetComponentReference<T2>()
+            ));
+        }
+
+        if (immediate) {
+            _entityMap.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference>(
+                entity.GetComponentReference<T1>(),
+                entity.GetComponentReference<T2>()
+            ));
+        }
+
+        _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void QueueRemoval(IEntity entity)
+    public override void RemoveEntity(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        if (_entityMap.ContainsKey(entity.Id)) {
+            _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        }
+
+        _entitiesAddedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
     public ref T1 Get1(int entityId)
@@ -224,18 +249,34 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
         _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
-    public override void QueueAddition(IEntity entity)
+    public override void AddEntity(IEntity entity, bool immediate)
     {
-        _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference>(
-            entity.GetComponentReference<T1>(),
-            entity.GetComponentReference<T2>(),
-            entity.GetComponentReference<T3>()
-        ));
+        if (!_entityMap.ContainsKey(entity.Id)) {
+            _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference>(
+                entity.GetComponentReference<T1>(),
+                entity.GetComponentReference<T2>(),
+                entity.GetComponentReference<T3>()
+            ));
+        }
+
+        if (immediate) {
+            _entityMap.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference>(
+                entity.GetComponentReference<T1>(),
+                entity.GetComponentReference<T2>(),
+                entity.GetComponentReference<T3>()
+            ));
+        }
+
+        _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void QueueRemoval(IEntity entity)
+    public override void RemoveEntity(IEntity entity)
     {
-        _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        if (_entityMap.ContainsKey(entity.Id)) {
+            _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        }
+
+        _entitiesAddedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
     public ref T1 Get1(int entityId)
@@ -251,6 +292,116 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
     public ref T3 Get3(int entityId)
     {
         return ref World.GetComponent<T3>(_entityMap[entityId].Item3);
+    }
+
+    #region FilterBase
+
+    public override int[] EntityList => _entityMap.Keys.ToArray();
+    public override int[] EntityAddedList => _entitiesAddedPreviousFrame.Keys.ToArray();
+    public override int[] EntityRemovedList => _entitiesRemovedPreviousFrame.Keys.ToArray();
+
+    public override void SwapDirtyBuffers()
+    {
+        foreach (var kvp in _entitiesAddedCurrentFrame) {
+            _entityMap.TryAdd(kvp.Key, kvp.Value);
+        }
+
+        foreach (var kvp in _entitiesRemovedCurrentFrame) {
+            _entityMap.Remove(kvp.Key);
+        }
+
+        _entitiesAddedPreviousFrame = _entitiesAddedCurrentFrame;
+        _entitiesRemovedPreviousFrame = _entitiesRemovedCurrentFrame;
+
+        _entitiesAddedCurrentFrame = _entitiesAddedCurrentFrame == _entitiesAdded1 ? _entitiesAdded2 : _entitiesAdded1;
+        _entitiesRemovedCurrentFrame = _entitiesRemovedCurrentFrame == _entitiesRemoved1 ? _entitiesRemoved2 : _entitiesRemoved1;
+
+        _entitiesAddedCurrentFrame.Clear();
+        _entitiesRemovedCurrentFrame.Clear();
+    }
+
+    #endregion
+}
+
+public class Filter<T1, T2, T3, T4> : FilterBase, IFilter<T1, T2, T3, T4>
+    where T1 : struct
+    where T2 : struct
+    where T3 : struct
+    where T4 : struct
+{
+    private Dictionary<int, Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>> _entityMap = new();
+
+    private readonly ConcurrentDictionary<int, Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>> _entitiesAdded1 = new();
+    private readonly ConcurrentDictionary<int, Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>> _entitiesAdded2 = new();
+    private readonly ConcurrentDictionary<int, int> _entitiesRemoved1 = new();
+    private readonly ConcurrentDictionary<int, int> _entitiesRemoved2 = new();
+
+    private ConcurrentDictionary<int, Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>> _entitiesAddedPreviousFrame;
+    private ConcurrentDictionary<int, int> _entitiesRemovedPreviousFrame;
+
+    private ConcurrentDictionary<int, Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>> _entitiesAddedCurrentFrame;
+    private ConcurrentDictionary<int, int> _entitiesRemovedCurrentFrame;
+
+    public Filter(IWorld world, string id, FilterComponentPredicate[] componentPredicates)
+        : base(world, id, componentPredicates)
+    {
+        _entitiesAddedCurrentFrame = _entitiesAdded1;
+        _entitiesAddedPreviousFrame = _entitiesAdded2;
+
+        _entitiesRemovedCurrentFrame = _entitiesRemoved1;
+        _entitiesRemovedPreviousFrame = _entitiesRemoved2;
+    }
+
+    public override void AddEntity(IEntity entity, bool immediate)
+    {
+        if (!_entityMap.ContainsKey(entity.Id)) {
+            _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>(
+                entity.GetComponentReference<T1>(),
+                entity.GetComponentReference<T2>(),
+                entity.GetComponentReference<T3>(),
+                entity.GetComponentReference<T4>()
+            ));
+        }
+
+        if (immediate) {
+            _entityMap.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>(
+                entity.GetComponentReference<T1>(),
+                entity.GetComponentReference<T2>(),
+                entity.GetComponentReference<T3>(),
+                entity.GetComponentReference<T4>()
+            ));
+        }
+
+        _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
+    }
+
+    public override void RemoveEntity(IEntity entity)
+    {
+        if (_entityMap.ContainsKey(entity.Id)) {
+            _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
+        }
+
+        _entitiesAddedCurrentFrame.TryRemove(entity.Id, out var unused);
+    }
+
+    public ref T1 Get1(int entityId)
+    {
+        return ref World.GetComponent<T1>(_entityMap[entityId].Item1);
+    }
+
+    public ref T2 Get2(int entityId)
+    {
+        return ref World.GetComponent<T2>(_entityMap[entityId].Item2);
+    }
+
+    public ref T3 Get3(int entityId)
+    {
+        return ref World.GetComponent<T3>(_entityMap[entityId].Item3);
+    }
+
+    public ref T4 Get4(int entityId)
+    {
+        return ref World.GetComponent<T4>(_entityMap[entityId].Item3);
     }
 
     #region FilterBase

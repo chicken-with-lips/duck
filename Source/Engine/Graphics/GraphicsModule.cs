@@ -52,7 +52,8 @@ public class GraphicsModule : IGraphicsModule,
     {
         _logger.LogInformation("Initializing graphics module...");
 
-        _platform.CreateWindow();
+        var window = _platform.CreateWindow();
+
         _defaultShader = _contentModule.Database.Register(CreateDefaultShader());
         _debugShader = _contentModule.Database.Register(CreateDebugShader());
 
@@ -61,7 +62,8 @@ public class GraphicsModule : IGraphicsModule,
         );
 
         _graphicsDevice = _platform.CreateGraphicsDevice(
-            _debugShader.MakeSharedReference()
+            _debugShader.MakeSharedReference(),
+            window
         );
 
         return true;

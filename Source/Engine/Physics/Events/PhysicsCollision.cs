@@ -3,14 +3,8 @@ using Duck.ServiceBus;
 
 namespace Duck.Physics.Events;
 
-public readonly struct PhysicsCollision : IEvent
+public struct PhysicsCollision : IEvent
 {
-    public readonly IEntity A;
-    public readonly IEntity B;
-
-    public PhysicsCollision(IEntity a, IEntity b)
-    {
-        A = a;
-        B = b;
-    }
+    public IEntity A;
+    public IEntity B;
 }

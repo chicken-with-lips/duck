@@ -23,7 +23,7 @@ public class SerializerInstanciatorGenerator : IIncrementalGenerator
         if (enumerations.IsDefaultOrEmpty) {
             return;
         }
-
+        return;
         var checkBuilder = new StringBuilder();
         var instanciateBuilder = new StringBuilder();
         var instanciateT1Builder = new StringBuilder();

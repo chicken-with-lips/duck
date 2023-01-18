@@ -4,7 +4,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL;
 
-public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposable
+internal abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposable
     where TDataType : unmanaged
 {
     #region Properties
@@ -95,8 +95,8 @@ public abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDisposa
             return;
         }
 
-        _api.DeleteBuffer(_id);
-        OpenGLUtil.LogErrors(_api);
+        // _api.DeleteBuffer(_id);
+        // OpenGLUtil.LogErrors(_api);
 
         _isDisposed = true;
     }

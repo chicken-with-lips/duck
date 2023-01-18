@@ -32,7 +32,7 @@ public class UserInterfaceLoadSystem : SystemBase
                 continue;
             }
 
-            var context = _uiModule.GetContext(cmp.ContextName);
+            var context = _uiModule.GetOrCreateContext(cmp.ContextName);
             var ui = (RmlUserInterface)_contentModule.LoadImmediate(
                 cmp.Interface,
                 new UserInterfaceLoadContext() {

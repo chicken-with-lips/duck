@@ -36,6 +36,8 @@ namespace Duck.Ecs
 
             // FIXME:
             ((Entity) _entityList[entityId]).IsAllocated = true;
+            ((Entity) _entityList[entityId]).IsPending = true;
+            ((Entity) _entityList[entityId]).IsOneShot = false;
 
             return _entityList[entityId];
         }

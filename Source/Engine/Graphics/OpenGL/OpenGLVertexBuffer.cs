@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLVertexBuffer<TDataType> : OpenGLBufferBase<TDataType>, IVertexBuffer<TDataType>
+internal class OpenGLVertexBuffer<TDataType> : OpenGLBufferBase<TDataType>, IVertexBuffer<TDataType>
     where TDataType : unmanaged
 {
     public AttributeDecl[] Attributes { get; }

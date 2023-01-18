@@ -2,6 +2,7 @@ using System.Drawing;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
 using Duck.Math;
+using Duck.Platform;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -10,7 +11,7 @@ using Boolean = Silk.NET.OpenGL.Boolean;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLGraphicsDevice : IGraphicsDevice
+internal class OpenGLGraphicsDevice : IGraphicsDevice
 {
     #region Properties
 
@@ -24,6 +25,7 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
 
     private readonly GL _api;
     private readonly IGLContext _context;
+    private readonly IWindow _window;
 
     private readonly Dictionary<uint, OpenGLRenderObject> _renderObjects = new();
     private readonly Dictionary<uint, OpenGLRenderObjectInstance> _renderObjectInstances = new();
@@ -39,9 +41,10 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
 
     #region Methods
 
-    public OpenGLGraphicsDevice(IGLContext context)
+    public OpenGLGraphicsDevice(IGLContext context, IWindow window)
     {
         _context = context;
+        _window = window;
 
         _api = GL.GetApi(_context);
     }
@@ -64,7 +67,7 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
         _api.PolygonOffset(1, 0);
 
         _api.Disable(GLEnum.CullFace);
-        
+
         _api.Enable(GLEnum.StencilTest);
         _api.StencilFunc(GLEnum.Always, 1, 0);
         _api.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Keep);
@@ -81,7 +84,7 @@ public class OpenGLGraphicsDevice : IGraphicsDevice
     public unsafe void Render()
     {
         // TODO: move out to render graph
-        
+
         foreach (var renderable in _frameRenderables) {
             var transform = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
 

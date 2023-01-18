@@ -131,7 +131,7 @@ public abstract class ApplicationBase : IApplication
     private void PreTickModules()
     {
         _platform.PreTick();
-        
+
         IterateOverModules<IPreTickableModule>("PreTick", module => module.PreTick());
     }
 
@@ -147,7 +147,7 @@ public abstract class ApplicationBase : IApplication
     private void PostTickModules()
     {
         _platform.PostTick();
-        
+
         IterateOverModules<IPostTickableModule>("PostTick", module => module.PostTick());
     }
 
@@ -190,7 +190,7 @@ public abstract class ApplicationBase : IApplication
         AddModule(new EcsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
         AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IGraphicsModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
-        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>(), GetModule<IEventBus>()));
+        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>()));
     }
 
     public void Run()
@@ -205,7 +205,7 @@ public abstract class ApplicationBase : IApplication
 
         while (_state is State.Running or State.HotReloading) {
             Time.FrameTimer?.Update();
-            
+
             PreTickModules();
             TickModules();
             PostTickModules();
@@ -213,8 +213,6 @@ public abstract class ApplicationBase : IApplication
             PreRenderModules();
             RenderModules();
             PostRenderModules();
-
-            Thread.Sleep(16);
 
             TracyClient.FrameMark();
         }
@@ -237,22 +235,22 @@ public abstract class ApplicationBase : IApplication
         _modules.Add(module);
     }
 
-    public void PopulateSystemCompositionWithDefaults(IScene scene, ISystemComposition composition)
+    public void PopulateSystemCompositionWithDefaults(ISystemComposition composition)
     {
         composition
-            .Add(new CameraSystem(scene, GetModule<IGraphicsModule>()))
-            .Add(new MeshLoadSystem(scene, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
-            .Add(new ContextLoadSystem(scene.World, GetModule<UiModule>()))
-            .Add(new UserInterfaceLoadSystem(scene.World, GetModule<IContentModule>(), GetModule<UiModule>()))
-            .Add(new RigidBodyLifecycleSystem_AddBox(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_RemoveBox(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_AddSphere(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_RemoveSphere(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodySynchronizationSystem(scene.World, GetModule<IPhysicsModule>()))
-            .Add(new UserInterfaceTickSystem(scene.World))
-            .Add(new ContextSyncSystem(scene.World, GetModule<UiModule>()))
-            .Add(new ScheduleRenderableSystem(scene.World, GetModule<IGraphicsModule>()))
-            .Add(new UserInterfaceRenderSystem(scene.World, GetModule<IContentModule>(), GetModule<UiModule>()));
+            .Add(new CameraSystem(composition.World, GetModule<IGraphicsModule>()))
+            .Add(new MeshLoadSystem(composition.World, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
+            .Add(new ContextLoadSystem(composition.World, GetModule<UiModule>()))
+            .Add(new UserInterfaceLoadSystem(composition.World, GetModule<IContentModule>(), GetModule<UiModule>()))
+            .Add(new RigidBodyLifecycleSystem_AddBox(composition.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_RemoveBox(composition.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_AddSphere(composition.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_RemoveSphere(composition.World, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodySynchronizationSystem(composition.World, GetModule<IPhysicsModule>()))
+            .Add(new UserInterfaceTickSystem(composition.World))
+            .Add(new ContextSyncSystem(composition.World, GetModule<UiModule>()))
+            .Add(new ScheduleRenderableSystem(composition.World, GetModule<IGraphicsModule>()))
+            .Add(new UserInterfaceRenderSystem(composition.World, GetModule<IContentModule>(), GetModule<UiModule>()));
     }
 
     private void ChangeState(State newState)

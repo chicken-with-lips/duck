@@ -17,6 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\WickedEngine\WickedEngine.Net\WickedEngine.Net.csproj" />
       <ProjectReference Include="..\Content\Content.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Ecs\Ecs.csproj" />
@@ -26,6 +27,7 @@
       <Compile Remove="Systems\GenerateFilamentIdentitySystem.cs" />
       <Compile Remove="Components\BoundingBoxComponent.cs" />
       <Compile Remove="Components\FilamentIdentityComponent.cs" />
+      <Compile Remove="Wicked\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,6 +36,14 @@
       <PackageReference Include="Silk.NET.OpenGL" Version="2.15.0" />
       <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.15.0" />
       <PackageReference Include="StbImageSharp" Version="2.27.8" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Wicked\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Wicked\**" />
     </ItemGroup>
 
 </Project>

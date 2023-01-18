@@ -1,6 +1,7 @@
 using System.Numerics;
 using Duck.Platform;
 using Silk.NET.Core.Contexts;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -8,13 +9,17 @@ using Silk.NET.Windowing;
 using SilKWindow = Silk.NET.Windowing.Window;
 using ISilkWindow = Silk.NET.Windowing.IWindow;
 using IWindow = Duck.Platform.IWindow;
+using MouseButton = Silk.NET.Input.MouseButton;
 using SilkKey = Silk.NET.Input.Key;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLWindow : IWindow
+internal class OpenGLWindow : IWindow
 {
     #region Properties
+
+    public int Width => _silkWindow.Size.X;
+    public int Height => _silkWindow.Size.Y;
 
     public bool CloseRequested => _silkWindow.IsClosing;
     public Vector2D<float> CursorPosition => _cursorPosition;
@@ -28,7 +33,7 @@ public class OpenGLWindow : IWindow
     #region Members
 
     private readonly Configuration _config;
-    private readonly ISilkWindow _silkWindow;
+    public readonly ISilkWindow _silkWindow;
     private IInputContext? _silkInput;
 
     private readonly List<IWindowEvent> _events = new();

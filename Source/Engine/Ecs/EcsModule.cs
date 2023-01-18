@@ -6,7 +6,7 @@ using Duck.ServiceBus;
 
 namespace Duck.Ecs;
 
-public class EcsModule : IEcsModule, IPreTickableModule, IPostTickableModule
+public class EcsModule : IEcsModule, IPreTickableModule, ITickableModule, IPostTickableModule
 {
     #region Properties
 
@@ -36,6 +36,13 @@ public class EcsModule : IEcsModule, IPreTickableModule, IPostTickableModule
     {
         foreach (var world in _worlds) {
             world.BeginFrame();
+        }
+    }
+
+    public void Tick()
+    {
+        foreach (var world in _worlds) {
+            world.Tick();
         }
     }
 

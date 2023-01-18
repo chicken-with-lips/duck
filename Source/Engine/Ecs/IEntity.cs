@@ -17,6 +17,8 @@ public partial interface IEntity
     public bool Has<T>();
 
     public bool IsAllocated { get; set; }
+    public bool IsPending { get; set; }
+    public bool IsOneShot { get; set; }
 
     public ComponentReference GetComponentReference<T>() where T : struct;
 }

@@ -1,4 +1,5 @@
 using Duck.Serialization;
+using Duck.ServiceBus;
 
 namespace Duck.Ecs;
 
@@ -7,18 +8,24 @@ public partial interface IWorld : IDisposable
 {
     const int NotFound = -1;
 
+    public bool IsActive { get; set; }
     public IFilter[] Filters { get; }
+    public ISystemComposition SystemComposition { get; }
 
-    public void InitFilters();
     public void BeginFrame();
     public void EndFrame();
+    public void Tick();
+
     public IEntity CreateEntity();
+    public IEntity CreateOneShot<TEvent>(ComponentInitializer<TEvent> initializer) where TEvent : struct;
+
     public void DeleteEntity(IEntity entity);
     public void DeleteEntity(int entityId);
+
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct;
     public void DeallocateComponent(Type componentType, int componentIndex);
     public void DeallocateComponent<T>(int componentIndex) where T : struct;
-    public void InternalNotifyComponentAllocated(ComponentReference componentReference);
+    public void InternalNotifyComponentAllocated(IEntity entity, ComponentReference componentReference);
     public void InternalNotifyComponentDeallocated(IEntity entity);
 
     public Type GetTypeFromIndex(int typeIndex);

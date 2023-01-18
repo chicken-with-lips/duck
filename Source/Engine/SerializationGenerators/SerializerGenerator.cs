@@ -12,9 +12,9 @@ public class SerializerGenerator : IIncrementalGenerator
 {
     private static void Debug(string message)
     {
-        var writer = new StreamWriter("/tmp/debug", true);
-        writer.WriteLine(message);
-        writer.Dispose();
+        //var writer = new StreamWriter("/tmp/debug", true);
+        //writer.WriteLine(message);
+        //writer.Dispose();
     }
 
     public void Initialize(IncrementalGeneratorInitializationContext context)

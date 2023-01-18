@@ -24,11 +24,13 @@ public class PhysicsWorld : IPhysicsWorld
 
     #region Members
 
+    private readonly IWorld _world;
     private readonly PxPhysics _physics;
     private readonly PxScene _scene;
     private readonly Dictionary<PxActor, IEntity> _actorToEntityMap = new();
     private readonly SimulationEventCallback _simulationEventCallback;
     private readonly SimulationFilterCallback _simulationFilterCallback;
+    private readonly PxFilterShaderCallback _filterShader;
 
     #endregion
 
@@ -36,16 +38,18 @@ public class PhysicsWorld : IPhysicsWorld
 
     public PhysicsWorld(IWorld world, PxPhysics physics, PxCpuDispatcher cpuDispatcher)
     {
+        _world = world;
         _physics = physics;
         _simulationEventCallback = new SimulationEventCallback();
         _simulationFilterCallback = new SimulationFilterCallback();
+        _filterShader = FilterShader;
 
         var sceneDesc = new PxSceneDesc(_physics.TolerancesScale) {
             CpuDispatcher = cpuDispatcher,
             Gravity = new Vector3(0, -9.8f, 0),
             SimulationEventCallback = _simulationEventCallback,
             FilterCallback = _simulationFilterCallback,
-            FilterShader = FilterShader
+            FilterShader = _filterShader
         };
 
         _scene = _physics.CreateScene(sceneDesc);
@@ -70,20 +74,18 @@ public class PhysicsWorld : IPhysicsWorld
     public void EmitEvents(IEventBus eventBus)
     {
         foreach (var pairHeader in _simulationEventCallback.Contacts) {
-            eventBus.Enqueue(
-                new PhysicsCollision(
-                    GetEntityForActor(pairHeader.Actors[0]),
-                    GetEntityForActor(pairHeader.Actors[1])
-                )
-            );
+            _world.CreateOneShot((ref PhysicsCollision col) => {
+                col.A = GetEntityForActor(pairHeader.Actors[0]);
+                col.B = GetEntityForActor(pairHeader.Actors[1]);
+            });
 
-            eventBus.Enqueue(
-                new PhysicsCollision(
-                    GetEntityForActor(pairHeader.Actors[1]),
-                    GetEntityForActor(pairHeader.Actors[0])
-                )
-            );
+            _world.CreateOneShot((ref PhysicsCollision col) => {
+                col.A = GetEntityForActor(pairHeader.Actors[1]);
+                col.B = GetEntityForActor(pairHeader.Actors[0]);
+            });
         }
+
+        _simulationEventCallback.ClearContacts();
     }
 
     public bool Overlaps(IBoundingVolume volume, Vector3D<float> position, Quaternion<float> rotation)
@@ -110,8 +112,6 @@ public class PhysicsWorld : IPhysicsWorld
 
     public void Step(float timeStep)
     {
-        _simulationEventCallback.ClearContacts();
-
         _scene.Simulate(timeStep);
         _scene.FetchResults(true);
     }

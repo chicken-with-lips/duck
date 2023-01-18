@@ -1,24 +1,49 @@
 using System.Collections.Concurrent;
+using Duck.Ecs.Systems;
 using Duck.Serialization;
+using Duck.ServiceBus;
 
 namespace Duck.Ecs;
 
 [AutoSerializable]
 public partial class World : IWorld
 {
+    private const int OneShotEntityFrameLifetime = 1;
+
+    #region Properties
+
+    public ISystemComposition SystemComposition => _systemComposition;
+
+    public bool IsActive {
+        get => _isActive;
+        set => _isActive = value;
+    }
+
+    #endregion
+
     #region Members
 
+    private bool _isActive;
     private EntityPool _entityPool;
     private ComponentPoolCollection _componentPools;
 
     private readonly FilterEvaluator _filterEvaluator = new();
     private readonly Dictionary<string, IFilter> _filters = new();
+    private readonly ISystemComposition _systemComposition;
+
+    private readonly ConcurrentBag<int> _entitiesAdded1 = new();
+    private readonly ConcurrentBag<int> _entitiesAdded2 = new();
 
     private readonly ConcurrentBag<int> _entitiesRemoved1 = new();
     private readonly ConcurrentBag<int> _entitiesRemoved2 = new();
 
+    private ConcurrentBag<int> _entitiesAddedPreviousFrame;
+    private ConcurrentBag<int> _entitiesAddedCurrentFrame;
+
     private ConcurrentBag<int> _entitiesRemovedPreviousFrame;
     private ConcurrentBag<int> _entitiesRemovedCurrentFrame;
+
+    private readonly ConcurrentDictionary<int, int> _oneShotEntities = new();
 
     #endregion
 
@@ -34,8 +59,13 @@ public partial class World : IWorld
 
     public World(WorldConfiguration config)
     {
+        _isActive = true;
+        _systemComposition = new SystemComposition(this);
         _entityPool = new EntityPool(this, config.EntityPoolInitialSize);
         _componentPools = new ComponentPoolCollection(config.ComponentPoolCount, config.ComponentPoolInitialSize);
+
+        _entitiesAddedCurrentFrame = _entitiesAdded1;
+        _entitiesAddedPreviousFrame = _entitiesAdded2;
 
         _entitiesRemovedCurrentFrame = _entitiesRemoved1;
         _entitiesRemovedPreviousFrame = _entitiesRemoved2;
@@ -45,7 +75,7 @@ public partial class World : IWorld
 
     public IFilter[] Filters => _filters.Values.ToArray();
 
-    public void InitFilters()
+    private void InitFilters()
     {
         ThrowIfDisposed();
 
@@ -56,13 +86,25 @@ public partial class World : IWorld
         // those.
 
         for (var entityId = 0; entityId < _entityPool.Count; entityId++) {
-            EvaluateFilters(_entityPool.Get(entityId), true);
+            EvaluateFilters(_entityPool.Get(entityId), true, true);
+        }
+    }
+
+    private void InitFilter(IFilter filter)
+    {
+        ThrowIfDisposed();
+
+        for (var entityId = 0; entityId < _entityPool.Count; entityId++) {
+            EvaluateFilter(filter, _entityPool.Get(entityId), true);
         }
     }
 
     public void BeginFrame()
     {
         ThrowIfDisposed();
+
+        SwapCreatedEntityBuffers();
+        FlushPendingEntities();
         RemoveComponentsFromDeletedEntities();
 
         foreach (var filter in Filters) {
@@ -75,14 +117,39 @@ public partial class World : IWorld
     public void EndFrame()
     {
         ThrowIfDisposed();
+
         RemoveDeletedEntities();
+    }
+
+    public void Tick()
+    {
+        if (_isActive) {
+            SystemComposition.Tick();
+        }
     }
 
     public IEntity CreateEntity()
     {
         ThrowIfDisposed();
 
-        return _entityPool.Allocate();
+        var entity = _entityPool.Allocate();
+        _entitiesAddedCurrentFrame.Add(entity.Id);
+
+        return entity;
+    }
+
+    public IEntity CreateOneShot<TEvent>(ComponentInitializer<TEvent> initializer) where TEvent : struct
+    {
+        ThrowIfDisposed();
+
+        var entity = CreateEntity();
+        entity.IsOneShot = true;
+
+        ref var data = ref entity.Get<TEvent>();
+
+        initializer(ref data);
+
+        return entity;
     }
 
     public void DeleteEntity(IEntity entity)
@@ -96,7 +163,28 @@ public partial class World : IWorld
     {
         ThrowIfDisposed();
 
-        _entitiesRemovedCurrentFrame.Add(entityId);
+        if (!_entitiesAddedCurrentFrame.Contains(entityId)) {
+            _entitiesRemovedCurrentFrame.Add(entityId);
+        }
+    }
+
+    private void FlushPendingEntities()
+    {
+        foreach (var entityId in _entitiesAddedPreviousFrame) {
+            var entity = GetEntity(entityId);
+
+            if (!entity.IsPending) {
+                continue;
+            }
+
+            entity.IsPending = false;
+
+            if (entity.IsOneShot && !_oneShotEntities.TryAdd(entity.Id, OneShotEntityFrameLifetime)) {
+                _oneShotEntities[entity.Id] = OneShotEntityFrameLifetime;
+            }
+
+            EvaluateFilters(entity, true, true);
+        }
     }
 
     public ComponentReference AllocateComponent<T>(IEntity entity) where T : struct
@@ -120,18 +208,22 @@ public partial class World : IWorld
         DeallocateComponent(typeof(T), componentIndex);
     }
 
-    public void InternalNotifyComponentAllocated(ComponentReference componentReference)
+    public void InternalNotifyComponentAllocated(IEntity entity, ComponentReference componentReference)
     {
         ThrowIfDisposed();
 
-        EvaluateFilters(_entityPool.Get(componentReference.EntityId), true);
+        if (!entity.IsPending) {
+            EvaluateFilters(_entityPool.Get(componentReference.EntityId), true, false);
+        }
     }
 
     public void InternalNotifyComponentDeallocated(IEntity entity)
     {
         ThrowIfDisposed();
 
-        EvaluateFilters(entity, false);
+        if (!entity.IsPending) {
+            EvaluateFilters(entity, false, false);
+        }
     }
 
     public Type GetTypeFromIndex(int typeIndex)
@@ -227,6 +319,8 @@ public partial class World : IWorld
             _filters[filter.Id] = filter;
         }
 
+        InitFilter(_filters[filter.Id]);
+
         return (Filter<T>)_filters[filter.Id];
     }
 
@@ -259,18 +353,29 @@ public partial class World : IWorld
 
     #endregion
 
-    private void EvaluateFilters(IEntity entity, bool isAddition)
+    private void EvaluateFilters(IEntity entity, bool isAddition, bool immediate)
     {
         ThrowIfDisposed();
 
         foreach (var filter in _filters.Values) {
             var evalResult = _filterEvaluator.Evaluate(filter, entity);
 
-            if (evalResult && isAddition && !filter.EntityList.Contains(entity.Id)) {
-                filter.QueueAddition(entity);
-            } else if (!evalResult && !isAddition && filter.EntityList.Contains(entity.Id)) {
-                filter.QueueRemoval(entity);
+            if (evalResult && isAddition) {
+                filter.AddEntity(entity, immediate);
+            } else if (!evalResult && !isAddition) {
+                filter.RemoveEntity(entity);
             }
+        }
+    }
+
+    private void EvaluateFilter(IFilter filter, IEntity entity, bool immediate)
+    {
+        ThrowIfDisposed();
+
+        var evalResult = _filterEvaluator.Evaluate(filter, entity);
+
+        if (evalResult) {
+            filter.AddEntity(entity, immediate);
         }
     }
 
@@ -280,6 +385,12 @@ public partial class World : IWorld
 
         foreach (var entityId in _entitiesRemovedCurrentFrame) {
             GetEntity(entityId).RemoveAll();
+        }
+
+        foreach (var kvp in _oneShotEntities) {
+            if (kvp.Value <= 0) {
+                GetEntity(kvp.Key).RemoveAll();
+            }
         }
     }
 
@@ -292,6 +403,25 @@ public partial class World : IWorld
                 GetEntity(entityId)
             );
         }
+
+        foreach (var kvp in _oneShotEntities) {
+            if (kvp.Value <= 0) {
+                _entityPool.Deallocate(
+                    GetEntity(kvp.Key)
+                );
+
+                _oneShotEntities.TryRemove(kvp.Key, out var unused);
+            } else {
+                _oneShotEntities[kvp.Key]--;
+            }
+        }
+    }
+
+    private void SwapCreatedEntityBuffers()
+    {
+        _entitiesAddedPreviousFrame = _entitiesAddedCurrentFrame;
+        _entitiesAddedCurrentFrame = _entitiesAddedCurrentFrame == _entitiesAdded1 ? _entitiesAdded2 : _entitiesAdded1;
+        _entitiesAddedCurrentFrame.Clear();
     }
 
     private void SwapDeletedEntityBuffers()
@@ -344,3 +474,5 @@ public class WorldConfiguration
         1024
     );
 }
+
+public delegate void ComponentInitializer<TEvent>(ref TEvent cmp) where TEvent : struct;

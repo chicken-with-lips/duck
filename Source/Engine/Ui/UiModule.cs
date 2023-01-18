@@ -89,6 +89,9 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     public void Shutdown()
     {
+        _contexts.Clear();
+
+        Rml.Shutdown();
     }
 
     internal RmlContext CreateContext(string name)
@@ -117,13 +120,13 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
         _entityToUserInterface.TryAdd(assetReference, userInterface);
     }
 
-    internal RmlContext GetContext(string name)
+    internal RmlContext GetOrCreateContext(string name)
     {
-        if (!_contexts.ContainsKey(name)) {
-            throw new Exception("TODO: errors");
+        if (!_contexts.TryGetValue(name, out var context)) {
+            context = CreateContext(name);
         }
 
-        return _contexts[name];
+        return context;
     }
 
     internal RmlUserInterface? GetUserInterface(IAssetReference<UserInterface> assetReference)

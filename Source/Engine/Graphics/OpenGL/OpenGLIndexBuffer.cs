@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLIndexBuffer<TDataType> : OpenGLBufferBase<TDataType>, IIndexBuffer<TDataType>
+internal class OpenGLIndexBuffer<TDataType> : OpenGLBufferBase<TDataType>, IIndexBuffer<TDataType>
     where TDataType : unmanaged
 {
     #region Methods

@@ -1,59 +1,97 @@
 using System.Collections.Concurrent;
 using Duck.Ecs;
-using Duck.Ecs.Systems;
 using Duck.Graphics;
 using Duck.Graphics.Components;
 using Duck.Scene.Events;
-using Duck.Scene.Scripting;
 using Duck.Serialization;
-using Duck.ServiceBus;
 
 namespace Duck.Scene;
 
 [AutoSerializable]
-public partial class SceneModule : ISceneModule, IPreRenderableModule, ITickableModule, IHotReloadAwareModule
+public partial class SceneModule : ISceneModule, IPreRenderableModule, IPreTickableModule, ITickableModule, IHotReloadAwareModule
 {
     #region Members
 
     private readonly IEcsModule _ecsModule;
     private readonly IGraphicsModule _graphicsModule;
-    private readonly IEventBus _eventBus;
     private readonly ConcurrentDictionary<string, IScene> _loadedScenes = new();
+
+    private readonly ConcurrentBag<IScene> _pendingUnload = new();
 
     #endregion
 
     #region Methods
 
-    public SceneModule(IEcsModule ecsModule, IGraphicsModule graphicsModule, IEventBus eventBus)
+    public SceneModule(IEcsModule ecsModule, IGraphicsModule graphicsModule)
     {
         _ecsModule = ecsModule;
         _graphicsModule = graphicsModule;
-        _eventBus = eventBus;
     }
 
     public IScene Create(string name)
     {
-        var scene = new Scene(name, _ecsModule.Create(), _eventBus);
+        return Create(name, _ecsModule.Create());
+    }
+
+    public IScene Create(string name, IWorld world)
+    {
+        var scene = new Scene(name, world);
 
         if (!_loadedScenes.TryAdd(name, scene)) {
             throw new Exception("TODO: errors");
         }
 
-        _eventBus.Enqueue(new SceneWasCreated(scene));
+        Console.WriteLine("SceneWasCreated: " + scene.Name);
+
+        world.CreateOneShot((ref SceneWasCreated cmp) => {
+            cmp.Scene = scene;
+        });
 
         return scene;
     }
 
-    public void Unload(IScene scene)
+    public IScene GetOrCreateScene(string name)
     {
-        _loadedScenes.Remove(scene.Name, out var unused);
-        _ecsModule.Destroy(scene.World);
+        var scene = GetLoadedScene(name);
 
-        if (scene.Script is ISceneUnloaded unloaded) {
-            unloaded.OnUnloaded();
+        if (null != scene) {
+            return scene;
         }
 
-        _eventBus.Enqueue(new SceneWasUnloaded(scene));
+        return Create(name);
+    }
+
+    public void Unload(IScene scene)
+    {
+        if (!_pendingUnload.Contains(scene)) {
+            _pendingUnload.Add(scene);
+        }
+    }
+
+    public IScene[] GetLoadedScenes()
+    {
+        return _loadedScenes.Values.ToArray();
+    }
+
+    public IScene? GetLoadedScene(string name)
+    {
+        if (_loadedScenes.TryGetValue(name, out var scene)) {
+            return scene;
+        }
+
+        return null;
+    }
+
+    public void PreTick()
+    {
+        foreach (var scene in _pendingUnload) {
+            if (!_loadedScenes.ContainsKey(scene.Name)) {
+                continue;
+            }
+
+            _loadedScenes.Remove(scene.Name, out var unused);
+            _ecsModule.Destroy(scene.World);
+        }
     }
 
     public void Tick()

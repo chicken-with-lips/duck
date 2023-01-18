@@ -5,7 +5,7 @@ using AttributeType = Duck.Graphics.Device.AttributeType;
 
 namespace Duck.Graphics.OpenGL;
 
-public static class OpenGLUtil
+internal static class OpenGLUtil
 {
     public static BufferUsageARB Convert(BufferUsage usage)
     {

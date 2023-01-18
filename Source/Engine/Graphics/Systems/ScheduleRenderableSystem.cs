@@ -55,6 +55,8 @@ public class ScheduleRenderableSystem : SystemBase
 
                 renderObjectInstance.BoundingVolume = boundingSphere;
             }
+
+            _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.Id);
         }
     }
 }

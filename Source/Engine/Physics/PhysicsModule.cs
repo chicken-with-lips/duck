@@ -43,9 +43,9 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
 
         _physicsDebugger = new PxPvd(_foundation);
 
-        if (!_physicsDebugger.Connect(transport, PxPvdInstrumentationFlag.All)) {
-            Console.WriteLine("FIXME: could not connect to pvd");
-        }
+        // if (!_physicsDebugger.Connect(transport, PxPvdInstrumentationFlag.All)) {
+            // Console.WriteLine("FIXME: could not connect to pvd");
+        // }
 
         _physics = PxPhysics.Create(_foundation, PxVersion.Version, _scale, true, _physicsDebugger);
         _physics.InitExtensions(_physicsDebugger);

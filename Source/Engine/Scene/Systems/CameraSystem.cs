@@ -1,9 +1,7 @@
-using Duck.Content;
 using Duck.Ecs;
 using Duck.Ecs.Systems;
 using Duck.Graphics;
 using Duck.Graphics.Components;
-using Duck.Graphics.Device;
 using Duck.Scene.Components;
 using Silk.NET.Maths;
 
@@ -14,11 +12,11 @@ public class CameraSystem : SystemBase
     private readonly IFilter<CameraComponent, TransformComponent> _filter;
     private readonly IGraphicsModule _graphicsModule;
 
-    public CameraSystem(IScene scene, IGraphicsModule graphicsModule)
+    public CameraSystem(IWorld world, IGraphicsModule graphicsModule)
     {
         _graphicsModule = graphicsModule;
 
-        _filter = Filter<CameraComponent, TransformComponent>(scene.World)
+        _filter = Filter<CameraComponent, TransformComponent>(world)
             .Build();
     }
 

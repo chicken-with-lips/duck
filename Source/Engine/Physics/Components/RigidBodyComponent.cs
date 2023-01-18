@@ -1,3 +1,4 @@
+using ChickenWithLips.PhysX;
 using Duck.Serialization;
 using Silk.NET.Maths;
 
@@ -17,6 +18,24 @@ public partial struct RigidBodyComponent
     public float AngularDamping = 0.05f;
     public float LinearDamping = 0f;
 
+    public Vector3D<float> LinearVelocity { get; internal set; } = default;
+    public Vector3D<float> AngularVelocity { get; internal set; } = default;
+
+
+    public Vector3D<float> InertiaTensor {
+        get => _inertiaTensor;
+        set {
+            _inertiaTensor = value;
+            _inertiaTensorDirty = true;
+        }
+    }
+
+    public Quaternion<float> InertiaTensorRotation { get; internal set; } = default;
+
+    public bool IsInertiaTensorDirty => _inertiaTensorDirty;
+
+    public Vector3D<float> MassSpaceInvInertiaTensor { get; internal set; } = default;
+
     internal Vector3D<float> AccumulatedAccelerationForce = default;
     internal Vector3D<float> AccumulatedForceForce = default;
     internal Vector3D<float> AccumulatedImpulseForce = default;
@@ -26,6 +45,9 @@ public partial struct RigidBodyComponent
     internal Vector3D<float> AccumulatedForceTorque = default;
     internal Vector3D<float> AccumulatedImpulseTorque = default;
     internal Vector3D<float> AccumulatedVelocityChangeTorque = default;
+
+    private Vector3D<float> _inertiaTensor = default;
+    private bool _inertiaTensorDirty = default;
 
     public RigidBodyComponent()
     {
@@ -67,7 +89,7 @@ public partial struct RigidBodyComponent
         }
     }
 
-    internal void ClearAccumulatedForces()
+    public void ClearForces()
     {
         AccumulatedAccelerationForce = default;
         AccumulatedForceForce = default;
@@ -78,6 +100,11 @@ public partial struct RigidBodyComponent
         AccumulatedForceTorque = default;
         AccumulatedImpulseTorque = default;
         AccumulatedVelocityChangeTorque = default;
+    }
+
+    internal void ClearDirtyFlags()
+    {
+        _inertiaTensorDirty = false;
     }
 
     public enum BodyType

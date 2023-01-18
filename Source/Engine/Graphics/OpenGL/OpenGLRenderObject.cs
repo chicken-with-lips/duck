@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLRenderObject : OpenGLRenderObjectBase
+internal class OpenGLRenderObject : OpenGLRenderObjectBase
 {
     #region Properties
 

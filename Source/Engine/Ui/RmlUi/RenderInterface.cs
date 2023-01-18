@@ -75,15 +75,17 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
         texture.WrapT = WrapMode.ClampToEdge;
 
         // fixme: direct reference to opengl
-        var glTexture = (OpenGLTexture2D)_contentModule.LoadImmediate(
+        var loadedTexture = _contentModule.LoadImmediate(
             texture.MakeSharedReference(),
             new EmptyAssetLoadContext(),
             source
         );
 
-        textureHandle = glTexture.TextureId;
+        Console.WriteLine("FIXME: TEXTURE LOADING");
+        // textureHandle = loadedTexture.TextureId;
+        textureHandle = 0;
 
-        _textureLookup.Add(textureHandle, glTexture);
+        // _textureLookup.Add(textureHandle, loadedTexture);
 
         return true;
     }
@@ -91,25 +93,28 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
     public override bool LoadTexture(out ulong textureHandle, Vector2i textureDimensions, string source)
     {
         // FIXME: assets should be pre-registered with content database
-        
-        var texture = _contentModule.Database.Register(
-            new Texture2D(
-                new AssetImportData(
-                new Uri("file:///" + (source.StartsWith("/") ? source.Substring(1) : source))),
-                textureDimensions.X,
-                textureDimensions.Y
-            )
-        );
-        
-        // fixme: direct reference to opengl
-        var glTexture = (OpenGLTexture2D)_contentModule.LoadImmediate(
-            texture.MakeSharedReference(),
-            new EmptyAssetLoadContext()
-        );
 
-        textureHandle = glTexture.TextureId;
+        // var texture = _contentModule.Database.Register(
+        //     new Texture2D(
+        //         new AssetImportData(
+        //             new Uri("file:///" + (source.StartsWith("/") ? source.Substring(1) : source))),
+        //         textureDimensions.X,
+        //         textureDimensions.Y
+        //     )
+        // );
+        //
+        // // fixme: direct reference to opengl
+        // var glTexture = (OpenGLTexture2D)_contentModule.LoadImmediate(
+        //     texture.MakeSharedReference(),
+        //     new EmptyAssetLoadContext()
+        // );
+        //
+        // textureHandle = glTexture.TextureId;
+        //
+        // _textureLookup.Add(textureHandle, glTexture);
 
-        _textureLookup.Add(textureHandle, glTexture);
+        Console.WriteLine("FIXME: TEXTURE LOADING");
+        textureHandle = 0;
 
         return true;
     }

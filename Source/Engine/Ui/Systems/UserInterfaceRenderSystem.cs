@@ -26,7 +26,6 @@ public class UserInterfaceRenderSystem : SystemBase
     public override void Run()
     {
         foreach (var entityId in _filter.EntityList) {
-
             var cmp = _filter.Get(entityId);
 
             if (cmp.Interface == null) {

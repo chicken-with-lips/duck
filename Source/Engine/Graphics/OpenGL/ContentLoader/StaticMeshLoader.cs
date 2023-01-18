@@ -5,7 +5,7 @@ using Duck.Graphics.Textures;
 
 namespace Duck.Graphics.OpenGL.ContentLoader;
 
-public class StaticMeshLoader : IAssetLoader
+internal class StaticMeshLoader : IAssetLoader
 {
     private readonly OpenGLGraphicsDevice _graphicsDevice;
     private readonly IContentModule _contentModule;

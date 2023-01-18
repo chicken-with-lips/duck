@@ -44,9 +44,11 @@ public class InputModule : IInputModule, ITickableModule
     {
         int mouseDeltaXId = (int)InputName.MouseDeltaX;
         int mouseDeltaYId = (int)InputName.MouseDeltaY;
+        int mouseAbsoluteXId = (int)InputName.MouseAbsoluteX;
+        int mouseAbsoluteYId = (int)InputName.MouseAbsoluteY;
 
         _states[mouseDeltaXId] = 0;
-        _states[mouseDeltaYId] = 0; 
+        _states[mouseDeltaYId] = 0;
 
         foreach (var window in _platform.Windows) {
             if (_isFirstTick) {
@@ -65,6 +67,8 @@ public class InputModule : IInputModule, ITickableModule
                 } else if (windowEvent is MousePositionEvent mousePositionEvent) {
                     _states[mouseDeltaXId] = (int)(_mouseX - mousePositionEvent.X);
                     _states[mouseDeltaYId] = (int)(_mouseY - mousePositionEvent.Y);
+                    _states[mouseAbsoluteXId] = (int)mousePositionEvent.X;
+                    _states[mouseAbsoluteYId] = (int)mousePositionEvent.Y;
 
                     _mouseX = (int)mousePositionEvent.X;
                     _mouseY = (int)mousePositionEvent.Y;

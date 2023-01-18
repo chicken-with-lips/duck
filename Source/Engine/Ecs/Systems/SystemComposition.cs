@@ -20,11 +20,6 @@ public class SystemComposition : ISystemComposition
         return this;
     }
 
-    public void Init()
-    {
-        World.InitFilters();
-    }
-
     public void Tick()
     {
         foreach (var system in _runSystemList) {

@@ -7,6 +7,8 @@ namespace Duck.Math;
 // Mostly sourced from https://github.com/kermado/M3D
 public static class MathHelper
 {
+    public const float Deg2Rad = (float)System.Math.PI / 180f;
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Angle(Vector3D<float> from, Vector3D<float> to)
     {
@@ -55,7 +57,7 @@ public static class MathHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float ToRadians(float degrees)
     {
-        return degrees * ((float)System.Math.PI / 180f);
+        return degrees * Deg2Rad;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,5 +141,15 @@ public static class MathHelper
         // specified upward direction. There is no need to normalize the result
         // as both q1 and q2 are unit quaternions.
         return q2 * q1;
+    }
+
+    public static void ToAngleAxis(Quaternion<float> q, out float angle, out Vector3D<float> axis)
+    {
+        angle = 2 * MathF.Acos(q.W);
+        axis = new Vector3D<float>(
+            q.X / MathF.Sqrt(1 - q.W * q.W),
+            q.Y / MathF.Sqrt(1 - q.W * q.W),
+            q.Z / MathF.Sqrt(1 - q.W * q.W)
+        );
     }
 }

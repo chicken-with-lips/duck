@@ -3,7 +3,7 @@ using Duck.Graphics.Shaders;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLShaderProgram : IPlatformAsset<ShaderProgram>
+internal class OpenGLShaderProgram : IPlatformAsset<ShaderProgram>
 {
     public uint ProgramId { get; }
 

@@ -10,8 +10,8 @@ public interface IFilter
     public IEntity GetEntity(int entityId);
 
     public FilterComponentPredicate[] ComponentPredicates { get; }
-    public void QueueAddition(IEntity entity);
-    public void QueueRemoval(IEntity entity);
+    public void AddEntity(IEntity entity, bool immediate);
+    public void RemoveEntity(IEntity entity);
 
     public void SwapDirtyBuffers();
 }
@@ -42,6 +42,21 @@ public interface IFilter<T1, T2, T3> : IFilter
     public ref T2 Get2(int entityId);
 
     public ref T3 Get3(int entityId);
+}
+
+public interface IFilter<T1, T2, T3, T4> : IFilter
+    where T1 : struct
+    where T2 : struct
+    where T3 : struct
+    where T4 : struct
+{
+    public ref T1 Get1(int entityId);
+
+    public ref T2 Get2(int entityId);
+
+    public ref T3 Get3(int entityId);
+
+    public ref T4 Get4(int entityId);
 }
 
 public delegate bool FilterComponentPredicate(IEntity entity);

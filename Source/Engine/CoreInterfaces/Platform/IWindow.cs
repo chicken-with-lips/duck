@@ -5,6 +5,9 @@ namespace Duck.Platform;
 
 public interface IWindow
 {
+    public int Width { get; }
+    public int Height { get; }
+
     bool CloseRequested { get; }
     double ElapsedTime { get; }
     Vector2D<float> CursorPosition { get; }

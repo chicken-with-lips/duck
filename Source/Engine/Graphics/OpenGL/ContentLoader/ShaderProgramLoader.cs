@@ -5,7 +5,7 @@ using Silk.NET.OpenGL;
 
 namespace Duck.Graphics.OpenGL.ContentLoader;
 
-public class ShaderProgramLoader : IAssetLoader
+internal class ShaderProgramLoader : IAssetLoader
 {
     private readonly GL _api;
     private readonly IContentModule _contentModule;

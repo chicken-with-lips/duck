@@ -3,7 +3,7 @@ using Duck.Graphics.Shaders;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLVertexShader : IPlatformAsset<VertexShader>
+internal class OpenGLVertexShader : IPlatformAsset<VertexShader>
 {
     public uint ShaderId { get; }
 

@@ -5,7 +5,7 @@ using StbImageSharp;
 
 namespace Duck.Graphics.OpenGL.ContentLoader;
 
-public class Texture2DLoader : IAssetLoader
+internal class Texture2DLoader : IAssetLoader
 {
     private readonly OpenGLGraphicsDevice _graphicsDevice;
 

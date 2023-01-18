@@ -9,6 +9,8 @@ public partial class Entity : IEntity
 
     private int[] _components;
     private bool _isAllocated;
+    private bool _isPending;
+    private bool _isOneShot;
     private IWorld _world;
 
     public Entity(IWorld world, int index)
@@ -42,7 +44,7 @@ public partial class Entity : IEntity
         var componentReference = World.AllocateComponent<T>(this);
         _components[componentReference.TypeIndex] = componentReference.ComponentIndex;
 
-        World.InternalNotifyComponentAllocated(componentReference);
+        World.InternalNotifyComponentAllocated(this, componentReference);
 
         return ref World.GetComponent<T>(typeIndex, componentReference.ComponentIndex);
     }
@@ -105,8 +107,18 @@ public partial class Entity : IEntity
     }
 
     public bool IsAllocated {
-        get { return _isAllocated; }
-        set { _isAllocated = value; }
+        get => _isAllocated;
+        set => _isAllocated = value;
+    }
+
+    public bool IsPending {
+        get => _isPending;
+        set => _isPending = value;
+    }
+
+    public bool IsOneShot {
+        get => _isOneShot;
+        set => _isOneShot = value;
     }
 
     #endregion

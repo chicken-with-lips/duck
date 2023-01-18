@@ -34,8 +34,10 @@ public class RigidBodySynchronizationSystem : SystemBase
             ref TransformComponent transform = ref _filter.Get3(entityId);
             var pxTransform = physxComponent.Body.GlobalPose;
 
+            var body = physxComponent.Body;
+
             if (transform.IsPositionDirty || transform.IsRotationDirty) {
-                physxComponent.Body.GlobalPose = new PxTransform(
+                body.GlobalPose = new PxTransform(
                     transform.IsRotationDirty ? transform.Rotation.ToSystem() : pxTransform.Quaternion,
                     transform.IsPositionDirty ? transform.Position.ToSystem() : pxTransform.Position
                 );
@@ -46,19 +48,37 @@ public class RigidBodySynchronizationSystem : SystemBase
 
             transform.ClearDirtyFlags();
 
-            if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Dynamic && physxComponent.Body is PxRigidDynamic dynamic) {
-                dynamic.AddForce(rigidBodyComponent.AccumulatedAccelerationForce.ToSystem(), PxForceMode.Acceleration);
-                dynamic.AddForce(rigidBodyComponent.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
-                dynamic.AddForce(rigidBodyComponent.AccumulatedImpulseForce.ToSystem(), PxForceMode.Impulse);
-                dynamic.AddForce(rigidBodyComponent.AccumulatedVelocityChangeForce.ToSystem(), PxForceMode.VelocityChange);
+            if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Dynamic && body is PxRigidDynamic dynamic) {
+                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedAccelerationForce.ToSystem(), rigidBodyComponent.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
+                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedForceForce.ToSystem(), rigidBodyComponent.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
+                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedImpulseForce.ToSystem(), rigidBodyComponent.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
+                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedVelocityChangeForce.ToSystem(), rigidBodyComponent.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
+                
+                // dynamic.AddForce(rigidBodyComponent.AccumulatedAccelerationForce.ToSystem(), PxForceMode.Acceleration);
+                // dynamic.AddForce(rigidBodyComponent.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
+                // dynamic.AddForce(rigidBodyComponent.AccumulatedImpulseForce.ToSystem(), PxForceMode.Impulse);
+                // dynamic.AddForce(rigidBodyComponent.AccumulatedVelocityChangeForce.ToSystem(), PxForceMode.VelocityChange);
+                //
+                // dynamic.AddTorque(rigidBodyComponent.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
+                // dynamic.AddTorque(rigidBodyComponent.AccumulatedForceTorque.ToSystem(), PxForceMode.Force);
+                // dynamic.AddTorque(rigidBodyComponent.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
+                // dynamic.AddTorque(rigidBodyComponent.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
 
-                dynamic.AddTorque(rigidBodyComponent.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
-                dynamic.AddTorque(rigidBodyComponent.AccumulatedForceTorque.ToSystem(), PxForceMode.Force);
-                dynamic.AddTorque(rigidBodyComponent.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
-                dynamic.AddTorque(rigidBodyComponent.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
+                rigidBodyComponent.LinearVelocity = dynamic.LinearVelocity.ToGeneric();
+                rigidBodyComponent.AngularVelocity = dynamic.AngularVelocity.ToGeneric();
+
+                if (rigidBodyComponent.IsInertiaTensorDirty) {
+                    dynamic.MassSpaceInertiaTensor = rigidBodyComponent.InertiaTensor.ToSystem();
+                } else {
+                    rigidBodyComponent.InertiaTensor = dynamic.MassSpaceInertiaTensor.ToGeneric();
+                }
+
+                rigidBodyComponent.MassSpaceInvInertiaTensor = dynamic.MassSpaceInvInertiaTensor.ToGeneric();
+                rigidBodyComponent.InertiaTensorRotation = dynamic.CenterMassLocalPose.Quaternion.ToGeneric();
             }
 
-            rigidBodyComponent.ClearAccumulatedForces();
+            rigidBodyComponent.ClearDirtyFlags();
+            rigidBodyComponent.ClearForces();
 
             physxComponent.Body.SetActorFlag(PxActorFlag.DisableGravity, !rigidBodyComponent.IsGravityEnabled);
         }

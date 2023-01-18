@@ -69,5 +69,8 @@ public enum InputName : int
     MouseDeltaX = 100,
     MouseDeltaY = 101,
 
+    MouseAbsoluteX = 102,
+    MouseAbsoluteY = 103,
+
     Max = 347,
 }

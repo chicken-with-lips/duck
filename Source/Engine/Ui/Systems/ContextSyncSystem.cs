@@ -23,10 +23,12 @@ public class ContextSyncSystem : SystemBase
     {
         foreach (var entityId in _filter.EntityList) {
             var cmp = _filter.Get(entityId);
+            var context = _uiModule.GetOrCreateContext(cmp.Name);
 
-            var context = _uiModule.GetContext(cmp.Name);
-            context.ShouldReceiveInput = cmp.ShouldReceiveInput;
-            context.Tick();
+            if (null != context) {
+                context.ShouldReceiveInput = cmp.ShouldReceiveInput;
+                context.Tick();
+            }
         }
     }
 }

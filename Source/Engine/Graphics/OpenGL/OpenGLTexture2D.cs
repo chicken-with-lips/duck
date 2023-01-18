@@ -3,7 +3,7 @@ using Duck.Graphics.Textures;
 
 namespace Duck.Graphics.OpenGL;
 
-public class OpenGLTexture2D : IPlatformAsset<Texture2D>
+internal class OpenGLTexture2D : IPlatformAsset<Texture2D>
 {  
     public uint TextureId { get; }
 
