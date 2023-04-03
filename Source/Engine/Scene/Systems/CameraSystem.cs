@@ -1,5 +1,6 @@
-using Duck.Ecs;
-using Duck.Ecs.Systems;
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.System;
 using Duck.Graphics;
 using Duck.Graphics.Components;
 using Duck.Scene.Components;
@@ -7,35 +8,29 @@ using Silk.NET.Maths;
 
 namespace Duck.Scene.Systems;
 
-public class CameraSystem : SystemBase
+public partial class CameraSystem : BaseSystem<World, float>
 {
-    private readonly IFilter<CameraComponent, TransformComponent> _filter;
     private readonly IGraphicsModule _graphicsModule;
 
-    public CameraSystem(IWorld world, IGraphicsModule graphicsModule)
+    public CameraSystem(World world, IGraphicsModule graphicsModule)
+        : base(world)
     {
         _graphicsModule = graphicsModule;
-
-        _filter = Filter<CameraComponent, TransformComponent>(world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in CameraComponent camera, in TransformComponent transform)
     {
-        foreach (var entityId in _filter.EntityList) {
-            var cameraComponent = _filter.Get1(entityId);
-            var transformComponent = _filter.Get2(entityId);
-
-            if (!cameraComponent.IsActive) {
-                continue;
-            }
-
-            _graphicsModule.GraphicsDevice.ViewMatrix =
-                Matrix4X4.CreateLookAt(
-                    transformComponent.Position,
-                    transformComponent.Position + transformComponent.Forward,
-                    transformComponent.Up
-                );
+        if (!camera.IsActive) {
+            return;
         }
+
+        _graphicsModule.GraphicsDevice.ViewMatrix =
+            Matrix4X4.CreateLookAt(
+                transform.Position,
+                transform.Position + transform.Forward,
+                transform.Up
+            );
     }
 }

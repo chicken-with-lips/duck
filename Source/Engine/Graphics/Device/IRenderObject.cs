@@ -32,6 +32,8 @@ public interface IRenderObject : IDisposable
         where TParameterType : unmanaged;
 
     public bool HasParameter(string name);
+
+    public IRenderObjectInstance CreateInstance();
 }
 
 public interface IRenderObjectInstance : IRenderObject

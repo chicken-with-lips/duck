@@ -7,12 +7,30 @@ public abstract class RunSystemBase<C1> : SystemBase
 
     public override void Run()
     {
+        foreach (var entityId in Filter.EntityAddedList) {
+            OnAdded(entityId, ref Filter.Get(entityId));
+        }
+
+        foreach (var entityId in Filter.EntityRemovedList) {
+            OnRemoved(entityId, Filter.Get(entityId));
+        }
+
         foreach (var entityId in Filter.EntityList) {
-            RunEntity(entityId, ref Filter.Get(entityId));
+            OnTick(entityId, ref Filter.Get(entityId));
         }
     }
 
-    public abstract void RunEntity(int entityId, ref C1 component);
+    public virtual void OnTick(int entityId, ref C1 component)
+    {
+    }
+
+    public virtual void OnAdded(int entityId, ref C1 component)
+    {
+    }
+
+    public virtual void OnRemoved(int entityId, in C1 component)
+    {
+    }
 }
 
 public abstract class RunSystemBase<C1, C2> : SystemBase
@@ -23,8 +41,24 @@ public abstract class RunSystemBase<C1, C2> : SystemBase
 
     public override void Run()
     {
+        foreach (var entityId in Filter.EntityAddedList) {
+            OnAdded(
+                entityId,
+                ref Filter.Get1(entityId),
+                ref Filter.Get2(entityId)
+            );
+        }
+
+        foreach (var entityId in Filter.EntityRemovedList) {
+            OnRemoved(
+                entityId,
+                Filter.Get1(entityId),
+                Filter.Get2(entityId)
+            );
+        }
+
         foreach (var entityId in Filter.EntityList) {
-            RunEntity(
+            OnTick(
                 entityId,
                 ref Filter.Get1(entityId),
                 ref Filter.Get2(entityId)
@@ -32,7 +66,17 @@ public abstract class RunSystemBase<C1, C2> : SystemBase
         }
     }
 
-    public abstract void RunEntity(int entityId, ref C1 component1, ref C2 component2);
+    public virtual void OnTick(int entityId, ref C1 component1, ref C2 component2)
+    {
+    }
+
+    public virtual void OnRemoved(int entityId, in C1 component1, in C2 component2)
+    {
+    }
+
+    public virtual void OnAdded(int entityId, ref C1 component1, ref C2 component2)
+    {
+    }
 }
 
 public abstract class RunSystemBase<C1, C2, C3> : SystemBase
@@ -44,8 +88,26 @@ public abstract class RunSystemBase<C1, C2, C3> : SystemBase
 
     public override void Run()
     {
+        foreach (var entityId in Filter.EntityAddedList) {
+            OnAdded(
+                entityId,
+                ref Filter.Get1(entityId),
+                ref Filter.Get2(entityId),
+                ref Filter.Get3(entityId)
+            );
+        }
+
         foreach (var entityId in Filter.EntityList) {
-            RunEntity(
+            OnRemoved(
+                entityId,
+                Filter.Get1(entityId),
+                Filter.Get2(entityId),
+                Filter.Get3(entityId)
+            );
+        }
+
+        foreach (var entityId in Filter.EntityList) {
+            OnTick(
                 entityId,
                 ref Filter.Get1(entityId),
                 ref Filter.Get2(entityId),
@@ -54,5 +116,15 @@ public abstract class RunSystemBase<C1, C2, C3> : SystemBase
         }
     }
 
-    public abstract void RunEntity(int entityId, ref C1 component1, ref C2 component2, ref C3 component3);
+    public virtual void OnTick(int entityId, ref C1 component1, ref C2 component2, ref C3 component3)
+    {
+    }
+
+    public virtual void OnAdded(int entityId, ref C1 component1, ref C2 component2, ref C3 component3)
+    {
+    }
+
+    public virtual void OnRemoved(int entityId, in C1 component1, in C2 component2, in C3 component3)
+    {
+    }
 }

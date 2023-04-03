@@ -101,6 +101,8 @@ public partial class World : IWorld
 
     public void BeginFrame()
     {
+        Console.WriteLine("BEGIN FRAME");
+        Console.WriteLine("------------------------");
         ThrowIfDisposed();
 
         SwapCreatedEntityBuffers();
@@ -116,6 +118,9 @@ public partial class World : IWorld
 
     public void EndFrame()
     {
+        Console.WriteLine("END FRAME");
+        Console.WriteLine("------------------------");
+        
         ThrowIfDisposed();
 
         RemoveDeletedEntities();
@@ -144,6 +149,8 @@ public partial class World : IWorld
 
         var entity = CreateEntity();
         entity.IsOneShot = true;
+        
+        Console.WriteLine("DEBUG: CreateOneShot: " + entity.Id);
 
         ref var data = ref entity.Get<TEvent>();
 
@@ -179,8 +186,13 @@ public partial class World : IWorld
 
             entity.IsPending = false;
 
-            if (entity.IsOneShot && !_oneShotEntities.TryAdd(entity.Id, OneShotEntityFrameLifetime)) {
-                _oneShotEntities[entity.Id] = OneShotEntityFrameLifetime;
+            if (entity.IsOneShot) {
+                if (!_oneShotEntities.TryAdd(entity.Id, OneShotEntityFrameLifetime)) {
+                    Console.WriteLine("DEBUG: AddOneShot: " + entity.Id);
+                    _oneShotEntities[entity.Id] = OneShotEntityFrameLifetime;
+                } else {
+                    Console.WriteLine("DEBUG: AddOneShot reset: " + entity.Id);
+                }
             }
 
             EvaluateFilters(entity, true, true);
@@ -213,7 +225,7 @@ public partial class World : IWorld
         ThrowIfDisposed();
 
         if (!entity.IsPending) {
-            EvaluateFilters(_entityPool.Get(componentReference.EntityId), true, false);
+            EvaluateFilters(_entityPool.Get(componentReference.EntityId), true, _oneShotEntities.ContainsKey(entity.Id));
         }
     }
 
@@ -222,7 +234,7 @@ public partial class World : IWorld
         ThrowIfDisposed();
 
         if (!entity.IsPending) {
-            EvaluateFilters(entity, false, false);
+            EvaluateFilters(entity, false, _oneShotEntities.ContainsKey(entity.Id));
         }
     }
 
@@ -353,7 +365,7 @@ public partial class World : IWorld
 
     #endregion
 
-    private void EvaluateFilters(IEntity entity, bool isAddition, bool immediate)
+    private void EvaluateFilters(IEntity entity, bool isAddition, bool isOneShot)
     {
         ThrowIfDisposed();
 
@@ -361,21 +373,21 @@ public partial class World : IWorld
             var evalResult = _filterEvaluator.Evaluate(filter, entity);
 
             if (evalResult && isAddition) {
-                filter.AddEntity(entity, immediate);
+                filter.AddEntity(entity, isOneShot);
             } else if (!evalResult && !isAddition) {
-                filter.RemoveEntity(entity);
+                filter.RemoveEntity(entity, isOneShot);
             }
         }
     }
 
-    private void EvaluateFilter(IFilter filter, IEntity entity, bool immediate)
+    private void EvaluateFilter(IFilter filter, IEntity entity, bool isOneShot)
     {
         ThrowIfDisposed();
 
         var evalResult = _filterEvaluator.Evaluate(filter, entity);
 
         if (evalResult) {
-            filter.AddEntity(entity, immediate);
+            filter.AddEntity(entity, isOneShot);
         }
     }
 
@@ -389,6 +401,7 @@ public partial class World : IWorld
 
         foreach (var kvp in _oneShotEntities) {
             if (kvp.Value <= 0) {
+                Console.WriteLine("DEBUG: RemoveOneShot: " + kvp.Key);
                 GetEntity(kvp.Key).RemoveAll();
             }
         }
@@ -399,19 +412,24 @@ public partial class World : IWorld
         ThrowIfDisposed();
 
         foreach (var entityId in _entitiesRemovedPreviousFrame) {
-            _entityPool.Deallocate(
-                GetEntity(entityId)
-            );
+            if (!_oneShotEntities.ContainsKey(entityId)) {
+                _entityPool.Deallocate(
+                    GetEntity(entityId)
+                );
+            }
         }
 
         foreach (var kvp in _oneShotEntities) {
             if (kvp.Value <= 0) {
+                Console.WriteLine("DEBUG: Dealloc oneshot: " + kvp.Key);
+                
                 _entityPool.Deallocate(
                     GetEntity(kvp.Key)
                 );
 
                 _oneShotEntities.TryRemove(kvp.Key, out var unused);
             } else {
+                Console.WriteLine("DEBUG: decr OneShot: " + kvp.Key);
                 _oneShotEntities[kvp.Key]--;
             }
         }

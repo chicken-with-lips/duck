@@ -1,6 +1,10 @@
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.Core.Extensions;
+using Arch.System;
+using Arch.System.SourceGenerator;
 using Duck.Content;
-using Duck.Ecs;
-using Duck.Ecs.Systems;
+using Duck.Ui.Assets;
 using Duck.Ui.Components;
 using Duck.Ui.Content.ContentLoader;
 using Duck.Ui.RmlUi;
@@ -8,47 +12,51 @@ using Duck.Ui.Scripting;
 
 namespace Duck.Ui.Systems;
 
-public class UserInterfaceLoadSystem : SystemBase
+// FIXME: remove when arch adds entity lifecycles
+public struct UserInterfaceLoaded
 {
-    private readonly IFilter<UserInterfaceComponent> _filter;
+}
+
+public partial class UserInterfaceLoadSystem : BaseSystem<World, float>
+{
+    // private readonly IFilter<UserInterfaceComponent> _filter;
     private readonly IContentModule _contentModule;
     private readonly UiModule _uiModule;
 
-    public UserInterfaceLoadSystem(IWorld world, IContentModule contentModule, UiModule uiModule)
+    public UserInterfaceLoadSystem(World world, IContentModule contentModule, UiModule uiModule)
+        : base(world)
     {
         _contentModule = contentModule;
         _uiModule = uiModule;
-
-        _filter = Filter<UserInterfaceComponent>(world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [None<UserInterfaceLoaded>]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in Entity entity, in UserInterfaceComponent cmp)
     {
-        foreach (var entityId in _filter.EntityAddedList) {
-            var cmp = _filter.Get(entityId);
-
-            if (cmp.Interface == null) {
-                continue;
-            }
-
-            var context = _uiModule.GetOrCreateContext(cmp.ContextName);
-            var ui = (RmlUserInterface)_contentModule.LoadImmediate(
-                cmp.Interface,
-                new UserInterfaceLoadContext() {
-                    RmlContext = context
-                }
-            );
-
-            _uiModule.RegisterUserInterface(cmp.Interface, ui);
-
-            if (cmp.Script is IUserInterfaceLoaded loaded) {
-                loaded.OnLoaded(ui);
-            }
+        if (cmp.Interface == null) {
+            return;
         }
 
-        foreach (var entityId in _filter.EntityRemovedList) {
-            Console.WriteLine("TODO: remove ui");
+        var context = _uiModule.GetOrCreateContext(cmp.ContextName);
+        var ui = (RmlUserInterface)_contentModule.LoadImmediate<UserInterface>(
+            cmp.Interface,
+            new UserInterfaceLoadContext() {
+                RmlContext = context
+            }
+        );
+
+        _uiModule.RegisterUserInterface(cmp.Interface, ui);
+
+        if (cmp.Script is IUserInterfaceLoaded loaded) {
+            loaded.OnLoaded(ui);
         }
+
+        entity.Add<UserInterfaceLoaded>();
+
+        // foreach (var entityId in _filter.EntityRemovedList) {
+        //     Console.WriteLine("TODO: remove ui");
+        // }
     }
 }

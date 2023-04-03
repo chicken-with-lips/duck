@@ -27,6 +27,11 @@ public interface ITickableModule : IModule
     public void Tick();
 }
 
+public interface IFixedTickableModule : IModule
+{
+    public void FixedTick();
+}
+
 public interface IPreTickableModule : IModule
 {
     public void PreTick();

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using Silk.NET.Maths;
 
@@ -8,7 +9,7 @@ namespace Duck.Math;
 public static class MathHelper
 {
     public const float Deg2Rad = (float)System.Math.PI / 180f;
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Angle(Vector3D<float> from, Vector3D<float> to)
     {
@@ -150,6 +151,33 @@ public static class MathHelper
             q.X / MathF.Sqrt(1 - q.W * q.W),
             q.Y / MathF.Sqrt(1 - q.W * q.W),
             q.Z / MathF.Sqrt(1 - q.W * q.W)
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector3D<T> Multiply<T>(Quaternion<T> q, Vector3D<T> v) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        // https://github.com/schteppe/cannon.js/blob/master/src/math/Quaternion.js#L249
+
+        var x = v.X;
+        var y = v.Y;
+        var z = v.Z;
+
+        var qx = q.X;
+        var qy = q.Y;
+        var qz = q.Z;
+        var qw = q.W;
+
+        // q*v
+        var ix = Scalar.Subtract(Scalar.Add(Scalar.Multiply(qw, x), Scalar.Multiply(qy, z)), Scalar.Multiply(qz, y));
+        var iy = Scalar.Subtract(Scalar.Add(Scalar.Multiply(qw, y), Scalar.Multiply(qy, x)), Scalar.Multiply(qz, z));
+        var iz = Scalar.Subtract(Scalar.Add(Scalar.Multiply(qw, z), Scalar.Multiply(qy, y)), Scalar.Multiply(qz, x));
+        var iw = Scalar.Subtract(Scalar.Subtract(Scalar.Multiply(Scalar.Negate(qx), x), Scalar.Multiply(qy, y)), Scalar.Multiply(qz, z));
+
+        return new Vector3D<T>(
+            Scalar.Subtract(Scalar.Add(Scalar.Add(Scalar.Multiply(ix, qw), Scalar.Multiply(iw, Scalar.Negate(qx))), Scalar.Multiply(iy, Scalar.Negate(qz))), Scalar.Multiply(iz, Scalar.Negate(qy))),
+            Scalar.Subtract(Scalar.Add(Scalar.Add(Scalar.Multiply(iy, qw), Scalar.Multiply(iw, Scalar.Negate(qy))), Scalar.Multiply(iz, Scalar.Negate(qx))), Scalar.Multiply(ix, Scalar.Negate(qz))),
+            Scalar.Subtract(Scalar.Add(Scalar.Add(Scalar.Multiply(iz, qw), Scalar.Multiply(iw, Scalar.Negate(qz))), Scalar.Multiply(ix, Scalar.Negate(qy))), Scalar.Multiply(iy, Scalar.Negate(qx)))
         );
     }
 }

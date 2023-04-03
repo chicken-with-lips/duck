@@ -2,7 +2,6 @@ using System.Numerics;
 using ChickenWithLips.RmlUi;
 using Duck.Content;
 using Duck.Graphics.Device;
-using Duck.Graphics.OpenGL;
 using Duck.Graphics.Shaders;
 using Duck.Graphics.Textures;
 using Silk.NET.Maths;

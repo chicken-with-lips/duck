@@ -1,4 +1,5 @@
-using Duck.Ecs;
+using Arch.Core;
+using Arch.System;
 using Duck.Serialization;
 
 namespace Duck.Scene;
@@ -9,11 +10,10 @@ public partial interface IScene
     public bool IsActive { get; set; }
 
     public string Name { get; }
-    public IWorld World { get; }
-    public int[] Renderables { get; }
+    public World World { get; }
+    public Group<float> SystemRoot { get; }
 
-    public void Tick();
-
-    public IScene AddRenderable(int entityId);
-    public IScene RemoveRenderable(int entityId);
+    public void PreTick(in float deltaTime);
+    public void Tick(in float deltaTime);
+    public void PostTick(in float deltaTime);
 }

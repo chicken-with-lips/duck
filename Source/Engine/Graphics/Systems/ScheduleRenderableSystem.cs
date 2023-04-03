@@ -1,45 +1,41 @@
-using Duck.Ecs;
-using Duck.Ecs.Systems;
-using Duck.Graphics;
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.System;
 using Duck.Graphics.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Graphics.Systems;
 
-public class ScheduleRenderableSystem : SystemBase
+public partial class ScheduleRenderableSystem : BaseSystem<World, float>
 {
-    private readonly IFilter<RenderableInstanceComponent, TransformComponent> _filter;
     private readonly IGraphicsModule _graphicsModule;
 
-    public ScheduleRenderableSystem(IWorld world, IGraphicsModule graphicsModule)
+    public ScheduleRenderableSystem(World world, IGraphicsModule graphicsModule)
+        : base(world)
     {
         _graphicsModule = graphicsModule;
-
-        _filter = Filter<RenderableInstanceComponent, TransformComponent>(world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in Entity entity /*, in TransformComponent transform, in RenderableInstanceComponent instance*/)
     {
-        foreach (var entityId in _filter.EntityList) {
-            var instanceComponent = _filter.Get1(entityId);
-            var transformComponent = _filter.Get2(entityId);
-            var entity = _filter.GetEntity(entityId);
+        /*var instanceComponent = _filter.Get1(entityId);
 
             var renderObjectInstance = _graphicsModule.GraphicsDevice.GetRenderObjectInstance(instanceComponent.Id);
             renderObjectInstance
-                .SetParameter("WorldScale", transformComponent.Scale)
+                .SetParameter("WorldScale", transform.Scale)
                 .SetParameter("WorldPosition",
-                    Matrix4X4.CreateScale(transformComponent.Scale)
-                    * Matrix4X4.CreateFromQuaternion(transformComponent.Rotation)
-                    * Matrix4X4.CreateTranslation(transformComponent.Position)
+                    Matrix4X4.CreateScale(transform.Scale)
+                    * Matrix4X4.CreateFromQuaternion(transform.Rotation)
+                    * Matrix4X4.CreateTranslation(transform.Position)
                 );
 
             if (entity.Has<BoundingBoxComponent>()) {
                 var boundingBox = entity.Get<BoundingBoxComponent>();
 
                 var scaledBoundingBox = new BoundingBoxComponent() {
-                    Box = boundingBox.Box.GetScaled(transformComponent.Scale, boundingBox.Box.Center)
+                    Box = boundingBox.Box.GetScaled(transform.Scale, boundingBox.Box.Center)
                 };
 
                 renderObjectInstance.BoundingVolume = boundingBox;
@@ -47,7 +43,7 @@ public class ScheduleRenderableSystem : SystemBase
                 var boundingSphere = entity.Get<BoundingSphereComponent>();
 
                 // var scaledBoundingSphere = new BoundingSphereComponent() {
-                //     Radius = boundingSphere.Radius * MathF.Max(MathF.Max(transformComponent.Scale.X, transformComponent.Scale.Y), transformComponent.Scale.Z)
+                //     Radius = boundingSphere.Radius * MathF.Max(MathF.Max(transform.Scale.X, transform.Scale.Y), transform.Scale.Z)
                 // };
                 var scaledBoundingSphere = new BoundingSphereComponent() {
                     Radius = boundingSphere.Radius
@@ -56,7 +52,7 @@ public class ScheduleRenderableSystem : SystemBase
                 renderObjectInstance.BoundingVolume = boundingSphere;
             }
 
-            _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.Id);
-        }
+            Console.WriteLine("SC");
+            _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.Id);*/
     }
 }

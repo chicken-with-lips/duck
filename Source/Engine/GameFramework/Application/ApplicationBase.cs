@@ -1,8 +1,8 @@
+using Arch.Core;
+using Arch.System;
 using Duck.Content;
-using Duck.Ecs;
 using Duck.Exceptions;
 using Duck.Graphics;
-using Duck.Graphics.OpenGL;
 using Duck.Graphics.Systems;
 using Duck.Input;
 using Duck.Logging;
@@ -24,6 +24,7 @@ public abstract class ApplicationBase : IApplication
     #region Members
 
     private readonly IPlatform _platform;
+    private readonly IRenderSystem _renderSystem;
     private readonly List<IModule> _modules = new();
 
     private State _state = State.Uninitialized;
@@ -32,11 +33,15 @@ public abstract class ApplicationBase : IApplication
     private bool _isEditor;
     private bool _isHotReloading;
 
+    private float _deltaTimeAccumulator;
+    private bool _shouldSkipFrames = true;
+
     #endregion
 
-    public ApplicationBase(bool isEditor)
+    public ApplicationBase(IPlatform platform, IRenderSystem renderSystem, bool isEditor)
     {
-        _platform = new OpenGLPlatform(this);
+        _platform = platform;
+        _renderSystem = renderSystem;
         _isEditor = isEditor;
     }
 
@@ -139,9 +144,33 @@ public abstract class ApplicationBase : IApplication
     {
         _platform.Tick();
 
-        GetModule<IEventBus>().Emit();
+        GetModule<IEventBus>().Flush();
 
         IterateOverModules<ITickableModule>("Tick", module => module.Tick());
+    }
+
+    private void FixedTickModules()
+    {
+        GetModule<IEventBus>().Flush();
+
+        // borrowed from wicked engine
+        if (_shouldSkipFrames) {
+            _deltaTimeAccumulator += Time.DeltaFrame;
+
+            if (_deltaTimeAccumulator > 10) {
+                // application probably lost control, fixed update would take too long
+                _deltaTimeAccumulator = 0;
+            }
+
+            float targetFrameRateInv = 1.0f / (Time.FrameTimer?.TargetFrameRate ?? 0);
+
+            while (_deltaTimeAccumulator >= targetFrameRateInv) {
+                IterateOverModules<IFixedTickableModule>("FixedTick", module => module.FixedTick());
+                _deltaTimeAccumulator -= targetFrameRateInv;
+            }
+        } else {
+            IterateOverModules<IFixedTickableModule>("FixedTick", module => module.FixedTick());
+        }
     }
 
     private void PostTickModules()
@@ -185,12 +214,11 @@ public abstract class ApplicationBase : IApplication
         AddModule(new LogModule());
         AddModule(new EventBus());
         AddModule(new ContentModule(GetModule<ILogModule>()));
-        AddModule(new GraphicsModule(this, _platform, GetModule<ILogModule>(), GetModule<IContentModule>()));
+        AddModule(new GraphicsModule(this, _platform, _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
-        AddModule(new EcsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
         AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IGraphicsModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
-        AddModule(new SceneModule(GetModule<IEcsModule>(), GetModule<IGraphicsModule>()));
+        AddModule(new SceneModule(GetModule<IEventBus>(), GetModule<IGraphicsModule>()));
     }
 
     public void Run()
@@ -207,6 +235,7 @@ public abstract class ApplicationBase : IApplication
             Time.FrameTimer?.Update();
 
             PreTickModules();
+            FixedTickModules();
             TickModules();
             PostTickModules();
 
@@ -235,22 +264,22 @@ public abstract class ApplicationBase : IApplication
         _modules.Add(module);
     }
 
-    public void PopulateSystemCompositionWithDefaults(ISystemComposition composition)
+    public void PopulateSystemCompositionWithDefaults(World world, Group<float> composition)
     {
         composition
-            .Add(new CameraSystem(composition.World, GetModule<IGraphicsModule>()))
-            .Add(new MeshLoadSystem(composition.World, GetModule<IContentModule>(), GetModule<IGraphicsModule>()))
-            .Add(new ContextLoadSystem(composition.World, GetModule<UiModule>()))
-            .Add(new UserInterfaceLoadSystem(composition.World, GetModule<IContentModule>(), GetModule<UiModule>()))
-            .Add(new RigidBodyLifecycleSystem_AddBox(composition.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_RemoveBox(composition.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_AddSphere(composition.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_RemoveSphere(composition.World, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodySynchronizationSystem(composition.World, GetModule<IPhysicsModule>()))
-            .Add(new UserInterfaceTickSystem(composition.World))
-            .Add(new ContextSyncSystem(composition.World, GetModule<UiModule>()))
-            .Add(new ScheduleRenderableSystem(composition.World, GetModule<IGraphicsModule>()))
-            .Add(new UserInterfaceRenderSystem(composition.World, GetModule<IContentModule>(), GetModule<UiModule>()));
+            .Add(new CameraSystem(world, GetModule<IGraphicsModule>()))
+            .Add(new StaticMeshSystem(world, GetModule<IContentModule>()))
+            // .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
+            // .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
+            .Add(new RigidBodyLifecycleSystem_AddBox(world, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_RemoveBox(world, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_AddSphere(world, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodyLifecycleSystem_RemoveSphere(world, GetModule<IPhysicsModule>()))
+            .Add(new RigidBodySynchronizationSystem(world))
+            .Add(new UserInterfaceTickSystem(world))
+            // .Add(new ContextSyncSystem(world, GetModule<UiModule>()))
+            .Add(new ScheduleRenderableSystem(world, GetModule<IGraphicsModule>()));
+        // .Add(new UserInterfaceRenderSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()));
     }
 
     private void ChangeState(State newState)

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
@@ -12,10 +12,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\WickedEngine\WickedEngine.Net\WickedEngine.Net.csproj" />
       <ProjectReference Include="..\Engine\Content\Content.csproj" />
       <ProjectReference Include="..\Engine\Core\Core.csproj" />
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
       <ProjectReference Include="..\Engine\Graphics\Graphics.csproj" />
+      <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
+      <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
     </ItemGroup>
 </Project>

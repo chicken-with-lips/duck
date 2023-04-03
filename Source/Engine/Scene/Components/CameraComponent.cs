@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Duck.Graphics.Components;
 using Duck.Math;
 using Duck.Serialization;
@@ -16,11 +15,14 @@ public partial struct CameraComponent
     public float NearClipPlane = 0.1f;
     public float FarClipPlane = 1000f;
 
-    public Vector3D<float> ScreenToWorldPosition(TransformComponent transformComponent, Vector2D<int> screenCoordinates)
+    public Vector3D<float> ScreenToWorldPosition(TransformComponent transformComponent, Vector3D<float> screenCoordinates)
     {
         if (screenCoordinates.LengthSquared > 0) {
-            Debugger.Break();
+         
         }
+        
+        // FIXME: fixed to 1280x1024
+        
         // // Define the camera's projection matrix
         var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(FieldOfView), 1280f/1024f, NearClipPlane, FarClipPlane);
         //
@@ -47,9 +49,11 @@ public partial struct CameraComponent
         // heavily influenced by: http://antongerdelan.net/opengl/raycasting.html
         // viewport coordinate system
         // normalized device coordinates
+        
+        // FIXME: fixed to 1280x1024
         var x = (2f * screenCoordinates.X) / 1280f - 1f;
         var y = 1f - (2f * screenCoordinates.Y) / 1024f;
-        var z = 1f;
+        var z = screenCoordinates.Z;
         var rayNormalizedDeviceCoordinates = new Vector3D<float>(x, y, z);
 
         // 4D homogeneous clip coordinates

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Physics</AssemblyName>
@@ -19,7 +19,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\physx\PhysX.Net\PhysX.Net.csproj" />
       <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
-      <ProjectReference Include="..\Ecs\Ecs.csproj" />
       <ProjectReference Include="..\Scene\Scene.csproj" />
       <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
     </ItemGroup>

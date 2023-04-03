@@ -24,8 +24,8 @@ public abstract class FilterBase : IFilter
 
     public FilterComponentPredicate[] ComponentPredicates { get; }
 
-    public abstract void AddEntity(IEntity entity, bool immediate);
-    public abstract void RemoveEntity(IEntity entity);
+    public abstract void AddEntity(IEntity entity, bool isOneShot);
+    public abstract void RemoveEntity(IEntity entity, bool isOneShot);
 
     public abstract void SwapDirtyBuffers();
 
@@ -69,22 +69,22 @@ public class Filter<T> : FilterBase, IFilter<T>
     public override int[] EntityAddedList => _entitiesAddedPreviousFrame.Keys.ToArray();
     public override int[] EntityRemovedList => _entitiesRemovedPreviousFrame.Keys.ToArray();
 
-    public override void AddEntity(IEntity entity, bool immediate)
+    public override void AddEntity(IEntity entity, bool isOneShot)
     {
-        if (!_entityMap.ContainsKey(entity.Id)) {
+        if (!_entityMap.ContainsKey(entity.Id) && isOneShot) {
             _entitiesAddedCurrentFrame.TryAdd(entity.Id, entity.GetComponentReference<T>());
         }
 
-        if (immediate) {
+        if (! isOneShot) {
             _entityMap.TryAdd(entity.Id, entity.GetComponentReference<T>());
         }
 
         _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void RemoveEntity(IEntity entity)
+    public override void RemoveEntity(IEntity entity, bool isOneShot)
     {
-        if (_entityMap.ContainsKey(entity.Id)) {
+        if (_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
         }
 
@@ -94,10 +94,12 @@ public class Filter<T> : FilterBase, IFilter<T>
     public override void SwapDirtyBuffers()
     {
         foreach (var kvp in _entitiesAddedCurrentFrame) {
+            Console.WriteLine("DEBUG: Swap AddEntity: " + kvp.Key);
             _entityMap.TryAdd(kvp.Key, kvp.Value);
         }
 
         foreach (var kvp in _entitiesRemovedCurrentFrame) {
+            Console.WriteLine("DEBUG: Swap RemoveEntity: " + kvp.Key);
             _entityMap.TryRemove(kvp.Key, out var unused);
         }
 
@@ -154,16 +156,16 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
         _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
-    public override void AddEntity(IEntity entity, bool immediate)
+    public override void AddEntity(IEntity entity, bool isOneShot)
     {
-        if (!_entityMap.ContainsKey(entity.Id)) {
+        if (!_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference>(
                 entity.GetComponentReference<T1>(),
                 entity.GetComponentReference<T2>()
             ));
         }
 
-        if (immediate) {
+        if (isOneShot) {
             _entityMap.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference>(
                 entity.GetComponentReference<T1>(),
                 entity.GetComponentReference<T2>()
@@ -173,9 +175,9 @@ public class Filter<T1, T2> : FilterBase, IFilter<T1, T2>
         _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void RemoveEntity(IEntity entity)
+    public override void RemoveEntity(IEntity entity, bool isOneShot)
     {
-        if (_entityMap.ContainsKey(entity.Id)) {
+        if (_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
         }
 
@@ -249,9 +251,9 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
         _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
-    public override void AddEntity(IEntity entity, bool immediate)
+    public override void AddEntity(IEntity entity, bool isOneShot)
     {
-        if (!_entityMap.ContainsKey(entity.Id)) {
+        if (!_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference>(
                 entity.GetComponentReference<T1>(),
                 entity.GetComponentReference<T2>(),
@@ -259,7 +261,7 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
             ));
         }
 
-        if (immediate) {
+        if (isOneShot) {
             _entityMap.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference>(
                 entity.GetComponentReference<T1>(),
                 entity.GetComponentReference<T2>(),
@@ -270,9 +272,9 @@ public class Filter<T1, T2, T3> : FilterBase, IFilter<T1, T2, T3>
         _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void RemoveEntity(IEntity entity)
+    public override void RemoveEntity(IEntity entity, bool isOneShot)
     {
-        if (_entityMap.ContainsKey(entity.Id)) {
+        if (_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
         }
 
@@ -352,9 +354,9 @@ public class Filter<T1, T2, T3, T4> : FilterBase, IFilter<T1, T2, T3, T4>
         _entitiesRemovedPreviousFrame = _entitiesRemoved2;
     }
 
-    public override void AddEntity(IEntity entity, bool immediate)
+    public override void AddEntity(IEntity entity, bool isOneShot)
     {
-        if (!_entityMap.ContainsKey(entity.Id)) {
+        if (!_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesAddedCurrentFrame.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>(
                 entity.GetComponentReference<T1>(),
                 entity.GetComponentReference<T2>(),
@@ -363,7 +365,7 @@ public class Filter<T1, T2, T3, T4> : FilterBase, IFilter<T1, T2, T3, T4>
             ));
         }
 
-        if (immediate) {
+        if (isOneShot) {
             _entityMap.TryAdd(entity.Id, new Tuple<ComponentReference, ComponentReference, ComponentReference, ComponentReference>(
                 entity.GetComponentReference<T1>(),
                 entity.GetComponentReference<T2>(),
@@ -375,9 +377,9 @@ public class Filter<T1, T2, T3, T4> : FilterBase, IFilter<T1, T2, T3, T4>
         _entitiesRemovedCurrentFrame.TryRemove(entity.Id, out var unused);
     }
 
-    public override void RemoveEntity(IEntity entity)
+    public override void RemoveEntity(IEntity entity, bool isOneShot)
     {
-        if (_entityMap.ContainsKey(entity.Id)) {
+        if (_entityMap.ContainsKey(entity.Id) && ! isOneShot) {
             _entitiesRemovedCurrentFrame.TryAdd(entity.Id, entity.Id);
         }
 

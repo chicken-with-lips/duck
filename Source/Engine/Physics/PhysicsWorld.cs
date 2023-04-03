@@ -1,7 +1,8 @@
 using System.Numerics;
+using Arch.Core;
 using ChickenWithLips.PhysX;
-using Duck.Ecs;
 using Duck.Graphics.Components;
+using Duck.Math;
 using Duck.Physics.Events;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
@@ -24,10 +25,11 @@ public class PhysicsWorld : IPhysicsWorld
 
     #region Members
 
-    private readonly IWorld _world;
+    private readonly World _world;
     private readonly PxPhysics _physics;
     private readonly PxScene _scene;
-    private readonly Dictionary<PxActor, IEntity> _actorToEntityMap = new();
+    private readonly Dictionary<PxActor, Entity> _actorToEntityMap = new();
+    private readonly Dictionary<Entity, PxActor> _entityToActorMap = new();
     private readonly SimulationEventCallback _simulationEventCallback;
     private readonly SimulationFilterCallback _simulationFilterCallback;
     private readonly PxFilterShaderCallback _filterShader;
@@ -36,7 +38,7 @@ public class PhysicsWorld : IPhysicsWorld
 
     #region Methods
 
-    public PhysicsWorld(IWorld world, PxPhysics physics, PxCpuDispatcher cpuDispatcher)
+    public PhysicsWorld(World world, PxPhysics physics, PxCpuDispatcher cpuDispatcher)
     {
         _world = world;
         _physics = physics;
@@ -74,15 +76,16 @@ public class PhysicsWorld : IPhysicsWorld
     public void EmitEvents(IEventBus eventBus)
     {
         foreach (var pairHeader in _simulationEventCallback.Contacts) {
-            _world.CreateOneShot((ref PhysicsCollision col) => {
-                col.A = GetEntityForActor(pairHeader.Actors[0]);
-                col.B = GetEntityForActor(pairHeader.Actors[1]);
-            });
-
-            _world.CreateOneShot((ref PhysicsCollision col) => {
-                col.A = GetEntityForActor(pairHeader.Actors[1]);
-                col.B = GetEntityForActor(pairHeader.Actors[0]);
-            });
+            Console.WriteLine("TOOD: Collision");
+            // _world.CreateOneShot("PhysicsCollision", (ref PhysicsCollision col) => {
+            //     col.A = GetEntityForActor(pairHeader.Actors[0]);
+            //     col.B = GetEntityForActor(pairHeader.Actors[1]);
+            // });
+            //
+            // _world.CreateOneShot("PhysicsCollision", (ref PhysicsCollision col) => {
+            //     col.A = GetEntityForActor(pairHeader.Actors[1]);
+            //     col.B = GetEntityForActor(pairHeader.Actors[0]);
+            // });
         }
 
         _simulationEventCallback.ClearContacts();
@@ -116,17 +119,28 @@ public class PhysicsWorld : IPhysicsWorld
         _scene.FetchResults(true);
     }
 
-    internal void MapActorToEntity(IEntity entity, PxActor actor)
+    public PxRigidBody? GetRigidBody(Entity entity)
+    {
+        if (_entityToActorMap.TryGetValue(entity, out var actor)) {
+            return actor as PxRigidBody;
+        }
+
+        return null;
+    }
+
+    internal void MapActorToEntity(Entity entity, PxActor actor)
     {
         _actorToEntityMap.Add(actor, entity);
+        _entityToActorMap.Add(entity, actor);
     }
 
     internal void UnmapActor(PxActor actor)
     {
+        _entityToActorMap.Remove(_actorToEntityMap[actor]);
         _actorToEntityMap.Remove(actor);
     }
 
-    internal IEntity GetEntityForActor(PxActor actor)
+    internal Entity GetEntityForActor(PxActor actor)
     {
         return _actorToEntityMap[actor];
     }

@@ -1,18 +1,22 @@
 using System.Collections.Concurrent;
-using Duck.Ecs;
+using Arch.Core;
+using Arch.Core.Extensions;
 using Duck.Graphics;
 using Duck.Graphics.Components;
+using Duck.Scene.Components;
 using Duck.Scene.Events;
 using Duck.Serialization;
+using Duck.ServiceBus;
+using Silk.NET.Maths;
 
 namespace Duck.Scene;
 
 [AutoSerializable]
-public partial class SceneModule : ISceneModule, IPreRenderableModule, IPreTickableModule, ITickableModule, IHotReloadAwareModule
+public partial class SceneModule : ISceneModule, IRenderableModule, IPreTickableModule, ITickableModule, IPostTickableModule, IHotReloadAwareModule
 {
     #region Members
 
-    private readonly IEcsModule _ecsModule;
+    private readonly IEventBus _eventBus;
     private readonly IGraphicsModule _graphicsModule;
     private readonly ConcurrentDictionary<string, IScene> _loadedScenes = new();
 
@@ -22,29 +26,27 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, IPreTicka
 
     #region Methods
 
-    public SceneModule(IEcsModule ecsModule, IGraphicsModule graphicsModule)
+    public SceneModule(IEventBus eventBus, IGraphicsModule graphicsModule)
     {
-        _ecsModule = ecsModule;
+        _eventBus = eventBus;
         _graphicsModule = graphicsModule;
     }
 
     public IScene Create(string name)
     {
-        return Create(name, _ecsModule.Create());
+        return Create(name, World.Create());
     }
 
-    public IScene Create(string name, IWorld world)
+    public IScene Create(string name, World world)
     {
-        var scene = new Scene(name, world);
+        var scene = new Scene(name, world, _eventBus);
 
         if (!_loadedScenes.TryAdd(name, scene)) {
             throw new Exception("TODO: errors");
         }
 
-        Console.WriteLine("SceneWasCreated: " + scene.Name);
-
-        world.CreateOneShot((ref SceneWasCreated cmp) => {
-            cmp.Scene = scene;
+        _eventBus.Emit(new SceneWasCreated() {
+            Scene = scene
         });
 
         return scene;
@@ -90,7 +92,15 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, IPreTicka
             }
 
             _loadedScenes.Remove(scene.Name, out var unused);
-            _ecsModule.Destroy(scene.World);
+            _pendingUnload.TryTake(out var unused2);
+
+            World.Destroy(scene.World);
+        }
+
+        foreach (var kvp in _loadedScenes) {
+            if (kvp.Value.IsActive) {
+                kvp.Value.PreTick(Time.DeltaFrame);
+            }
         }
     }
 
@@ -98,21 +108,63 @@ public partial class SceneModule : ISceneModule, IPreRenderableModule, IPreTicka
     {
         foreach (var kvp in _loadedScenes) {
             if (kvp.Value.IsActive) {
-                kvp.Value.Tick();
+                kvp.Value.Tick(Time.DeltaFrame);
             }
         }
     }
 
-    public void PreRender()
+    public void PostTick()
+    {
+        foreach (var kvp in _loadedScenes) {
+            if (kvp.Value.IsActive) {
+                kvp.Value.PostTick(Time.DeltaFrame);
+            }
+        }
+    }
+
+    public void Render()
     {
         foreach (var kvp in _loadedScenes) {
             var scene = kvp.Value;
+            var entities = new List<Entity>();
 
-            foreach (var entityId in scene.Renderables) {
-                if (scene.World.HasComponent<RenderableInstanceComponent>(entityId)) {
-                    var instanceComponent = scene.World.GetComponent<RenderableInstanceComponent>(entityId);
-                    _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.Id);
+            scene.World.GetEntities(queryDescription: new QueryDescription().WithAll<RuntimeStaticMeshComponent>(), entities);
+
+            foreach (var entity in entities) {
+                var instanceComponent = entity.Get<RuntimeStaticMeshComponent>();
+                var transformComponent = entity.Get<TransformComponent>();
+
+                var renderObjectInstance = _graphicsModule.GraphicsDevice.GetRenderObjectInstance(instanceComponent.InstanceId);
+                renderObjectInstance
+                    .SetParameter("WorldScale", transformComponent.Scale)
+                    .SetParameter("WorldPosition",
+                        Matrix4X4.CreateScale(transformComponent.Scale)
+                        * Matrix4X4.CreateFromQuaternion(transformComponent.Rotation)
+                        * Matrix4X4.CreateTranslation(transformComponent.Position)
+                    );
+
+                if (entity.Has<BoundingBoxComponent>()) {
+                    var boundingBox = entity.Get<BoundingBoxComponent>();
+
+                    var scaledBoundingBox = new BoundingBoxComponent() {
+                        Box = boundingBox.Box.GetScaled(transformComponent.Scale, boundingBox.Box.Center)
+                    };
+
+                    renderObjectInstance.BoundingVolume = boundingBox;
+                } else if (entity.Has<BoundingSphereComponent>()) {
+                    var boundingSphere = entity.Get<BoundingSphereComponent>();
+
+                    // var scaledBoundingSphere = new BoundingSphereComponent() {
+                    //     Radius = boundingSphere.Radius * MathF.Max(MathF.Max(transformComponent.Scale.X, transformComponent.Scale.Y), transformComponent.Scale.Z)
+                    // };
+                    var scaledBoundingSphere = new BoundingSphereComponent() {
+                        Radius = boundingSphere.Radius
+                    };
+
+                    renderObjectInstance.BoundingVolume = boundingSphere;
                 }
+
+                _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.InstanceId);
             }
         }
     }

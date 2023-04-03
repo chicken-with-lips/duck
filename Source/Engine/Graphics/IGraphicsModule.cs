@@ -4,5 +4,5 @@ namespace Duck.Graphics;
 
 public interface IGraphicsModule : IModule
 {
-    public IGraphicsDevice GraphicsDevice { get; }
+    public IGraphicsDevice? GraphicsDevice { get; }
 }

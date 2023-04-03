@@ -1,13 +1,15 @@
 using Duck.GameFramework;
+using Duck.Graphics;
 using Duck.Logging;
+using Duck.Platform;
 using Game.Host;
 
 namespace Game;
 
 public class Game : ApplicationBase
 {
-    public Game(bool isEditor)
-        : base(isEditor)
+    public Game(IPlatform platform, IRenderSystem renderSystem, bool isEditor)
+        : base(platform, renderSystem, isEditor)
     {
     }
 

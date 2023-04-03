@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Graphics</AssemblyName>
@@ -17,10 +17,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\WickedEngine\WickedEngine.Net\WickedEngine.Net.csproj" />
       <ProjectReference Include="..\Content\Content.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Ecs\Ecs.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,9 +30,6 @@
 
     <ItemGroup>
       <PackageReference Include="Silk.NET.Assimp" Version="2.15.0" />
-      <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
-      <PackageReference Include="Silk.NET.OpenGL" Version="2.15.0" />
-      <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.15.0" />
       <PackageReference Include="StbImageSharp" Version="2.27.8" />
     </ItemGroup>
 

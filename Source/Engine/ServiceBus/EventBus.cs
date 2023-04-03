@@ -7,12 +7,12 @@ public class EventBus : IEventBus
     private readonly ConcurrentQueue<IEvent> _pending = new();
     private readonly ConcurrentDictionary<Type, ListenerCollectionBase> _listeners = new();
 
-    public void Enqueue(IEvent ev)
+    public void Emit(IEvent ev)
     {
         _pending.Enqueue(ev);
     }
 
-    public void Emit()
+    public void Flush()
     {
         var events = _pending.ToArray();
         _pending.Clear();

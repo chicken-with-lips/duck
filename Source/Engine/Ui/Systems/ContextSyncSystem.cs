@@ -1,34 +1,26 @@
-using Duck.Ecs;
-using Duck.Ecs.Systems;
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.System;
 using Duck.Ui.Components;
 
 namespace Duck.Ui.Systems;
 
-public class ContextSyncSystem : SystemBase
+public partial class ContextSyncSystem : BaseSystem<World, float>
 {
-    private readonly IFilter<ContextComponent> _filter;
     private readonly UiModule _uiModule;
-    private readonly IWorld _world;
 
-    public ContextSyncSystem(IWorld world, UiModule uiModule)
+    public ContextSyncSystem(World world, UiModule uiModule)
+        : base(world)
     {
-        _world = world;
         _uiModule = uiModule;
-
-        _filter = Filter<ContextComponent>(_world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in ContextComponent cmp)
     {
-        foreach (var entityId in _filter.EntityList) {
-            var cmp = _filter.Get(entityId);
-            var context = _uiModule.GetOrCreateContext(cmp.Name);
-
-            if (null != context) {
-                context.ShouldReceiveInput = cmp.ShouldReceiveInput;
-                context.Tick();
-            }
-        }
+        var context = _uiModule.GetOrCreateContext(cmp.Name);
+        context.ShouldReceiveInput = cmp.ShouldReceiveInput;
+        context.Tick();
     }
 }

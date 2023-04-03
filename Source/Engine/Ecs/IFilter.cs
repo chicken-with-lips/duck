@@ -10,8 +10,8 @@ public interface IFilter
     public IEntity GetEntity(int entityId);
 
     public FilterComponentPredicate[] ComponentPredicates { get; }
-    public void AddEntity(IEntity entity, bool immediate);
-    public void RemoveEntity(IEntity entity);
+    public void AddEntity(IEntity entity, bool isOneShot);
+    public void RemoveEntity(IEntity entity, bool isOneShot);
 
     public void SwapDirtyBuffers();
 }

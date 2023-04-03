@@ -1,17 +1,18 @@
 using System.IO;
 using System.Reflection;
-using ChickenWithLips.WickedEngine;
 using Duck.Content;
 using Duck.GameFramework;
+using Duck.Graphics;
 using Duck.Logging;
+using Duck.Platform;
 using Editor.Host;
 
 namespace Editor;
 
 public class Editor : ApplicationBase
 {
-    private Application app;
-    public Editor(bool isEditor) : base(isEditor)
+    public Editor(IPlatform platform, IRenderSystem renderSystem, bool isEditor)
+        : base(platform, renderSystem, isEditor)
     {
     }
 

@@ -1,5 +1,5 @@
+using Arch.Core;
 using ChickenWithLips.PhysX;
-using Duck.Ecs;
 using Duck.Logging;
 using Duck.Physics.Events;
 using Duck.ServiceBus;
@@ -19,7 +19,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
     private readonly PxPvd _physicsDebugger;
     private readonly PxTolerancesScale _scale;
 
-    private readonly Dictionary<IWorld, IPhysicsWorld> _physicsWorlds = new();
+    private readonly Dictionary<World, IPhysicsWorld> _physicsWorlds = new();
 
     private float _timeAccumulator;
 
@@ -75,7 +75,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
         }
     }
 
-    public IPhysicsWorld GetOrCreatePhysicsWorld(IWorld world)
+    public IPhysicsWorld GetOrCreatePhysicsWorld(World world)
     {
         if (_physicsWorlds.TryGetValue(world, out var p)) {
             return p;
@@ -86,7 +86,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
         _physicsWorlds.Add(world, physicsWorld);
 
         
-        _eventBus.Enqueue(
+        _eventBus.Emit(
             new PhysicsWorldWasCreated(physicsWorld)
         );
 

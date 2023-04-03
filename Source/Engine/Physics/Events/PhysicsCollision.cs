@@ -1,10 +1,10 @@
-using Duck.Ecs;
+using Arch.Core;
 using Duck.ServiceBus;
 
 namespace Duck.Physics.Events;
 
 public struct PhysicsCollision : IEvent
 {
-    public IEntity A;
-    public IEntity B;
+    public Entity A;
+    public Entity B;
 }

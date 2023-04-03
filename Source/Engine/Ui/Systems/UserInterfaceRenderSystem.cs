@@ -1,39 +1,40 @@
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.System;
 using Duck.Content;
-using Duck.Ecs;
-using Duck.Ecs.Systems;
-using Duck.Ui.Components;
-using Duck.Ui.Content.ContentLoader;
-using Duck.Ui.RmlUi;
-using Duck.Ui.Scripting;
 
 namespace Duck.Ui.Systems;
 
-public class UserInterfaceRenderSystem : SystemBase
+public partial class UserInterfaceRenderSystem : BaseSystem<World, float>
 {
-    private readonly IFilter<UserInterfaceComponent> _filter;
+    // private readonly IFilter<UserInterfaceComponent> _filter;
     private readonly IContentModule _contentModule;
     private readonly UiModule _uiModule;
 
-    public UserInterfaceRenderSystem(IWorld world, IContentModule contentModule, UiModule uiModule)
+    public UserInterfaceRenderSystem(World world, IContentModule contentModule, UiModule uiModule)
+        : base(world)
     {
         _contentModule = contentModule;
         _uiModule = uiModule;
 
-        _filter = Filter<UserInterfaceComponent>(world)
-            .Build();
+        // _filter = Filter<UserInterfaceComponent>(world)
+        // .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run()
     {
-        foreach (var entityId in _filter.EntityList) {
-            var cmp = _filter.Get(entityId);
-
-            if (cmp.Interface == null) {
-                continue;
-            }
-
-            var ui = _uiModule.GetUserInterface(cmp.Interface);
-            ui?.Context.Render();
-        }
+        Console.WriteLine("TODO: UserInterfaceRenderSystem");
+        // foreach (var entityId in _filter.EntityList) {
+        //     var cmp = _filter.Get(entityId);
+        //
+        //     if (cmp.Interface == null) {
+        //         continue;
+        //     }
+        //
+        //     var ui = _uiModule.GetUserInterface(cmp.Interface);
+        //     ui?.Context.Render();
+        // }
     }
 }

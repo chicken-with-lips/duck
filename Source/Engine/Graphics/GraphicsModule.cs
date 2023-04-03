@@ -1,8 +1,6 @@
 using Duck.Content;
 using Duck.Graphics.Content.SourceAssetImporter;
 using Duck.Graphics.Device;
-using Duck.Graphics.OpenGL;
-using Duck.Graphics.Shaders;
 using Duck.Logging;
 using Duck.Platform;
 
@@ -17,28 +15,28 @@ public class GraphicsModule : IGraphicsModule,
 {
     #region Properties
 
-    public IGraphicsDevice GraphicsDevice => _graphicsDevice;
-
+    public IGraphicsDevice? GraphicsDevice => _renderSystem.GraphicsDevice;
+    
     #endregion
-
+    
     #region Members
 
     private readonly ILogger _logger;
-    private readonly OpenGLPlatform _platform;
+    private readonly IPlatform _platform;
+    private readonly IRenderSystem _renderSystem;
+    private readonly IApplication _app;
     private readonly IContentModule _contentModule;
-
-    private IGraphicsDevice? _graphicsDevice;
-    private IAsset<ShaderProgram> _defaultShader;
-    private IAsset<ShaderProgram> _debugShader;
 
     #endregion
 
     #region Methods
 
-    public GraphicsModule(IApplication app, IPlatform platform, ILogModule logModule, IContentModule contentModule)
+    public GraphicsModule(IApplication app, IPlatform platform, IRenderSystem renderSystem, ILogModule logModule, IContentModule contentModule)
     {
+        _app = app;
         _contentModule = contentModule;
-        _platform = (OpenGLPlatform)platform;
+        _platform = platform;
+        _renderSystem = renderSystem;
 
         _logger = logModule.CreateLogger("Graphics");
         _logger.LogInformation("Created graphics module.");
@@ -54,16 +52,10 @@ public class GraphicsModule : IGraphicsModule,
 
         var window = _platform.CreateWindow();
 
-        _defaultShader = _contentModule.Database.Register(CreateDefaultShader());
-        _debugShader = _contentModule.Database.Register(CreateDebugShader());
+        _renderSystem.Init(_app, window);
 
         _contentModule.RegisterSourceAssetImporter(
-            new FbxAssetImporter(_defaultShader.MakeSharedReference())
-        );
-
-        _graphicsDevice = _platform.CreateGraphicsDevice(
-            _debugShader.MakeSharedReference(),
-            window
+            new FbxAssetImporter(_renderSystem.DefaultShader.MakeSharedReference())
         );
 
         return true;
@@ -76,17 +68,17 @@ public class GraphicsModule : IGraphicsModule,
 
     public void PreRender()
     {
-        _graphicsDevice?.BeginFrame();
+        _renderSystem.PreRender();
     }
 
     public void Render()
     {
-        _graphicsDevice?.Render();
+        _renderSystem.Render();
     }
 
     public void PostRender()
     {
-        _graphicsDevice?.EndFrame();
+        _renderSystem.PostRender();
     }
 
     private void ProcessWindowEvents()
@@ -96,30 +88,6 @@ public class GraphicsModule : IGraphicsModule,
         // _renderingWindow?.Resize(resizeEvent.NewWidth, resizeEvent.NewHeight);
         // }
         // }
-    }
-
-    private IAsset<ShaderProgram> CreateDefaultShader()
-    {
-        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/shader.fs"))));
-        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/shader.vs"))));
-
-        return new ShaderProgram(
-            new AssetImportData(new Uri("memory://default.shader")),
-            vertShader.MakeSharedReference(),
-            fragShader.MakeSharedReference()
-        );
-    }
-
-    private IAsset<ShaderProgram> CreateDebugShader()
-    {
-        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/debug.fs"))));
-        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/debug.vs"))));
-
-        return new ShaderProgram(
-            new AssetImportData(new Uri("memory://debug.shader")),
-            vertShader.MakeSharedReference(),
-            fragShader.MakeSharedReference()
-        );
     }
 
     #endregion

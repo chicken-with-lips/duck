@@ -1,34 +1,37 @@
-using Duck.Ecs;
-using Duck.Ecs.Systems;
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.Core.Extensions;
+using Arch.System;
 using Duck.Ui.Components;
 
 namespace Duck.Ui.Systems;
 
-public class ContextLoadSystem : SystemBase
+// FIXME: remove when arch adds entity lifecycles
+public struct ContextLoaded
 {
-    private readonly IFilter<ContextComponent> _filter;
+}
+
+public partial class ContextLoadSystem : BaseSystem<World, float>
+{
     private readonly UiModule _uiModule;
-    private readonly IWorld _world;
 
-    public ContextLoadSystem(IWorld world, UiModule uiModule)
+    public ContextLoadSystem(World world, UiModule uiModule)
+        : base(world)
     {
-        _world = world;
         _uiModule = uiModule;
-
-        _filter = Filter<ContextComponent>(_world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in Entity entity, in ContextComponent cmp)
     {
-        foreach (var entityId in _filter.EntityAddedList) {
-            var cmp = _filter.Get(entityId);
+        // FIXME: context load
+        _uiModule.GetOrCreateContext(cmp.Name);
 
-            _uiModule.GetOrCreateContext(cmp.Name);
-        }
+        entity.Add<ContextLoaded>();
 
-        foreach (var entityId in _filter.EntityRemovedList) {
+        /*foreach (var entityId in _filter.EntityRemovedList) {
             Console.WriteLine("TODO: remove ui context");
-        }
+        }*/
     }
 }

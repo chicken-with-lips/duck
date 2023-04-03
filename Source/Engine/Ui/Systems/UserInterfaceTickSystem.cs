@@ -1,33 +1,28 @@
-using Duck.Ecs;
-using Duck.Ecs.Systems;
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.System;
 using Duck.Ui.Components;
 using Duck.Ui.Scripting;
 
 namespace Duck.Ui.Systems;
 
-public class UserInterfaceTickSystem : SystemBase
+public partial class UserInterfaceTickSystem : BaseSystem<World, float>
 {
-    private readonly IFilter<UserInterfaceComponent> _filter;
-
-    public UserInterfaceTickSystem(IWorld world)
+    public UserInterfaceTickSystem(World world)
+        : base(world)
     {
-        _filter = Filter<UserInterfaceComponent>(world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in UserInterfaceComponent cmp)
     {
-        foreach (var entityId in _filter.EntityList) {
+        if (cmp.Interface == null) {
+            return;
+        }
 
-            var cmp = _filter.Get(entityId);
-
-            if (cmp.Interface == null) {
-                continue;
-            }
-
-            if (cmp.Script is IUserInterfaceTick tick) {
-                tick.OnTick();
-            }
+        if (cmp.Script is IUserInterfaceTick tick) {
+            tick.OnTick();
         }
     }
 }

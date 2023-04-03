@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using Duck.Platforms.Standard;
+using Duck.RenderSystems.OpenGL;
 
 namespace Game
 {
@@ -7,7 +9,11 @@ namespace Game
         [MethodImpl(MethodImplOptions.NoInlining)]
         static void Main(string[] args)
         {
-            var app = new Game(false);
+            var app = new Game(
+                new StandardPlatform(),
+                new OpenGLRenderSystem(),
+                false
+            );
 
             if (app.Initialize()) {
                 app.Run();

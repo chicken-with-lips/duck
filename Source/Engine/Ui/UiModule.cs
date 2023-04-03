@@ -48,26 +48,27 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     public bool Init()
     {
-        _contentModule.RegisterAssetLoader<UserInterface, RmlUserInterface>(new UserInterfaceLoader(this));
-        _contentModule.RegisterSourceAssetImporter(new RmlUiAssetImporter());
-
-        _coloredShader = _contentModule.Database.Register(CreateColoredShader());
-        _texturedShader = _contentModule.Database.Register(CreateTexturedShader());
-
-        _systemInterface = new RmlUi.SystemInterface(_logger);
-        _renderInterface = new RmlUi.RenderInterface(
-            _graphicsModule.GraphicsDevice,
-            _contentModule,
-            (IPlatformAsset<ShaderProgram>)_contentModule.LoadImmediate(_coloredShader.MakeSharedReference()),
-            (IPlatformAsset<ShaderProgram>)_contentModule.LoadImmediate(_texturedShader.MakeSharedReference())
-        );
-
-        Rml.SetRenderInterface(_renderInterface);
-        Rml.SetSystemInterface(_systemInterface);
-        Rml.Initialise();
-
-        // FIXME: rml isn't using our content resolver and is looking relative to the root of the project
-        Rml.LoadFontFace("Content/Fonts/LatoLatin-Regular.ttf", true);
+        Console.WriteLine("TODO: UiModule");
+        // _contentModule.RegisterAssetLoader<UserInterface, RmlUserInterface>(new UserInterfaceLoader(this));
+        // _contentModule.RegisterSourceAssetImporter(new RmlUiAssetImporter());
+        //
+        // _coloredShader = _contentModule.Database.Register(CreateColoredShader());
+        // _texturedShader = _contentModule.Database.Register(CreateTexturedShader());
+        //
+        // _systemInterface = new RmlUi.SystemInterface(_logger);
+        // _renderInterface = new RmlUi.RenderInterface(
+        //     _graphicsModule.GraphicsDevice,
+        //     _contentModule,
+        //     (IPlatformAsset<ShaderProgram>)_contentModule.LoadImmediate(_coloredShader.MakeSharedReference()),
+        //     (IPlatformAsset<ShaderProgram>)_contentModule.LoadImmediate(_texturedShader.MakeSharedReference())
+        // );
+        //
+        // Rml.SetRenderInterface(_renderInterface);
+        // Rml.SetSystemInterface(_systemInterface);
+        // Rml.Initialise();
+        //
+        // // FIXME: rml isn't using our content resolver and is looking relative to the root of the project
+        // Rml.LoadFontFace("Content/Fonts/LatoLatin-Regular.ttf", true);
 
         return true;
     }

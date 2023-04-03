@@ -1,87 +1,75 @@
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.System;
 using ChickenWithLips.PhysX;
-using Duck.Ecs;
-using Duck.Ecs.Systems;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
 
-public class RigidBodySynchronizationSystem : SystemBase
+public partial class RigidBodySynchronizationSystem : BaseSystem<World, float>
 {
-    #region Members
-
-    private readonly IFilter<RigidBodyComponent, PhysXIntegrationComponent, TransformComponent> _filter;
-    private readonly PhysicsWorld _physicsWorld;
-
-    #endregion
-
     #region Methods
 
-    public RigidBodySynchronizationSystem(IWorld world, IPhysicsModule physicsModule)
+    public RigidBodySynchronizationSystem(World world)
+        : base(world)
     {
-        _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
-
-        _filter = Filter<RigidBodyComponent, PhysXIntegrationComponent, TransformComponent>(world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(ref RigidBodyComponent rigidBody, in PhysXIntegrationComponent physXIntegration, ref TransformComponent transform)
     {
-        foreach (var entityId in _filter.EntityList) {
-            ref var rigidBodyComponent = ref _filter.Get1(entityId);
-            var physxComponent = _filter.Get2(entityId);
-            ref TransformComponent transform = ref _filter.Get3(entityId);
-            var pxTransform = physxComponent.Body.GlobalPose;
+        var pxTransform = physXIntegration.Body.GlobalPose;
 
-            var body = physxComponent.Body;
+        var body = physXIntegration.Body;
 
-            if (transform.IsPositionDirty || transform.IsRotationDirty) {
-                body.GlobalPose = new PxTransform(
-                    transform.IsRotationDirty ? transform.Rotation.ToSystem() : pxTransform.Quaternion,
-                    transform.IsPositionDirty ? transform.Position.ToSystem() : pxTransform.Position
-                );
-            } else {
-                transform.Position = pxTransform.Position.ToGeneric();
-                transform.Rotation = pxTransform.Quaternion.ToGeneric();
-            }
-
-            transform.ClearDirtyFlags();
-
-            if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Dynamic && body is PxRigidDynamic dynamic) {
-                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedAccelerationForce.ToSystem(), rigidBodyComponent.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
-                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedForceForce.ToSystem(), rigidBodyComponent.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
-                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedImpulseForce.ToSystem(), rigidBodyComponent.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
-                dynamic.SetForceAndTorque(rigidBodyComponent.AccumulatedVelocityChangeForce.ToSystem(), rigidBodyComponent.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
-                
-                // dynamic.AddForce(rigidBodyComponent.AccumulatedAccelerationForce.ToSystem(), PxForceMode.Acceleration);
-                // dynamic.AddForce(rigidBodyComponent.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
-                // dynamic.AddForce(rigidBodyComponent.AccumulatedImpulseForce.ToSystem(), PxForceMode.Impulse);
-                // dynamic.AddForce(rigidBodyComponent.AccumulatedVelocityChangeForce.ToSystem(), PxForceMode.VelocityChange);
-                //
-                // dynamic.AddTorque(rigidBodyComponent.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
-                // dynamic.AddTorque(rigidBodyComponent.AccumulatedForceTorque.ToSystem(), PxForceMode.Force);
-                // dynamic.AddTorque(rigidBodyComponent.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
-                // dynamic.AddTorque(rigidBodyComponent.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
-
-                rigidBodyComponent.LinearVelocity = dynamic.LinearVelocity.ToGeneric();
-                rigidBodyComponent.AngularVelocity = dynamic.AngularVelocity.ToGeneric();
-
-                if (rigidBodyComponent.IsInertiaTensorDirty) {
-                    dynamic.MassSpaceInertiaTensor = rigidBodyComponent.InertiaTensor.ToSystem();
-                } else {
-                    rigidBodyComponent.InertiaTensor = dynamic.MassSpaceInertiaTensor.ToGeneric();
-                }
-
-                rigidBodyComponent.MassSpaceInvInertiaTensor = dynamic.MassSpaceInvInertiaTensor.ToGeneric();
-                rigidBodyComponent.InertiaTensorRotation = dynamic.CenterMassLocalPose.Quaternion.ToGeneric();
-            }
-
-            rigidBodyComponent.ClearDirtyFlags();
-            rigidBodyComponent.ClearForces();
-
-            physxComponent.Body.SetActorFlag(PxActorFlag.DisableGravity, !rigidBodyComponent.IsGravityEnabled);
+        if (transform.IsPositionDirty || transform.IsRotationDirty) {
+            body.GlobalPose = new PxTransform(
+                transform.IsRotationDirty ? transform.Rotation.ToSystem() : pxTransform.Quaternion,
+                transform.IsPositionDirty ? transform.Position.ToSystem() : pxTransform.Position
+            );
+        } else {
+            transform.Position = pxTransform.Position.ToGeneric();
+            transform.Rotation = pxTransform.Quaternion.ToGeneric();
         }
+
+        transform.ClearDirtyFlags();
+
+        if (rigidBody.Type == RigidBodyComponent.BodyType.Dynamic && body is PxRigidDynamic dynamic) {
+            dynamic.SetForceAndTorque(rigidBody.AccumulatedAccelerationForce.ToSystem(), rigidBody.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
+            dynamic.SetForceAndTorque(rigidBody.AccumulatedForceForce.ToSystem(), rigidBody.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
+            dynamic.SetForceAndTorque(rigidBody.AccumulatedImpulseForce.ToSystem(), rigidBody.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
+            dynamic.SetForceAndTorque(rigidBody.AccumulatedVelocityChangeForce.ToSystem(), rigidBody.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
+
+            // dynamic.AddForce(rigidBody.AccumulatedAccelerationForce.ToSystem(), PxForceMode.Acceleration);
+            // dynamic.AddForce(rigidBody.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
+            // dynamic.AddForce(rigidBody.AccumulatedImpulseForce.ToSystem(), PxForceMode.Impulse);
+            // dynamic.AddForce(rigidBody.AccumulatedVelocityChangeForce.ToSystem(), PxForceMode.VelocityChange);
+            //
+            // dynamic.AddTorque(rigidBody.AccumulatedAccelerationTorque.ToSystem(), PxForceMode.Acceleration);
+            // dynamic.AddTorque(rigidBody.AccumulatedForceTorque.ToSystem(), PxForceMode.Force);
+            // dynamic.AddTorque(rigidBody.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
+            // dynamic.AddTorque(rigidBody.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
+
+            rigidBody.LinearVelocity = dynamic.LinearVelocity.ToGeneric();
+            rigidBody.AngularVelocity = dynamic.AngularVelocity.ToGeneric();
+
+            if (rigidBody.IsInertiaTensorDirty) {
+                dynamic.MassSpaceInertiaTensor = rigidBody.InertiaTensor.ToSystem();
+            } else {
+                rigidBody.InertiaTensor = dynamic.MassSpaceInertiaTensor.ToGeneric();
+            }
+
+            rigidBody.MassSpaceInvInertiaTensor = dynamic.MassSpaceInvInertiaTensor.ToGeneric();
+            rigidBody.InertiaTensorRotation = dynamic.CenterMassLocalPose.Quaternion.ToGeneric();
+        }
+
+        rigidBody.ClearDirtyFlags();
+        rigidBody.ClearForces();
+
+        physXIntegration.Body.SetActorFlag(PxActorFlag.DisableGravity, !rigidBody.IsGravityEnabled);
     }
 
     #endregion

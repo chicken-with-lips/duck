@@ -1,8 +1,8 @@
-using Duck.Ecs;
+using Arch.Core;
 
 namespace Duck.Physics;
 
 public interface IPhysicsModule : IModule
 {
-    public IPhysicsWorld GetOrCreatePhysicsWorld(IWorld world);
+    public IPhysicsWorld GetOrCreatePhysicsWorld(World world);
 }

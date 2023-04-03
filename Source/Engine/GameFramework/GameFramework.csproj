@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.GameFramework</AssemblyName>
@@ -12,7 +12,6 @@
         <ProjectReference Include="..\..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" />
         <ProjectReference Include="..\Content\Content.csproj" />
         <ProjectReference Include="..\Core\Core.csproj" />
-        <ProjectReference Include="..\Ecs\Ecs.csproj" />
         <ProjectReference Include="..\Graphics\Graphics.csproj" />
         <ProjectReference Include="..\Input\Input.csproj" />
         <ProjectReference Include="..\Physics\Physics.csproj" />

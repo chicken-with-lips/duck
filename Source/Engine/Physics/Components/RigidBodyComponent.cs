@@ -1,4 +1,3 @@
-using ChickenWithLips.PhysX;
 using Duck.Serialization;
 using Silk.NET.Maths;
 

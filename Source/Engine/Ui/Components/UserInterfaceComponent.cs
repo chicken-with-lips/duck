@@ -9,6 +9,6 @@ namespace Duck.Ui.Components;
 public partial struct UserInterfaceComponent
 {
     public string ContextName = String.Empty;
-    public IAssetReference<UserInterface> ?Interface = default;
+    public UniqueAssetReference<UserInterface> ?Interface = default;
     public IUserInterfaceScript? Script = default;
 }

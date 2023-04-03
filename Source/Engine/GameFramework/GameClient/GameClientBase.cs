@@ -1,9 +1,4 @@
-using Duck.Content;
-using Duck.Ecs;
-using Duck.Ecs.Systems;
 using Duck.GameHost;
-using Duck.Input;
-using Duck.Scene;
 
 namespace Duck.GameFramework.GameClient;
 

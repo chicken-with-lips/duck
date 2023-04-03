@@ -1,85 +1,86 @@
-using ChickenWithLips.PhysX;
-using Duck.Ecs;
+using System.Runtime.CompilerServices;
+using Arch.Core;
+using Arch.Core.Extensions;
+using Arch.System;
+using Arch.System.SourceGenerator;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
 
-public class RigidBodyLifecycleSystem_AddBox : RigidBodyLifecycleSystem
+public partial class RigidBodyLifecycleSystem_AddBox : BaseSystem<World, float>
 {
     #region Members
 
-    private readonly IFilter<RigidBodyComponent, TransformComponent, BoundingBoxComponent> _filter;
     private readonly PhysicsWorld _physicsWorld;
 
     #endregion
 
     #region Methods
 
-    public RigidBodyLifecycleSystem_AddBox(IWorld world, IPhysicsModule physicsModule)
+    public RigidBodyLifecycleSystem_AddBox(World world, IPhysicsModule physicsModule)
+        : base(world)
     {
         _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
-
-        _filter = Filter<RigidBodyComponent, TransformComponent, BoundingBoxComponent>(world)
-            .Build();
     }
 
-    public override void Run()
+    [Query]
+    [None<PhysXIntegrationComponent>]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Run(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingBoxComponent boundingBox)
     {
         var physics = _physicsWorld.Physics;
 
-        foreach (var entityId in _filter.EntityAddedList) {
-            IEntity entity = _filter.GetEntity(entityId);
+        entity.Add<PhysXIntegrationComponent>();
 
-            ref RigidBodyComponent rigidBodyComponent = ref _filter.Get1(entityId);
+        var geometry = PhysXHelper.CreateBoxGeometry(
+            boundingBox.Box,
+            transform.Scale
+        );
 
-            TransformComponent transformComponent = _filter.Get2(entityId);
-            BoundingBoxComponent boundingBoxComponent = _filter.Get3(entityId);
-
-            var geometry = PhysXHelper.CreateBoxGeometry(
-                boundingBoxComponent.Box,
-                transformComponent.Scale
-            );
-
-            CreateBody(
-                entity,
-                _physicsWorld,
-                physics,
-                geometry,
-                rigidBodyComponent,
-                transformComponent
-            );
-        }
+        RigidBodyHelper.CreateBody(
+            entity,
+            _physicsWorld,
+            physics,
+            geometry,
+            rigidBody,
+            transform,
+            ref entity.Get<PhysXIntegrationComponent>()
+        );
     }
 
     #endregion
 }
 
-public class RigidBodyLifecycleSystem_RemoveBox : RigidBodyLifecycleSystem
+public partial class RigidBodyLifecycleSystem_RemoveBox : BaseSystem<World, float>
 {
     #region Members
 
-    private readonly IFilter<BoundingBoxComponent, PhysXIntegrationComponent> _filter;
+    // private readonly IFilter<BoundingBoxComponent, PhysXIntegrationComponent> _filter;
     private readonly PhysicsWorld _physicsWorld;
 
     #endregion
 
     #region Methods
 
-    public RigidBodyLifecycleSystem_RemoveBox(IWorld world, IPhysicsModule physicsModule)
+    public RigidBodyLifecycleSystem_RemoveBox(World world, IPhysicsModule physicsModule)
+        : base(world)
     {
         _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
 
-        _filter = Filter<BoundingBoxComponent, PhysXIntegrationComponent>(world)
-            .Build();
+        // _filter = Filter<BoundingBoxComponent, PhysXIntegrationComponent>(world)
+        // .Build();
     }
 
-    public override void Run()
+    [Query]
+    public void Run()
     {
-        foreach (var entityId in _filter.EntityRemovedList) {
-            RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
-        }
+        Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveBox");
+        // foreach (var entityId in _filter.EntityRemovedList) {
+        // RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
+
+        // entity.Remove<PhysXIntegrationComponent>();
+        // }
     }
 
     #endregion
