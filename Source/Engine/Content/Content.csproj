@@ -6,11 +6,12 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Content</AssemblyName>
         <RootNamespace>Duck.Content</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
-      <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
+      <ProjectReference Include="..\Core\Core.csproj" Private="false" />
     </ItemGroup>
 
 </Project>

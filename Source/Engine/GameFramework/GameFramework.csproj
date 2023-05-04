@@ -6,19 +6,20 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.GameFramework</AssemblyName>
         <RootNamespace>Duck.GameFramework</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" />
-        <ProjectReference Include="..\Content\Content.csproj" />
-        <ProjectReference Include="..\Core\Core.csproj" />
-        <ProjectReference Include="..\Graphics\Graphics.csproj" />
-        <ProjectReference Include="..\Input\Input.csproj" />
-        <ProjectReference Include="..\Physics\Physics.csproj" />
-        <ProjectReference Include="..\Scene\Scene.csproj" />
-        <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
-        <ProjectReference Include="..\Serialization\Serialization.csproj" />
-        <ProjectReference Include="..\Ui\Ui.csproj" />
+        <ProjectReference Include="..\..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" Private="false" />
+        <ProjectReference Include="..\Content\Content.csproj" Private="false" />
+        <ProjectReference Include="..\Core\Core.csproj" Private="false" />
+        <ProjectReference Include="..\Graphics\Graphics.csproj" Private="false" />
+        <ProjectReference Include="..\Input\Input.csproj" Private="false" />
+        <ProjectReference Include="..\Physics\Physics.csproj" Private="false" />
+        <ProjectReference Include="..\Scene\Scene.csproj" Private="false" />
+        <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
+        <ProjectReference Include="..\Serialization\Serialization.csproj" Private="false" />
+        <ProjectReference Include="..\UI\UI.csproj" Private="false" />
     </ItemGroup>
 
 </Project>

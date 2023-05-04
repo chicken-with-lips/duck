@@ -13,12 +13,12 @@ public class EditorClientHostModule : IInitializableModule, ITickableModule
     private readonly ILogger _logger;
     private readonly EditorClientHost _clientHost;
 
-    public EditorClientHostModule(ApplicationBase application, ILogModule logModule)
+    public EditorClientHostModule(ApplicationBase application, ILogModule logModule, string projectDirectory)
     {
         _logger = logModule.CreateLogger("GameHost");
         _logger.LogInformation("Created game host module.");
 
-        _clientHost = new EditorClientHost(application, _logger);
+        _clientHost = new EditorClientHost(application, _logger, projectDirectory);
     }
 
     public bool Init()

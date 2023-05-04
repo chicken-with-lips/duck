@@ -6,11 +6,13 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Serialization</AssemblyName>
         <RootNamespace>Duck.Serialization</RootNamespace>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
         <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
+      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
     </ItemGroup>
 
 </Project>

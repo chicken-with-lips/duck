@@ -6,6 +6,9 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Platforms.Standard</AssemblyName>
         <RootNamespace>Duck.Platforms.Standard</RootNamespace>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -17,7 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" />
+      <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>

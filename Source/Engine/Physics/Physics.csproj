@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Physics</AssemblyName>
         <RootNamespace>Duck.Physics</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -18,9 +19,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\physx\PhysX.Net\PhysX.Net.csproj" />
-      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" />
-      <ProjectReference Include="..\Scene\Scene.csproj" />
-      <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
+      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
+      <ProjectReference Include="..\Scene\Scene.csproj" Private="false" />
+      <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
     </ItemGroup>
 
 </Project>

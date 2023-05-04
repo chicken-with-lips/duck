@@ -6,10 +6,11 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Input</AssemblyName>
         <RootNamespace>Duck.Input</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Core\Core.csproj" Private="false" />
     </ItemGroup>
 
 </Project>

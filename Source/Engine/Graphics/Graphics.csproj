@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Graphics</AssemblyName>
         <RootNamespace>Duck.Graphics</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -17,28 +18,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Content\Content.csproj" />
-      <ProjectReference Include="..\Core\Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Remove="Systems\GenerateFilamentIdentitySystem.cs" />
-      <Compile Remove="Components\BoundingBoxComponent.cs" />
-      <Compile Remove="Components\FilamentIdentityComponent.cs" />
-      <Compile Remove="Wicked\**" />
+      <ProjectReference Include="..\Content\Content.csproj" Private="false" />
+      <ProjectReference Include="..\Core\Core.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Silk.NET.Assimp" Version="2.15.0" />
       <PackageReference Include="StbImageSharp" Version="2.27.8" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Remove="Wicked\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Wicked\**" />
     </ItemGroup>
 
 </Project>

@@ -6,17 +6,15 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.Scene</AssemblyName>
         <RootNamespace>Duck.Scene</RootNamespace>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
         <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Content\Content.csproj" />
-      <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Graphics\Graphics.csproj" />
-      <ProjectReference Include="..\Serialization\Serialization.csproj" />
-      <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" />
+      <ProjectReference Include="..\Content\Content.csproj" Private="false" />
+      <ProjectReference Include="..\Core\Core.csproj" Private="false" />
+      <ProjectReference Include="..\Graphics\Graphics.csproj" Private="false" />
+      <ProjectReference Include="..\Serialization\Serialization.csproj" Private="false" />
+      <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>

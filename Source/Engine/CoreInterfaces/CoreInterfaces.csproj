@@ -6,6 +6,9 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.CoreInterfaces</AssemblyName>
         <RootNamespace>Duck</RootNamespace>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

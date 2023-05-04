@@ -33,7 +33,7 @@ public class ContentModule : IContentModule
 
         _database = new AssetDatabase();
 
-        ContentRootDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        ContentRootDirectory = Environment.CurrentDirectory;
     }
 
     public IContentModule RegisterSourceAssetImporter(ISourceAssetImporter importer)
@@ -65,7 +65,7 @@ public class ContentModule : IContentModule
 
         if (null != importer) {
             _logger.LogInformation($"Importing \"{file}\"");
-            
+
             var asset = importer.Import(file);
 
             if (null != asset) {
@@ -106,7 +106,7 @@ public class ContentModule : IContentModule
         where T : class, IAsset
     {
         if (_assetCaches.TryGetValue(typeof(T), out var cache)) {
-            return cache as IPlatformAssetCollection<T>;
+            return (IPlatformAssetCollection<T>)cache;
         }
 
         throw new Exception("FIXME: bad asset type");
@@ -115,7 +115,7 @@ public class ContentModule : IContentModule
     public bool IsLoaded<T>(IAssetReference<T> assetReference)
         where T : class, IAsset
     {
-        T? asset = _database.GetAsset<T>(assetReference);
+        T? asset = _database.GetAsset(assetReference);
 
         return asset is { IsLoaded: true };
     }
@@ -148,6 +148,7 @@ public class ContentModule : IContentModule
             if (asset.ImportData.Uri.IsFile) {
                 var tmp = asset.ImportData.Uri.AbsolutePath;
                 var path = Path.IsPathFullyQualified(tmp) ? tmp : ContentRootDirectory + tmp;
+
                 data = File.ReadAllBytes(path);
             } else {
                 data = fixmeData;

@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.RenderSystems.OpenGL</AssemblyName>
         <RootNamespace>Duck.RenderSystems.OpenGL</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -17,9 +18,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" />
-      <ProjectReference Include="..\..\Graphics\Graphics.csproj" />
-      <ProjectReference Include="..\..\Platforms\Standard\Standard.csproj" />
+      <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
+      <ProjectReference Include="..\..\Graphics\Graphics.csproj" Private="false" />
+      <ProjectReference Include="..\..\Platforms\Standard\Standard.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>

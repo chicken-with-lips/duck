@@ -1,4 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.CommandLine;
+using System.IO;
+using System.Runtime.CompilerServices;
 using Duck.Platforms.Standard;
 using Duck.RenderSystems.OpenGL;
 
@@ -9,15 +12,28 @@ class Program
     [MethodImpl(MethodImplOptions.NoInlining)]
     static void Main(string[] args)
     {
-        var app = new Editor(
-            new StandardPlatform(),
-            new OpenGLRenderSystem(),
-            true
-        );
+        var projectOption = new Option<string>(
+            name: "--project",
+            description: "The project to load.");
 
-        if (app.Initialize()) {
-            app.Run();
-        }
+        var rootCommand = new RootCommand("Duck Editor") {
+            TreatUnmatchedTokensAsErrors = true
+        };
+        rootCommand.AddOption(projectOption);
+
+        rootCommand.SetHandler((projectDirectory) => {
+            var app = new Editor(
+                new StandardPlatform(),
+                new OpenGLRenderSystem(),
+                projectDirectory
+            );
+
+            if (app.Initialize()) {
+                app.Run();
+            }
+        }, projectOption);
+
+        rootCommand.Invoke(args);
 
         // Instanciator.Init();
 

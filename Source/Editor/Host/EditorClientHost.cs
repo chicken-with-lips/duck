@@ -23,6 +23,8 @@ public class EditorClientHost
 
     private readonly ApplicationBase _application;
     private readonly ILogger _logger;
+    private readonly string _projectDirectory;
+
     private EditorClientAssemblyLoadContext? _assemblyContext;
     private IGameClient? _hostedClient;
 
@@ -30,10 +32,11 @@ public class EditorClientHost
 
     #region Methods
 
-    public EditorClientHost(ApplicationBase application, ILogger logger)
+    public EditorClientHost(ApplicationBase application, ILogger logger, string projectDirectory)
     {
         _application = application;
         _logger = logger;
+        _projectDirectory = projectDirectory;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -53,7 +56,6 @@ public class EditorClientHost
 
         _assemblyContext = new EditorClientAssemblyLoadContext("Editor", true);
 
-        var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var assemblies = new[] {
             "Duck.dll",
             // "Duck.CoreInterfaces.dll",
@@ -71,7 +73,7 @@ public class EditorClientHost
             // _assemblyContext.LoadFromAssemblyPath(Path.Combine(directory, assembly));
         }
 
-        var gameDll = Path.Combine(directory, "Game.dll");
+        var gameDll = Path.Combine(_projectDirectory, "Binaries", "net7.0", "Game.dll");
 
         using (_assemblyContext?.EnterContextualReflection()) {
             using (var stream = File.OpenRead(gameDll)) {

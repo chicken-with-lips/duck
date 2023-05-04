@@ -39,7 +39,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "..\asteroids\Code\G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tracy.Net", "..\tracy\Tracy.Net\Tracy.Net.csproj", "{7BB1BE88-4D46-498A-8694-9BC5AF14A86D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ui", "Source\Engine\Ui\Ui.csproj", "{062AB13D-3648-4EDE-AD4D-7AA146E2D1ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "Source\Engine\UI\UI.csproj", "{062AB13D-3648-4EDE-AD4D-7AA146E2D1ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RmlUi.Net", "..\rmlui\RmlUi.Net\RmlUi.Net.csproj", "{4FBB35A3-2892-4F92-845A-40502E8D12D4}"
 EndProject

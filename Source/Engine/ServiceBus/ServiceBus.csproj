@@ -6,11 +6,12 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.ServiceBus</AssemblyName>
         <RootNamespace>Duck.ServiceBus</RootNamespace>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" />
+      <ProjectReference Include="..\Core\Core.csproj" Private="false" />
+      <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" Private="false" />
     </ItemGroup>
 
 </Project>
