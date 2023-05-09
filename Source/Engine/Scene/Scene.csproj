@@ -20,7 +20,7 @@
     <ItemGroup>
         <ProjectReference Include="..\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <!-- Exclude the output of source generators from the compilation -->
-        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+<!--        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />-->
     </ItemGroup>
 
 </Project>

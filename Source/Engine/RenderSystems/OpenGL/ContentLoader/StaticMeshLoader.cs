@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Duck.Content;
 using Duck.Graphics.Device;
 using Duck.Graphics.Mesh;
@@ -23,7 +24,7 @@ internal class StaticMeshLoader : IAssetLoader
         return asset is StaticMesh;
     }
 
-    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, ReadOnlySpan<byte> source)
     {
         if (!CanLoad(asset, context) || asset is not StaticMesh meshAsset) {
             throw new Exception("FIXME: errors");
@@ -55,6 +56,14 @@ internal class StaticMeshLoader : IAssetLoader
             renderObject.SetTexture(tuple.Slot, texture);
         }
 
+        if (loadInto != null) {
+            Console.WriteLine("FIXME: FREE OLD DATA");
+            
+            Debug.Assert(loadInto is OpenGLStaticMesh);
+
+            ((OpenGLStaticMesh)loadInto).RenderObject = renderObject;
+        }
+        
         return new OpenGLStaticMesh(renderObject);
     }
 

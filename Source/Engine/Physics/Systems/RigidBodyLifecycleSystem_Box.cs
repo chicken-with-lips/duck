@@ -75,7 +75,7 @@ public partial class RigidBodyLifecycleSystem_RemoveBox : BaseSystem<World, floa
     [Query]
     public void Run()
     {
-        Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveBox");
+        // Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveBox");
         // foreach (var entityId in _filter.EntityRemovedList) {
         // RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
 

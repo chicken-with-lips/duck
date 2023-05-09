@@ -3,9 +3,9 @@ using Duck.Graphics.Shaders;
 
 namespace Duck.RenderSystems.OpenGL;
 
-internal class OpenGLFragmentShader : IPlatformAsset<FragmentShader>
+internal class OpenGLFragmentShader : PlatformAssetBase<FragmentShader>
 {
-    public uint ShaderId { get; }
+    public uint ShaderId { get; internal set; }
 
     public OpenGLFragmentShader(uint shaderId)
     {

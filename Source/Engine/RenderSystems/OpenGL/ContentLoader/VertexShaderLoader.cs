@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Duck.Content;
 using Duck.Graphics.Shaders;
@@ -19,7 +20,7 @@ internal class VertexShaderLoader : IAssetLoader
         return asset is VertexShader;
     }
 
-    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, ReadOnlySpan<byte> source)
     {
         if (!CanLoad(asset, context) || asset is not VertexShader shaderAsset) {
             throw new Exception("FIXME: errors");
@@ -35,6 +36,14 @@ internal class VertexShaderLoader : IAssetLoader
         // TODO: return default asset instead
         if (!string.IsNullOrWhiteSpace(infoLog)) {
             throw new ApplicationException($"FIXME: Error compiling vertex shader {infoLog}");
+        }
+
+        if (loadInto != null && loadInto is OpenGLVertexShader existingVertexShader) {
+            _api.DeleteShader(existingVertexShader.ShaderId);
+
+            existingVertexShader.ShaderId = shaderId;
+
+            return existingVertexShader;
         }
 
         return new OpenGLVertexShader(shaderId);

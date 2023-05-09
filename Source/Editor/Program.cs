@@ -1,6 +1,4 @@
-﻿using System;
-using System.CommandLine;
-using System.IO;
+﻿using System.CommandLine;
 using System.Runtime.CompilerServices;
 using Duck.Platforms.Standard;
 using Duck.RenderSystems.OpenGL;

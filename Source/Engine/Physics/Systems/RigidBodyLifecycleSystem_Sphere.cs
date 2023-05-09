@@ -71,7 +71,7 @@ public partial class RigidBodyLifecycleSystem_RemoveSphere : BaseSystem<World, f
     [Query]
     public void Run()
     {
-        Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveSphere");
+        // Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveSphere");
         // foreach (var entityId in _filter.EntityRemovedList) {
         // RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
 

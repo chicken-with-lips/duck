@@ -4,6 +4,7 @@ using Duck.Graphics.Device;
 using Duck.Graphics.Mesh;
 using Duck.Graphics.Shaders;
 using Duck.Graphics.Textures;
+using Duck.Logging;
 using Duck.Platform;
 using Duck.Platforms.Standard;
 using Duck.RenderSystems.OpenGL.ContentLoader;
@@ -15,16 +16,17 @@ public class OpenGLRenderSystem : IRenderSystem
     #region Properties
 
     public IGraphicsDevice GraphicsDevice => _graphicsDevice;
-    public IAsset<ShaderProgram> DefaultShader => _defaultShader;
+    public IAsset<ShaderProgram> FallbackShader => _fallbackShader;
 
     #endregion
 
     #region Members
 
-    private IAsset<ShaderProgram> _defaultShader;
+    private IAsset<ShaderProgram> _fallbackShader;
     private IAsset<ShaderProgram> _debugShader;
 
     private OpenGLGraphicsDevice? _graphicsDevice;
+    private ILogger? _logger;
 
     #endregion
 
@@ -32,19 +34,28 @@ public class OpenGLRenderSystem : IRenderSystem
     {
         var contentModule = app.GetModule<IContentModule>();
 
-        _defaultShader = contentModule.Database.Register(CreateDefaultShader(contentModule));
+        _logger = app.GetModule<ILogModule>().CreateLogger("OpenGLRenderSystem");
+
+        _fallbackShader = contentModule.Database.Register(CreateDefaultShader(contentModule));
         _debugShader = contentModule.Database.Register(CreateDebugShader(contentModule));
 
         _graphicsDevice = new OpenGLGraphicsDevice(((StandardWindow)window).InternalWindow.GLContext, window);
 
+        FragmentShaderLoader fragmentShaderLoader;
+        
         contentModule
-            .RegisterAssetLoader<FragmentShader, OpenGLFragmentShader>(new FragmentShaderLoader(_graphicsDevice))
+            .RegisterAssetLoader<FragmentShader, OpenGLFragmentShader>(fragmentShaderLoader = new FragmentShaderLoader(_graphicsDevice, _logger))
             .RegisterAssetLoader<VertexShader, OpenGLVertexShader>(new VertexShaderLoader(_graphicsDevice))
             .RegisterAssetLoader<ShaderProgram, OpenGLShaderProgram>(new ShaderProgramLoader(_graphicsDevice, contentModule))
             .RegisterAssetLoader<Texture2D, OpenGLTexture2D>(new Texture2DLoader(_graphicsDevice))
             .RegisterAssetLoader<StaticMesh, OpenGLStaticMesh>(new StaticMeshLoader(_graphicsDevice, contentModule));
 
-        _graphicsDevice.Init((OpenGLShaderProgram)contentModule.LoadImmediate(_debugShader.MakeSharedReference()));
+        var loadedDebugShader = (OpenGLShaderProgram)contentModule.LoadImmediate(_debugShader.MakeSharedReference());
+        var loadedFallbackShader = (OpenGLShaderProgram)contentModule.LoadImmediate(_fallbackShader.MakeSharedReference());
+
+        fragmentShaderLoader.FallbackShader = loadedFallbackShader;
+        
+        _graphicsDevice.Init(loadedDebugShader);
     }
 
     public void PreRender()

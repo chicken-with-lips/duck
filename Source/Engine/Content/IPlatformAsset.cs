@@ -1,7 +1,10 @@
+using WeakEvent;
+
 namespace Duck.Content;
 
 public interface IPlatformAsset
 {
+    public WeakEventSource<ReloadEvent> Reloaded { get; }
 }
 
 public interface IPlatformAsset<T> : IPlatformAsset
@@ -83,4 +86,8 @@ public class PlatformAssetCollection<T, U> : IPlatformAssetCollection<T>
     {
         return _items.ContainsKey(assetReference);
     }
+}
+
+public class ReloadEvent : EventArgs
+{
 }

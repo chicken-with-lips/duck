@@ -1,17 +1,23 @@
+using System.Diagnostics;
 using System.Text;
 using Duck.Content;
 using Duck.Graphics.Shaders;
+using Duck.Logging;
 using Silk.NET.OpenGL;
 
 namespace Duck.RenderSystems.OpenGL.ContentLoader;
 
 internal class FragmentShaderLoader : IAssetLoader
 {
-    private readonly OpenGLGraphicsDevice _graphicsDevice;
+    public OpenGLShaderProgram? FallbackShader { get; set; }
 
-    public FragmentShaderLoader(OpenGLGraphicsDevice graphicsDevice)
+    private readonly OpenGLGraphicsDevice _graphicsDevice;
+    private readonly ILogger _logger;
+
+    public FragmentShaderLoader(OpenGLGraphicsDevice graphicsDevice, ILogger logger)
     {
         _graphicsDevice = graphicsDevice;
+        _logger = logger;
     }
 
     public bool CanLoad(IAsset asset, IAssetLoadContext context)
@@ -19,7 +25,7 @@ internal class FragmentShaderLoader : IAssetLoader
         return asset is FragmentShader;
     }
 
-    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, ReadOnlySpan<byte> source)
     {
         if (!CanLoad(asset, context) || asset is not FragmentShader shaderAsset) {
             throw new Exception("FIXME: errors");
@@ -27,6 +33,7 @@ internal class FragmentShaderLoader : IAssetLoader
 
         var api = _graphicsDevice.API;
         var shaderId = api.CreateShader(ShaderType.FragmentShader);
+        var defaultShaderId = FallbackShader?.FragmentShader.ShaderId ?? 0;
 
         api.ShaderSource(shaderId, Encoding.UTF8.GetString(source));
         api.CompileShader(shaderId);
@@ -35,7 +42,21 @@ internal class FragmentShaderLoader : IAssetLoader
 
         // TODO: return default asset instead
         if (!string.IsNullOrWhiteSpace(infoLog)) {
-            throw new ApplicationException($"FIXME: Error compiling fragment shader {infoLog}");
+            _logger.LogError("Error compiling fragment shader: {0}", infoLog);
+
+            api.DeleteShader(shaderId);
+
+            shaderId = defaultShaderId;
+        }
+
+        if (loadInto != null && loadInto is OpenGLFragmentShader existingFragmentShader) {
+            if (existingFragmentShader.ShaderId != defaultShaderId) {
+                api.DeleteShader(existingFragmentShader.ShaderId);
+            }
+
+            existingFragmentShader.ShaderId = shaderId;
+
+            return existingFragmentShader;
         }
 
         return new OpenGLFragmentShader(shaderId);

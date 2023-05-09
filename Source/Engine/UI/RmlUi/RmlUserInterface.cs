@@ -4,7 +4,7 @@ using Duck.Ui.Assets;
 
 namespace Duck.Ui.RmlUi;
 
-public class RmlUserInterface : IPlatformAsset<UserInterface>
+public class RmlUserInterface : PlatformAssetBase<UserInterface>
 {
     #region Properties
 

@@ -3,9 +3,9 @@ using Duck.Graphics.Textures;
 
 namespace Duck.RenderSystems.OpenGL;
 
-internal class OpenGLTexture2D : IPlatformAsset<Texture2D>
+internal class OpenGLTexture2D : PlatformAssetBase<Texture2D>
 {  
-    public uint TextureId { get; }
+    public uint TextureId { get; internal set; }
 
     public OpenGLTexture2D(uint textureId)
     {

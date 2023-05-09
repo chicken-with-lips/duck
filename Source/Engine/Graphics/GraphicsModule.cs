@@ -16,6 +16,7 @@ public class GraphicsModule : IGraphicsModule,
     #region Properties
 
     public IGraphicsDevice? GraphicsDevice => _renderSystem.GraphicsDevice;
+    public IRenderSystem RenderSystem => _renderSystem;
     
     #endregion
     
@@ -55,7 +56,7 @@ public class GraphicsModule : IGraphicsModule,
         _renderSystem.Init(_app, window);
 
         _contentModule.RegisterSourceAssetImporter(
-            new FbxAssetImporter(_renderSystem.DefaultShader.MakeSharedReference())
+            new FbxAssetImporter(_renderSystem.FallbackShader.MakeSharedReference())
         );
 
         return true;

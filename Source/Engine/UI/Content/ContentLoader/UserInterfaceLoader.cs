@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Duck.Content;
 using Duck.Ui.Assets;
@@ -20,7 +21,7 @@ public class UserInterfaceLoader : IAssetLoader
         return asset is UserInterface && context is UserInterfaceLoadContext;
     }
 
-    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, ReadOnlySpan<byte> source)
     {
         if (!CanLoad(asset, context) || asset is not UserInterface shaderAsset || context is not UserInterfaceLoadContext loadContext) {
             throw new Exception("FIXME: errors");
@@ -34,6 +35,10 @@ public class UserInterfaceLoader : IAssetLoader
         }
 
         document.Show();
+        
+        if (loadInto != null) {
+            throw new Exception("FIXME: DONT SUPPORT RELOADING UI");
+        }
 
         return new RmlUserInterface(loadContext.RmlContext, document);
     }

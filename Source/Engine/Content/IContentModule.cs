@@ -4,6 +4,7 @@ public interface IContentModule : IModule
 {
     public IAssetDatabase Database { get; }
     public string ContentRootDirectory { get; set; }
+    public bool ReloadChangedContent { get; set; }
 
     public IContentModule RegisterSourceAssetImporter(ISourceAssetImporter importer);
 

@@ -8,7 +8,7 @@ namespace Duck.Graphics;
 public interface IRenderSystem
 {
     public IGraphicsDevice? GraphicsDevice { get; }
-    public IAsset<ShaderProgram> DefaultShader { get; }
+    public IAsset<ShaderProgram> FallbackShader { get; }
 
     public void Init(IApplication app, IWindow window);
 

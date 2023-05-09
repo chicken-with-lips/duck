@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Duck.Content;
 using Duck.Graphics.Textures;
 using Silk.NET.OpenGL;
@@ -19,7 +20,7 @@ internal class Texture2DLoader : IAssetLoader
         return asset is Texture2D;
     }
 
-    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, ReadOnlySpan<byte> source)
+    public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, ReadOnlySpan<byte> source)
     {
         if (!CanLoad(asset, context) || asset is not Texture2D textureAsset) {
             throw new Exception("FIXME: errors");
@@ -58,6 +59,14 @@ internal class Texture2DLoader : IAssetLoader
         );
         OpenGLUtil.LogErrors(api);
         api.GenerateMipmap(TextureTarget.Texture2D);
+
+        if (loadInto != null) {
+            Console.WriteLine("FIXME: free texture");
+
+            Debug.Assert(loadInto is OpenGLTexture2D);
+
+            ((OpenGLTexture2D)loadInto).TextureId = textureId;
+        }
 
         return new OpenGLTexture2D(textureId);
     }

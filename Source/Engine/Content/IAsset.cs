@@ -7,7 +7,7 @@ public interface IAsset
     public AssetImportData ImportData { get; }
     public bool IsLoaded { get; }
 
-    public void ChangeStateToLoaded();
+    public void ChangeStateTo(AssetStatus newStatus);
 }
 
 public interface IAsset<T> : IAsset
@@ -19,7 +19,9 @@ public interface IAsset<T> : IAsset
 
 public enum AssetStatus
 {
+    Loading,
     Loaded,
+    Reloading,
     Unloaded,
 }
 

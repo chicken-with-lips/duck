@@ -3,9 +3,9 @@ using Duck.Graphics.Shaders;
 
 namespace Duck.RenderSystems.OpenGL;
 
-internal class OpenGLVertexShader : IPlatformAsset<VertexShader>
+internal class OpenGLVertexShader : PlatformAssetBase<VertexShader>
 {
-    public uint ShaderId { get; }
+    public uint ShaderId { get; internal set; }
 
     public OpenGLVertexShader(uint shaderId)
     {

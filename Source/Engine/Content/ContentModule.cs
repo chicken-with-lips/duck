@@ -1,15 +1,17 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using Duck.Logging;
 
 namespace Duck.Content;
 
-public class ContentModule : IContentModule
+public class ContentModule : IContentModule, IInitializableModule, ITickableModule
 {
     #region Properties
 
     public IAssetDatabase Database => _database;
     public string ContentRootDirectory { get; set; }
+    public bool ReloadChangedContent { get; set; } = false;
 
     #endregion
 
@@ -20,7 +22,12 @@ public class ContentModule : IContentModule
 
     private readonly HashSet<IAssetLoader> _assetLoaders = new();
     private readonly HashSet<ISourceAssetImporter> _sourceAssetImporters = new();
-    private readonly Dictionary<Type, IPlatformAssetCollection> _assetCaches = new();
+    private readonly ConcurrentDictionary<Type, IPlatformAssetCollection> _assetCaches = new();
+    private readonly ConcurrentDictionary<IAsset, List<IPlatformAsset>> _assetToPlatformAsset = new();
+
+    private readonly FileSystemWatcher _fileSystemWatcher = new();
+
+    private ConcurrentQueue<string> _contentToReload = new();
 
     #endregion
 
@@ -34,6 +41,52 @@ public class ContentModule : IContentModule
         _database = new AssetDatabase();
 
         ContentRootDirectory = Environment.CurrentDirectory;
+    }
+
+    public bool Init()
+    {
+        if (ReloadChangedContent) {
+            _fileSystemWatcher.NotifyFilter = NotifyFilters.LastWrite;
+            _fileSystemWatcher.Path = ContentRootDirectory;
+            _fileSystemWatcher.IncludeSubdirectories = true;
+            _fileSystemWatcher.EnableRaisingEvents = true;
+            _fileSystemWatcher.Changed += OnContentChanged;
+        }
+
+        return true;
+    }
+
+    public void Tick()
+    {
+        if (_contentToReload.Count > 0) {
+            string[] reload;
+
+            lock (_contentToReload) {
+                reload = _contentToReload.ToArray();
+                _contentToReload.Clear();
+            }
+
+            foreach (var s in reload) {
+                var asset = _database.GetAsset(new Uri("file:///" + s));
+
+                if (null != asset) {
+                    if (asset.Status is AssetStatus.Loading or AssetStatus.Reloading) {
+                        // content changed while loading, requeue
+                        _contentToReload.Enqueue(s);
+
+                        _logger.LogWarning("\"{0}\" is already reloading, deferring", asset.ImportData.Uri);
+                    } else if (asset.Status == AssetStatus.Loaded) {
+                        _logger.LogInformation("\"{0}\" changed, reloading", asset.ImportData.Uri);
+
+                        foreach (var platformAsset in _assetToPlatformAsset[asset]) {
+                            LoadImmediate(asset, new EmptyAssetLoadContext(), platformAsset);
+
+                            platformAsset.Reloaded.Raise(platformAsset, new ReloadEvent());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public IContentModule RegisterSourceAssetImporter(ISourceAssetImporter importer)
@@ -85,7 +138,7 @@ public class ContentModule : IContentModule
         where U : class, IPlatformAsset
     {
         _assetLoaders.Add(loader);
-        _assetCaches.Add(typeof(T), new PlatformAssetCollection<T, U>());
+        _assetCaches.TryAdd(typeof(T), new PlatformAssetCollection<T, U>());
 
         return this;
     }
@@ -125,48 +178,71 @@ public class ContentModule : IContentModule
     {
         // FIXME: dont pass data directly like this
 
+        T? asset = _database.GetAsset(assetReference);
         var cache = GetAssetCacheOrThrow<T>();
 
         if (!cache.Contains(assetReference)) {
-            T? asset = _database.GetAsset<T>(assetReference);
-
-            if (asset == null) {
-                throw new Exception("FIXME: unknown asset");
-            }
-
-            _logger.LogInformation("Loading {0}", asset.ImportData.Uri);
-
-            IAssetLoader? assetLoader = FindAssetLoader(asset, context);
-
-            if (assetLoader == null) {
-                throw new Exception("FIXME: unknown loader");
-            }
-
-            ReadOnlySpan<byte> data;
-
-            // fixme: replace with more appropriate asset location and loading
-            if (asset.ImportData.Uri.IsFile) {
-                var tmp = asset.ImportData.Uri.AbsolutePath;
-                var path = Path.IsPathFullyQualified(tmp) ? tmp : ContentRootDirectory + tmp;
-
-                data = File.ReadAllBytes(path);
-            } else {
-                data = fixmeData;
-            }
-
-            var platformAsset = assetLoader.Load(asset, context, data);
-            asset.ChangeStateToLoaded();
-
+            var platformAsset = LoadImmediate(asset, context, null, fixmeData);
             cache.Add(assetReference, platformAsset);
         }
 
         return cache.GetBase(assetReference);
     }
 
+    public IPlatformAsset LoadImmediate(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, byte[]? fixmeData = null)
+    {
+        // FIXME: dont pass data directly like this
+
+        if (asset == null) {
+            throw new Exception("FIXME: unknown asset");
+        }
+
+        _logger.LogInformation("Loading {0}", asset.ImportData.Uri);
+
+        if (loadInto != null) {
+            asset.ChangeStateTo(AssetStatus.Reloading);
+        } else {
+            asset.ChangeStateTo(AssetStatus.Loading);
+        }
+
+        IAssetLoader? assetLoader = FindAssetLoader(asset, context);
+
+        if (assetLoader == null) {
+            throw new Exception("FIXME: unknown loader");
+        }
+
+        byte[] data = null;
+
+        // fixme: replace with more appropriate asset location and loading
+        if (fixmeData != null) {
+            data = fixmeData;
+        } else if (asset.ImportData.Uri.IsFile) {
+            var tmp = asset.ImportData.Uri.AbsolutePath;
+            var path = Path.IsPathFullyQualified(tmp) ? tmp : ContentRootDirectory + tmp;
+
+            data = File.ReadAllBytes(path);
+        }
+
+        var platformAsset = assetLoader.Load(asset, context, loadInto, new ReadOnlySpan<byte>(data));
+
+        if (null == loadInto) {
+            var assetCollection = _assetToPlatformAsset.GetOrAdd(asset, (newAsset) => new List<IPlatformAsset>(new IPlatformAsset[] {}));
+
+            Debug.Assert(assetCollection != null);
+
+            assetCollection.Add(platformAsset);
+        }
+
+        asset.ChangeStateTo(AssetStatus.Loaded);
+
+        return platformAsset;
+    }
+
     public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference) where T : class, IAsset
     {
         return LoadImmediate(assetReference, EmptyAssetLoadContext.Default);
     }
+
 
     // public ITexture2D LoadTextureImmediate(AssetReference<ITexture2DAsset> assetReference)
     // {
@@ -282,6 +358,13 @@ public class ContentModule : IContentModule
     //     //
     //     // return mesh;
     // }
+
+    private void OnContentChanged(object sender, FileSystemEventArgs e)
+    {
+        if (!_contentToReload.Contains(e.Name)) {
+            _contentToReload.Enqueue(e.Name);
+        }
+    }
 
     #endregion
 }

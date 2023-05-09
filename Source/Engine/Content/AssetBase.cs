@@ -21,13 +21,9 @@ public abstract class AssetBase<T> : IAsset<T>
         ImportData = importData;
     }
 
-    public void ChangeStateToLoaded()
+    public void ChangeStateTo(AssetStatus newStatus)
     {
-        if (IsLoaded) {
-            throw new Exception("FIXME: asset already loaded");
-        }
-
-        Status = AssetStatus.Loaded;
+        Status = newStatus;
     }
 
     public UniqueAssetReference<T> MakeUniqueReference()

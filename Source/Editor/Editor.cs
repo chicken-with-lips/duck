@@ -24,6 +24,7 @@ public class Editor : ApplicationBase
         base.InitializeApp();
 
         GetModule<IContentModule>().ContentRootDirectory = Path.Combine(_projectDirectory, "Content");
+        GetModule<IContentModule>().ReloadChangedContent = true;
     }
 
     protected override void RegisterModules()
