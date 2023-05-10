@@ -1,13 +1,16 @@
 using System.Collections.Concurrent;
 using Arch.Core;
 using Arch.Core.Extensions;
+using Arch.System;
 using Duck.Graphics;
 using Duck.Graphics.Components;
 using Duck.Scene.Components;
 using Duck.Scene.Events;
+using Duck.Scene.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
+using Silk.NET.SDL;
 
 namespace Duck.Scene;
 
@@ -126,46 +129,25 @@ public partial class SceneModule : ISceneModule, IRenderableModule, IPreTickable
     {
         foreach (var kvp in _loadedScenes) {
             var scene = kvp.Value;
-            var entities = new List<Entity>();
+            scene.Render(Time.DeltaFrame);
 
-            scene.World.GetEntities(queryDescription: new QueryDescription().WithAll<RuntimeStaticMeshComponent>(), entities);
+               
+            // scene.World.Query(staticMeshQuery, (ref TransformComponent transform, ref RuntimeStaticMeshComponent runtimeStaticMesh, ref BoundingBoxComponent boundingBox) => {
+            //     var renderObjectInstance = _graphicsModule.GraphicsDevice.GetRenderObjectInstance(runtimeStaticMesh.InstanceId);
+            //     renderObjectInstance
+            //         .SetParameter("WorldScale", transform.Scale)
+            //         .SetParameter("WorldPosition", transform.WorldTranslation);
+            //
+            //     /*var scaledBoundingBox = new BoundingBoxComponent() {
+            //         Box = boundingBox.Box.GetScaled(transform.Scale, boundingBox.Box.Center)
+            //     };*/
+            //
+            //     renderObjectInstance.BoundingVolume = boundingBox;
+            //
+            //     _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(runtimeStaticMesh.InstanceId);
+            // });
 
-            foreach (var entity in entities) {
-                var instanceComponent = entity.Get<RuntimeStaticMeshComponent>();
-                var transformComponent = entity.Get<TransformComponent>();
 
-                var renderObjectInstance = _graphicsModule.GraphicsDevice.GetRenderObjectInstance(instanceComponent.InstanceId);
-                renderObjectInstance
-                    .SetParameter("WorldScale", transformComponent.Scale)
-                    .SetParameter("WorldPosition",
-                        Matrix4X4.CreateScale(transformComponent.Scale)
-                        * Matrix4X4.CreateFromQuaternion(transformComponent.Rotation)
-                        * Matrix4X4.CreateTranslation(transformComponent.Position)
-                    );
-
-                if (entity.Has<BoundingBoxComponent>()) {
-                    var boundingBox = entity.Get<BoundingBoxComponent>();
-
-                    var scaledBoundingBox = new BoundingBoxComponent() {
-                        Box = boundingBox.Box.GetScaled(transformComponent.Scale, boundingBox.Box.Center)
-                    };
-
-                    renderObjectInstance.BoundingVolume = boundingBox;
-                } else if (entity.Has<BoundingSphereComponent>()) {
-                    var boundingSphere = entity.Get<BoundingSphereComponent>();
-
-                    // var scaledBoundingSphere = new BoundingSphereComponent() {
-                    //     Radius = boundingSphere.Radius * MathF.Max(MathF.Max(transformComponent.Scale.X, transformComponent.Scale.Y), transformComponent.Scale.Z)
-                    // };
-                    var scaledBoundingSphere = new BoundingSphereComponent() {
-                        Radius = boundingSphere.Radius
-                    };
-
-                    renderObjectInstance.BoundingVolume = boundingSphere;
-                }
-
-                _graphicsModule.GraphicsDevice.ScheduleRenderableInstance(instanceComponent.InstanceId);
-            }
         }
     }
 

@@ -25,7 +25,9 @@ public partial class CameraSystem : BaseSystem<World, float>
         if (!camera.IsActive) {
             return;
         }
-
+        
+        // FIXME: this should be moved to a view
+        
         _graphicsModule.GraphicsDevice.ViewMatrix =
             Matrix4X4.CreateLookAt(
                 transform.Position,

@@ -1,9 +1,7 @@
 using Arch.Core;
-using Arch.System;
 using Duck.Content;
 using Duck.Exceptions;
 using Duck.Graphics;
-using Duck.Graphics.Systems;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
@@ -264,21 +262,22 @@ public abstract class ApplicationBase : IApplication
         _modules.Add(module);
     }
 
-    public void PopulateSystemCompositionWithDefaults(World world, Group<float> composition)
+    public void PopulateSystemCompositionWithDefaults(World world, SystemRoot composition)
     {
-        composition
+        composition.SimulationGroup
+            .Add(new RigidBodyLifecycleSystem(world, GetModule<IPhysicsModule>()))
             .Add(new CameraSystem(world, GetModule<IGraphicsModule>()))
             .Add(new StaticMeshSystem(world, GetModule<IContentModule>()))
             // .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
             // .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
-            .Add(new RigidBodyLifecycleSystem_AddBox(world, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_RemoveBox(world, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_AddSphere(world, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodyLifecycleSystem_RemoveSphere(world, GetModule<IPhysicsModule>()))
-            .Add(new RigidBodySynchronizationSystem(world))
-            .Add(new UserInterfaceTickSystem(world))
-            // .Add(new ContextSyncSystem(world, GetModule<UiModule>()))
-            .Add(new ScheduleRenderableSystem(world, GetModule<IGraphicsModule>()));
+            .Add(new UserInterfaceTickSystem(world));
+
+        composition.LateSimulationGroup
+            .Add(new RigidBodySynchronizationSystem(world));
+        // .Add(new ContextSyncSystem(world, GetModule<UiModule>()))
+
+        composition.PresentationGroup
+            .Add(new RenderSceneSystem(world, GetModule<IGraphicsModule>().GraphicsDevice));
         // .Add(new UserInterfaceRenderSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()));
     }
 

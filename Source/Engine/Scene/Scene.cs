@@ -26,7 +26,7 @@ public partial class Scene : IScene
 
     public string Name => _name;
     public World World => _world;
-    public Group<float> SystemRoot => _systemRoot;
+    public SystemRoot SystemRoot => _systemRoot;
 
     #endregion
 
@@ -35,7 +35,7 @@ public partial class Scene : IScene
     private readonly string _name;
     private readonly World _world;
     private readonly IEventBus _eventBus;
-    private readonly Group<float> _systemRoot;
+    private readonly SystemRoot _systemRoot;
 
     private bool _isActive;
     private bool _shouldFireActivated;
@@ -50,13 +50,13 @@ public partial class Scene : IScene
         _isActive = false;
         _world = world;
         _eventBus = eventBus;
-        _systemRoot = new Group<float>();
+        _systemRoot = new();
     }
 
     public void PreTick(in float deltaTime)
     {
         if (IsActive) {
-            _systemRoot.BeforeUpdate(deltaTime);
+            _systemRoot.SimulationGroup.BeforeUpdate(deltaTime);
         }
     }
 
@@ -70,13 +70,25 @@ public partial class Scene : IScene
             _shouldFireActivated = false;
         }
 
-        _systemRoot.Update(deltaTime);
+        _systemRoot.SimulationGroup.Update(deltaTime);
+        _systemRoot.SimulationGroup.AfterUpdate(deltaTime);
     }
 
     public void PostTick(in float deltaTime)
     {
         if (IsActive) {
-            _systemRoot.AfterUpdate(deltaTime);
+            _systemRoot.LateSimulationGroup.BeforeUpdate(deltaTime);
+            _systemRoot.LateSimulationGroup.Update(deltaTime);
+            _systemRoot.LateSimulationGroup.AfterUpdate(deltaTime);
+        }
+    }
+
+    public void Render(in float deltaTime)
+    {
+        if (IsActive) {
+            _systemRoot.PresentationGroup.BeforeUpdate(deltaTime);
+            _systemRoot.PresentationGroup.Update(deltaTime);
+            _systemRoot.PresentationGroup.AfterUpdate(deltaTime);
         }
     }
 

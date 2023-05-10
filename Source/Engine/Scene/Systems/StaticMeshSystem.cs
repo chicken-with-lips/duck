@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Arch.System;
+using Arch.System.SourceGenerator;
 using Duck.Content;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
@@ -21,21 +22,20 @@ public partial class StaticMeshSystem : BaseSystem<World, float>
     }
 
     [Query]
+    [None<RuntimeStaticMeshComponent>]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Run(in Entity entity, in StaticMeshComponent staticMesh, in TransformComponent transform)
+    public void Load(in Entity entity, in StaticMeshComponent staticMesh)
     {
         if (staticMesh.Mesh == null) {
             return;
         }
 
-        if (!entity.Has<RuntimeStaticMeshComponent>()) {
-            entity.Add<RuntimeStaticMeshComponent>();
+        entity.Add<RuntimeStaticMeshComponent>();
 
-            var mesh = _contentModule.LoadImmediate<StaticMesh>(staticMesh.Mesh) as IRenderable;
+        var mesh = _contentModule.LoadImmediate<StaticMesh>(staticMesh.Mesh) as IRenderable;
 
-            // FIXME: what was I trying to do here?
-            ref var runtimeData = ref entity.Get<RuntimeStaticMeshComponent>();
-            runtimeData.InstanceId = mesh.RenderObject.CreateInstance().Id;
-        }
+        // FIXME: what was I trying to do here?
+        ref var runtimeData = ref entity.Get<RuntimeStaticMeshComponent>();
+        runtimeData.InstanceId = mesh.RenderObject.CreateInstance().Id;
     }
 }

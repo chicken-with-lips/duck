@@ -76,8 +76,8 @@ public class OpenGLRenderSystem : IRenderSystem
 
     private IAsset<ShaderProgram> CreateDefaultShader(IContentModule contentModule)
     {
-        var fragShader = contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/shader.fs"))));
-        var vertShader = contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/shader.vs"))));
+        var fragShader = contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/fallback.fs"))));
+        var vertShader = contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/fallback.vs"))));
 
         return new ShaderProgram(
             new AssetImportData(new Uri("memory://default.shader")),

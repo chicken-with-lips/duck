@@ -36,6 +36,11 @@ public partial struct TransformComponent
         }
     }
 
+    public Matrix4X4<float> WorldTranslation =>
+        Matrix4X4.CreateScale(Scale)
+        * Matrix4X4.CreateFromQuaternion(Rotation)
+        * Matrix4X4.CreateTranslation(Position);
+
     public Vector3D<float> Up => _up;
     public Vector3D<float> Forward => _forward;
     public Vector3D<float> Right => _right;
