@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Duck.Content;
-using Duck.Graphics.Device;
-using Duck.Graphics.Shaders;
+using Duck.Renderer.Device;
+using Duck.Renderer.Shaders;
 using Silk.NET.OpenGL;
 
 namespace Duck.RenderSystems.OpenGL.ContentLoader;

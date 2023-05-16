@@ -21,9 +21,11 @@
       <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
       <ProjectReference Include="..\..\Graphics\Graphics.csproj" Private="false" />
       <ProjectReference Include="..\..\Platforms\Standard\Standard.csproj" Private="false" />
+      <ProjectReference Include="..\..\Renderer\Renderer.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Arch" Version="1.2.5" />
       <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
     </ItemGroup>
 

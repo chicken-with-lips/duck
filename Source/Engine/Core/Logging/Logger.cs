@@ -24,26 +24,22 @@ public class Logger : ILogger
 
     public void LogDebug(string message, params object[] args)
     {
-        Console.WriteLine(message, args);
-        // _logger.LogDebug(message, args);
+        _logger.LogDebug(message, args);
     }
 
     public void LogInformation(string message, params object[] args)
     {
-        Console.WriteLine(message, args);
-        // _logger.LogInformation(message, args);
+        _logger.LogInformation(message, args);
     }
 
     public void LogError(string message, params object[] args)
     {
-        Console.WriteLine(message, args);
-        // _logger.LogError(message, args);
+        _logger.LogError(message, args);
     }
 
     public void LogWarning(string message, params object[] args)
     {
-        Console.WriteLine(message, args);
-        // _logger.LogWarning(message, args);
+        _logger.LogWarning(message, args);
     }
 
     #endregion

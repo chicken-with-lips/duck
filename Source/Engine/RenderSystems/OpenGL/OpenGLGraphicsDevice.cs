@@ -1,13 +1,13 @@
 using System.Drawing;
-using Duck.Graphics.Components;
-using Duck.Graphics.Device;
+using Duck.Renderer.Device;
 using Duck.Math;
-using Duck.Platform;
+using Duck.Renderer;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using AttributeType = Duck.Graphics.Device.AttributeType;
-using Boolean = Silk.NET.OpenGL.Boolean;
+using Silk.NET.Windowing;
+using AttributeType = Duck.Renderer.Device.AttributeType;
+using IWindow = Duck.Platform.IWindow;
 
 namespace Duck.RenderSystems.OpenGL;
 
@@ -16,8 +16,6 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
     #region Properties
 
     internal GL API => _api;
-
-    public Matrix4X4<float> ViewMatrix { get; set; }
 
     #endregion
 
@@ -29,11 +27,10 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
 
     private readonly Dictionary<uint, OpenGLRenderObject> _renderObjects = new();
     private readonly Dictionary<uint, OpenGLRenderObjectInstance> _renderObjectInstances = new();
-    private readonly List<IRenderObject> _frameRenderables = new();
 
-    private OpenGLShaderProgram _debugShader;
-    private IRenderObject _debugBox;
-    private IRenderObject _debugSphere;
+    private OpenGLMaterial? _debugMaterial;
+    private IRenderObject? _debugBox;
+    private IRenderObject? _debugSphere;
 
     private uint _renderObjectInstanceCounter = 0;
 
@@ -49,9 +46,9 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         _api = GL.GetApi(_context);
     }
 
-    internal void Init(OpenGLShaderProgram debugShader)
+    internal void Init(OpenGLMaterial debugMaterial)
     {
-        _debugShader = debugShader;
+        _debugMaterial = debugMaterial;
         _debugBox = CreateDebugBox();
         _debugSphere = CreateDebugSphere();
     }
@@ -59,8 +56,6 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
     public void BeginFrame()
     {
         _context.MakeCurrent();
-
-        _api.Viewport(0, 0, 1280, 1024);
 
         _api.Enable(EnableCap.PolygonOffsetFill);
 
@@ -81,14 +76,23 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         _api.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
     }
 
-    public unsafe void Render()
+    public unsafe void Render(CommandBuffer commandBuffer)
     {
         // TODO: move out to render graph
 
-        foreach (var renderable in _frameRenderables) {
+        var view = commandBuffer.View;
+
+        _api.Viewport(
+            view.Position.X,
+            (_window.Height - view.Position.Y) - view.Dimensions.Y,
+            (uint)view.Dimensions.X,
+            (uint)view.Dimensions.Y
+        );
+
+        foreach (var renderable in commandBuffer.Renderables) {
             var transform = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
 
-            DrawRenderable(renderable, transform, (renderObject) => {
+            DrawRenderable(renderable, commandBuffer.View, commandBuffer.ViewMatrix, transform, (renderObject) => {
                 _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);
             });
 
@@ -103,10 +107,9 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
     public void EndFrame()
     {
         _context.SwapBuffers();
-        _frameRenderables.Clear();
     }
 
-    private unsafe void DrawRenderable(IRenderObject renderable, Matrix4X4<float> transform, RenderCallback renderCallback)
+    private unsafe void DrawRenderable(IRenderObject renderable, View view, Matrix4X4<float> viewMatrix, Matrix4X4<float> transform, RenderCallback renderCallback)
     {
         if (renderable is OpenGLRenderObject glRenderObject) {
             glRenderObject.Bind();
@@ -120,29 +123,155 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
             _api.Enable(GLEnum.DepthTest);
         }
 
-        Matrix4X4<float> view = this.ViewMatrix;
-        Matrix4X4<float> projection = CreateProjectionMatrix(renderable);
+        Matrix4X4<float> projection = CreateProjectionMatrix(renderable, view);
 
-        if (renderable.GetShaderProgram() is OpenGLShaderProgram glShaderProgram) {
+        if (renderable.GetMaterial() is OpenGLMaterial glMaterial) {
+            var glShaderProgram = glMaterial.ShaderProgram;
+
             _api.UseProgram(glShaderProgram.ProgramId);
             OpenGLUtil.LogErrors(_api);
 
             int modelLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uTransform");
             OpenGLUtil.LogErrors(_api);
-
             _api.UniformMatrix4(modelLoc, 1, false, (float*)&transform);
             OpenGLUtil.LogErrors(_api);
 
             int viewLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uView");
             OpenGLUtil.LogErrors(_api);
-
-            _api.UniformMatrix4(viewLoc, 1, false, (float*)&view);
+            _api.UniformMatrix4(viewLoc, 1, false, (float*)&viewMatrix);
             OpenGLUtil.LogErrors(_api);
 
             int projLoc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uProjection");
             OpenGLUtil.LogErrors(_api);
-
             _api.UniformMatrix4(projLoc, 1, false, (float*)&projection);
+            OpenGLUtil.LogErrors(_api);
+
+            int loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "uViewPosition");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.CameraPosition.X, Time.CameraPosition.Y, Time.CameraPosition.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "material.diffuse");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, 0);
+            OpenGLUtil.LogErrors(_api);
+
+            _api.ActiveTexture(TextureUnit.Texture0);
+            _api.BindTexture(TextureTarget.Texture2D, glMaterial.DiffuseTexture?.TextureId ?? 0);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "material.specular");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, glMaterial.Material.Specular.X, glMaterial.Material.Specular.Y, glMaterial.Material.Specular.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "material.shininess");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, glMaterial.Material.Shininess);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.ambient");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.DirectionalLightAmbient.X, Time.DirectionalLightAmbient.Y, Time.DirectionalLightAmbient.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.diffuse");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.DirectionalLightDiffuse.X, Time.DirectionalLightDiffuse.Y, Time.DirectionalLightDiffuse.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.specular");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.DirectionalLightSpecular.X, Time.DirectionalLightSpecular.Y, Time.DirectionalLightSpecular.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.direction");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.DirectionalLightDirection.X, Time.DirectionalLightDirection.Y, Time.DirectionalLightDirection.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.ambient");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.PointLightAmbient.X, Time.PointLightAmbient.Y, Time.PointLightAmbient.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.diffuse");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.PointLightDiffuse.X, Time.PointLightDiffuse.Y, Time.PointLightDiffuse.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.specular");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.PointLightSpecular.X, Time.PointLightSpecular.Y, Time.PointLightSpecular.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.constant");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.PointLightConstant);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.linear");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.PointLightLinear);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.quadratic");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.PointLightQuadratic);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.position");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.PointLightPosition.X, Time.PointLightPosition.Y, Time.PointLightPosition.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.ambient");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.SpotLightAmbient.X, Time.SpotLightAmbient.Y, Time.SpotLightAmbient.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.diffuse");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.SpotLightDiffuse.X, Time.SpotLightDiffuse.Y, Time.SpotLightDiffuse.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.specular");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.SpotLightSpecular.X, Time.SpotLightSpecular.Y, Time.SpotLightSpecular.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.constant");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.SpotLightConstant);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.linear");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.SpotLightLinear);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.quadratic");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.SpotLightQuadratic);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.innerCutOff");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.SpotLightInnerCutoff);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.outerCutOff");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform1(loc, Time.SpotLightOuterCutoff);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.position");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.SpotLightPosition.X, Time.SpotLightPosition.Y, Time.SpotLightPosition.Z);
+            OpenGLUtil.LogErrors(_api);
+
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "spotLight.direction");
+            OpenGLUtil.LogErrors(_api);
+            _api.Uniform3(loc, Time.SpotLightDirection.X, Time.SpotLightDirection.Y, Time.SpotLightDirection.Z);
             OpenGLUtil.LogErrors(_api);
 
             if (renderable.GetTexture(0) is OpenGLTexture2D glTexture2D) {
@@ -156,12 +285,13 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         _api.BindVertexArray(0);
     }
 
-    private Matrix4X4<float> CreateProjectionMatrix(IRenderObject renderable)
+    private Matrix4X4<float> CreateProjectionMatrix(IRenderObject renderable, View view)
     {
         if (renderable.Projection == Projection.Orthographic) {
-            return Matrix4X4.CreateOrthographicOffCenter(0f, 1280f, 1024f, 0f, -10000f, 10000f);
+            Console.WriteLine("CHECK POSITION");
+            return Matrix4X4.CreateOrthographicOffCenter(view.Position.X, view.Dimensions.X, view.Dimensions.Y, _window.Height - view.Dimensions.Y, -10000f, 10000f);
         } else if (renderable.Projection == Projection.Perspective) {
-            return Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), 1280f / 1024f, 0.1f, 20000f);
+            return Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), (float)view.Dimensions.X / (float)view.Dimensions.Y, 0.1f, 20000f);
         }
 
         throw new Exception("Unknown projection type");
@@ -212,22 +342,18 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         }
     }
 
-    public void ScheduleRenderable(IRenderObject renderObject)
-    {
-        _frameRenderables.Add(renderObject);
-    }
-
-    public void ScheduleRenderableInstance(uint instanceId)
-    {
-        _frameRenderables.Add(_renderObjectInstances[instanceId]);
-    }
 
     public IRenderObjectInstance GetRenderObjectInstance(uint instanceComponentId)
     {
         return _renderObjectInstances[instanceComponentId];
     }
 
-    private unsafe void DrawDebugBox(IRenderObject parentRenderObject, Box3D<float> box, Matrix4X4<float> transform)
+    public CommandBuffer CreateCommandBuffer(View view)
+    {
+        return new CommandBuffer(view, this);
+    }
+
+    /*private unsafe void DrawDebugBox(IRenderObject parentRenderObject, Box3D<float> box, Matrix4X4<float> transform)
     {
         transform = Matrix4X4.CreateScale(box.Size) * transform;
 
@@ -245,7 +371,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         DrawRenderable(_debugSphere, transform, (renderObject) => {
             _api.DrawElements(PrimitiveType.Lines, _debugSphere.IndexCount, DrawElementsType.UnsignedShort, null);
         });
-    }
+    }*/
 
     private IRenderObject CreateDebugBox()
     {
@@ -280,7 +406,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
             indexBuffer
         );
 
-        renderObject.SetShaderProgram(_debugShader);
+        renderObject.SetMaterial(_debugMaterial);
 
         return renderObject;
     }
@@ -387,7 +513,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
             indexBuffer
         );
 
-        renderObject.SetShaderProgram(_debugShader);
+        renderObject.SetMaterial(_debugMaterial);
 
         return renderObject;
     }

@@ -1,8 +1,9 @@
 using Duck.Content;
-using Duck.Graphics.Components;
-using Duck.Graphics.Device;
-using Duck.Graphics.Shaders;
-using Duck.Graphics.Textures;
+using Duck.Renderer.Components;
+using Duck.Renderer.Device;
+using Duck.Renderer.Materials;
+using Duck.Renderer.Shaders;
+using Duck.Renderer.Textures;
 using Silk.NET.Maths;
 
 namespace Duck.RenderSystems.OpenGL;
@@ -49,9 +50,9 @@ internal class OpenGLRenderObjectInstance : OpenGLRenderObjectBase, IRenderObjec
         return base.GetTexture(slot) ?? _renderObject.GetTexture(slot);
     }
 
-    public override IPlatformAsset<ShaderProgram>? GetShaderProgram()
+    public override IPlatformAsset<Material>? GetMaterial()
     {
-        return base.GetShaderProgram() ?? _renderObject.GetShaderProgram();
+        return base.GetMaterial() ?? _renderObject.GetMaterial();
     }
 
     public override TParameterType GetParameter<TParameterType>(string name)

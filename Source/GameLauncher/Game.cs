@@ -1,7 +1,7 @@
 using Duck.GameFramework;
-using Duck.Graphics;
 using Duck.Logging;
 using Duck.Platform;
+using Duck.Renderer;
 using Game.Host;
 
 namespace Game;

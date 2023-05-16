@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Duck.Content;
-using Duck.Graphics.Device;
-using Duck.Graphics.Mesh;
-using Duck.Graphics.Textures;
+using Duck.Renderer.Device;
+using Duck.Renderer.Materials;
+using Duck.Renderer.Mesh;
 
 namespace Duck.RenderSystems.OpenGL.ContentLoader;
 
@@ -43,13 +43,13 @@ internal class StaticMeshLoader : IAssetLoader
             .Build(_graphicsDevice);
         indexBuffer.SetData(0, meshAsset.IndexBuffer);
 
-        var shaderProgram = (OpenGLShaderProgram)_contentModule.LoadImmediate(meshAsset.ShaderProgram);
+        var material = (IPlatformAsset<Material>)_contentModule.LoadImmediate(meshAsset.Material);
 
         var renderObject = _graphicsDevice.CreateRenderObject(
             vertexBuffer,
             indexBuffer
         );
-        renderObject.SetShaderProgram(shaderProgram);
+        renderObject.SetMaterial(material);
 
         foreach (var tuple in meshAsset.GetTextures()) {
             var texture = (OpenGLTexture2D)_contentModule.LoadImmediate(tuple.Texture);
@@ -58,12 +58,12 @@ internal class StaticMeshLoader : IAssetLoader
 
         if (loadInto != null) {
             Console.WriteLine("FIXME: FREE OLD DATA");
-            
+
             Debug.Assert(loadInto is OpenGLStaticMesh);
 
             ((OpenGLStaticMesh)loadInto).RenderObject = renderObject;
         }
-        
+
         return new OpenGLStaticMesh(renderObject);
     }
 

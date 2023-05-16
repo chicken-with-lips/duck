@@ -17,6 +17,7 @@
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
       <ProjectReference Include="..\Engine\Graphics\Graphics.csproj" />
       <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
+      <ProjectReference Include="..\Engine\Renderer\Renderer.csproj" />
       <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
     </ItemGroup>
 

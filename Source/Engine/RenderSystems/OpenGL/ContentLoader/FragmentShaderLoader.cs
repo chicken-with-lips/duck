@@ -1,7 +1,6 @@
-using System.Diagnostics;
 using System.Text;
 using Duck.Content;
-using Duck.Graphics.Shaders;
+using Duck.Renderer.Shaders;
 using Duck.Logging;
 using Silk.NET.OpenGL;
 

@@ -40,9 +40,15 @@ public class AssetDatabase : IAssetDatabase
         return asset;
     }
 
-    public T? GetAsset<T>(Uri uri) where T : class, IAsset
+    public T GetAsset<T>(Uri uri) where T : class, IAsset
     {
-        return GetAsset(uri) as T;
+        var asset = GetAsset(uri) as T;
+
+        if (null == asset) {
+            throw new Exception("FIXME: unknown asset");
+        }
+
+        return asset;
     }
 
     public T GetAsset<T>(IAssetReference<T> assetReference) where T : class, IAsset

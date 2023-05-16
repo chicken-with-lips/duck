@@ -1,4 +1,3 @@
-using Silk.NET.Core.Contexts;
 using Silk.NET.Maths;
 
 namespace Duck.Platform;
@@ -8,6 +7,9 @@ public interface IWindow
     public IntPtr Handle { get; }
     public int Width { get; }
     public int Height { get; }
+
+
+    public Vector2D<int> FrameBufferSize { get; }
 
     bool CloseRequested { get; }
     double ElapsedTime { get; }

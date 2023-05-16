@@ -1,13 +1,13 @@
 using Arch.Core;
 using Duck.Content;
 using Duck.Exceptions;
-using Duck.Graphics;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
 using Duck.Physics.Systems;
 using Duck.Platform;
-using Duck.Scene;
+using Duck.Renderer;
+using Duck.Renderer.Systems;
 using Duck.Scene.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
@@ -212,11 +212,10 @@ public abstract class ApplicationBase : IApplication
         AddModule(new LogModule());
         AddModule(new EventBus());
         AddModule(new ContentModule(GetModule<ILogModule>()));
-        AddModule(new GraphicsModule(this, _platform, _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
+        AddModule(new RendererModule(this, _platform, GetModule<IEventBus>(), _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IGraphicsModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
-        AddModule(new SceneModule(GetModule<IEventBus>(), GetModule<IGraphicsModule>()));
+        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IRenderableModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
     }
 
     public void Run()
@@ -265,19 +264,20 @@ public abstract class ApplicationBase : IApplication
     public void PopulateSystemCompositionWithDefaults(World world, SystemRoot composition)
     {
         composition.SimulationGroup
+            .Add(new RigidBodySynchronizationSystem(world))
             .Add(new RigidBodyLifecycleSystem(world, GetModule<IPhysicsModule>()))
-            .Add(new CameraSystem(world, GetModule<IGraphicsModule>()))
-            .Add(new StaticMeshSystem(world, GetModule<IContentModule>()))
+            .Add(new CameraSystem(world, GetModule<IRendererModule>()))
+            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()))
             // .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
             // .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
             .Add(new UserInterfaceTickSystem(world));
 
-        composition.LateSimulationGroup
-            .Add(new RigidBodySynchronizationSystem(world));
+        // composition.LateSimulationGroup
+            
         // .Add(new ContextSyncSystem(world, GetModule<UiModule>()))
 
         composition.PresentationGroup
-            .Add(new RenderSceneSystem(world, GetModule<IGraphicsModule>().GraphicsDevice));
+            .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice));
         // .Add(new UserInterfaceRenderSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()));
     }
 

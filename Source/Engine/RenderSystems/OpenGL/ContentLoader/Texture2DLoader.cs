@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Duck.Content;
-using Duck.Graphics.Textures;
+using Duck.Renderer.Textures;
 using Silk.NET.OpenGL;
 using StbImageSharp;
 

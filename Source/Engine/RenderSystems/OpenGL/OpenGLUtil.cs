@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
-using Duck.Graphics.Device;
+using Duck.Renderer.Device;
 using Silk.NET.OpenGL;
-using AttributeType = Duck.Graphics.Device.AttributeType;
+using AttributeType = Duck.Renderer.Device.AttributeType;
 
 namespace Duck.RenderSystems.OpenGL;
 

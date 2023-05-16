@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using Duck.Content;
-using Duck.Graphics.Components;
-using Duck.Graphics.Device;
-using Duck.Graphics.Shaders;
-using Duck.Graphics.Textures;
+using Duck.Renderer.Components;
+using Duck.Renderer.Device;
+using Duck.Renderer.Materials;
+using Duck.Renderer.Textures;
 using Silk.NET.Maths;
 
 namespace Duck.RenderSystems.OpenGL;
@@ -29,7 +29,7 @@ internal abstract class OpenGLRenderObjectBase : IRenderObject
     private readonly IPlatformAsset<Texture2D>[] _textures = new IPlatformAsset<Texture2D>[IRenderObject.MaxTextureSlots];
     private readonly Dictionary<string, IParameterValue> _parameters = new();
 
-    private IPlatformAsset<ShaderProgram>? _shaderProgram;
+    private IPlatformAsset<Material>? _material;
 
     #endregion
 
@@ -44,9 +44,9 @@ internal abstract class OpenGLRenderObjectBase : IRenderObject
         return this;
     }
 
-    public IRenderObject SetShaderProgram(IPlatformAsset<ShaderProgram> program)
+    public IRenderObject SetMaterial(IPlatformAsset<Material> material)
     {
-        _shaderProgram = program;
+        _material = material;
 
         return this;
     }
@@ -76,9 +76,9 @@ internal abstract class OpenGLRenderObjectBase : IRenderObject
         return _textures[slot];
     }
 
-    public virtual IPlatformAsset<ShaderProgram>? GetShaderProgram()
+    public virtual IPlatformAsset<Material>? GetMaterial()
     {
-        return _shaderProgram;
+        return _material;
     }
 
     public virtual TParameterType GetParameter<TParameterType>(string name)

@@ -1,5 +1,4 @@
-using Duck.Graphics.Device;
-using Silk.NET.OpenGL;
+using Duck.Renderer.Device;
 
 namespace Duck.RenderSystems.OpenGL;
 

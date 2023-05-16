@@ -2,8 +2,8 @@ using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
 using ChickenWithLips.PhysX;
-using Duck.Graphics.Components;
 using Duck.Physics.Components;
+using Duck.Renderer.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;

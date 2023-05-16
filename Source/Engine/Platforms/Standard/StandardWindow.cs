@@ -17,6 +17,8 @@ public class StandardWindow : IWindow
     public int Width => _silkWindow.Size.X;
     public int Height => _silkWindow.Size.Y;
 
+    public Vector2D<int> FrameBufferSize => _silkWindow.FramebufferSize;
+
     public bool CloseRequested => _silkWindow.IsClosing;
     public Vector2D<float> CursorPosition => _cursorPosition;
     public double ElapsedTime => _silkWindow.Time;

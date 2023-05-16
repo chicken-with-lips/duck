@@ -33,12 +33,10 @@ public class ConsoleLogger : ProviderLogger
             Console.BackgroundColor = _backgroundColor;
         }
 
-        // Console.WriteLine("[{0:hh:mm:ss.fff}][{1}] {2}", DateTime.Now,
-            // _categoryName,
-            // formatter(state, exception)
-        // );
-        
-        Console.WriteLine("EX");
+        Console.WriteLine("[{0:hh:mm:ss.fff}][{1}] {2}", DateTime.Now,
+            _categoryName,
+            formatter(state, exception)
+        );
 
         Console.ResetColor();
     }

@@ -1,9 +1,7 @@
 using System.Numerics;
 using Arch.Core;
 using ChickenWithLips.PhysX;
-using Duck.Graphics.Components;
-using Duck.Math;
-using Duck.Physics.Events;
+using Duck.Renderer.Components;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
 

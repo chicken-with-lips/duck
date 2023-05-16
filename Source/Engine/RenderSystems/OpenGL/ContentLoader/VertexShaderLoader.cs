@@ -1,17 +1,21 @@
-using System.Diagnostics;
 using System.Text;
 using Duck.Content;
-using Duck.Graphics.Shaders;
+using Duck.Renderer.Shaders;
+using Duck.Logging;
 using Silk.NET.OpenGL;
 
 namespace Duck.RenderSystems.OpenGL.ContentLoader;
 
 internal class VertexShaderLoader : IAssetLoader
 {
+    public OpenGLShaderProgram? FallbackShader { get; set; }
+
+    private readonly ILogger _logger;
     private readonly GL _api;
 
-    public VertexShaderLoader(OpenGLGraphicsDevice graphicsDevice)
+    public VertexShaderLoader(OpenGLGraphicsDevice graphicsDevice, ILogger logger)
     {
+        _logger = logger;
         _api = graphicsDevice.API;
     }
 
@@ -27,6 +31,7 @@ internal class VertexShaderLoader : IAssetLoader
         }
 
         var shaderId = _api.CreateShader(ShaderType.VertexShader);
+        var defaultShaderId = FallbackShader?.FragmentShader.ShaderId ?? 0;
 
         _api.ShaderSource(shaderId, Encoding.UTF8.GetString(source));
         _api.CompileShader(shaderId);
@@ -35,11 +40,17 @@ internal class VertexShaderLoader : IAssetLoader
 
         // TODO: return default asset instead
         if (!string.IsNullOrWhiteSpace(infoLog)) {
-            throw new ApplicationException($"FIXME: Error compiling vertex shader {infoLog}");
+            _logger.LogError("Error compiling fragment shader: {0}", infoLog);
+
+            _api.DeleteShader(shaderId);
+
+            shaderId = defaultShaderId;
         }
 
         if (loadInto != null && loadInto is OpenGLVertexShader existingVertexShader) {
-            _api.DeleteShader(existingVertexShader.ShaderId);
+            if (existingVertexShader.ShaderId != defaultShaderId) {
+                _api.DeleteShader(existingVertexShader.ShaderId);
+            }
 
             existingVertexShader.ShaderId = shaderId;
 

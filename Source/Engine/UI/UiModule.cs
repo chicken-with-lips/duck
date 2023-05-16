@@ -1,13 +1,10 @@
 using System.Collections.Concurrent;
 using ChickenWithLips.RmlUi;
 using Duck.Content;
-using Duck.Graphics;
-using Duck.Graphics.Shaders;
 using Duck.Input;
 using Duck.Logging;
+using Duck.Renderer.Shaders;
 using Duck.Ui.Assets;
-using Duck.Ui.Content.ContentLoader;
-using Duck.Ui.Content.SourceAssetImporter;
 using Duck.Ui.RmlUi;
 using RenderInterface = ChickenWithLips.RmlUi.RenderInterface;
 using SystemInterface = ChickenWithLips.RmlUi.SystemInterface;
@@ -19,7 +16,7 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
     #region Members
 
     private readonly ILogger _logger;
-    private readonly IGraphicsModule _graphicsModule;
+    private readonly IRenderableModule _renderableModule;
     private readonly IContentModule _contentModule;
     private readonly IInputModule _inputModule;
 
@@ -36,9 +33,9 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     #region Methods
 
-    public UiModule(ILogModule logModule, IGraphicsModule graphicsModule, IContentModule contentModule, IInputModule inputModule)
+    public UiModule(ILogModule logModule, IRenderableModule renderableModule, IContentModule contentModule, IInputModule inputModule)
     {
-        _graphicsModule = graphicsModule;
+        _renderableModule = renderableModule;
         _contentModule = contentModule;
         _inputModule = inputModule;
 
@@ -137,8 +134,8 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     private IAsset<ShaderProgram> CreateColoredShader()
     {
-        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-colored.fs"))));
-        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vs"))));
+        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-colored.frag"))));
+        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vert"))));
 
         return new ShaderProgram(
             new AssetImportData(new Uri("memory://default-ui-color.shader")),
@@ -149,8 +146,8 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     private IAsset<ShaderProgram> CreateTexturedShader()
     {
-        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-textured.fs"))));
-        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vs"))));
+        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-textured.frag"))));
+        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vert"))));
 
         return new ShaderProgram(
             new AssetImportData(new Uri("memory://default-ui-textured.shader")),

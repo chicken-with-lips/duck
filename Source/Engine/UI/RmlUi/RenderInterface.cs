@@ -1,9 +1,9 @@
 using System.Numerics;
 using ChickenWithLips.RmlUi;
 using Duck.Content;
-using Duck.Graphics.Device;
-using Duck.Graphics.Shaders;
-using Duck.Graphics.Textures;
+using Duck.Renderer.Device;
+using Duck.Renderer.Shaders;
+using Duck.Renderer.Textures;
 using Silk.NET.Maths;
 
 namespace Duck.Ui.RmlUi;
@@ -38,14 +38,15 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
             .Build(_graphicsDevice);
         indexBuffer.SetData(0, new BufferObject<int>(indices));
 
-        var renderObject = _graphicsDevice.CreateRenderObject(vertexBuffer, indexBuffer);
+        throw new NotImplementedException();
+        /*var renderObject = _graphicsDevice.CreateRenderObject(vertexBuffer, indexBuffer);
         renderObject.SetParameter("WorldPosition", Matrix4X4.CreateTranslation(translation.X, translation.Y, 0));
 
         if (texture > 0) {
             renderObject.SetTexture(0, _textureLookup[texture]);
-            renderObject.SetShaderProgram(_texturedShader);
+            renderObject.SetMaterial(_texturedShader);
         } else {
-            renderObject.SetShaderProgram(_coloredShader);
+            renderObject.SetMaterial(_coloredShader);
         }
 
         renderObject.Projection = Projection.Orthographic;
@@ -53,7 +54,7 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
 
         _graphicsDevice.ScheduleRenderable(
             renderObject
-        );
+        );*/
     }
 
     public override bool GenerateTexture(out ulong textureHandle, byte[] source, int sourceSize, Vector2i sourceDimensions)

@@ -1,5 +1,5 @@
 using Duck.Content;
-using Duck.Graphics.Textures;
+using Duck.Renderer.Textures;
 
 namespace Duck.RenderSystems.OpenGL;
 

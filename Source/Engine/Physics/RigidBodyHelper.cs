@@ -1,8 +1,7 @@
 using Arch.Core;
-using Arch.Core.Extensions;
 using ChickenWithLips.PhysX;
-using Duck.Graphics.Components;
 using Duck.Physics.Components;
+using Duck.Renderer.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics;

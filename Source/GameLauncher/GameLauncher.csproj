@@ -21,4 +21,8 @@
       <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Arch" Version="1.2.5" />
+    </ItemGroup>
+
 </Project>

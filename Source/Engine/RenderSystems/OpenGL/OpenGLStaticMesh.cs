@@ -1,10 +1,6 @@
 using Duck.Content;
-using Duck.Graphics.Device;
-using Duck.Graphics.Mesh;
-using Duck.Graphics.Textures;
-using Duck.Math;
-using Silk.NET.Maths;
-using Silk.NET.OpenGL;
+using Duck.Renderer.Device;
+using Duck.Renderer.Mesh;
 
 namespace Duck.RenderSystems.OpenGL;
 

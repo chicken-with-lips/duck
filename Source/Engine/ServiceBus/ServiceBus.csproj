@@ -14,4 +14,8 @@
       <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" Private="false" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Arch" Version="1.2.5" />
+    </ItemGroup>
+
 </Project>

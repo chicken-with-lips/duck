@@ -1,5 +1,5 @@
 using ChickenWithLips.PhysX;
-using Duck.Graphics.Components;
+using Duck.Renderer.Components;
 using Silk.NET.Maths;
 
 namespace Duck.Physics;
