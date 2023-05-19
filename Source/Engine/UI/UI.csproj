@@ -6,8 +6,6 @@
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.UI</AssemblyName>
         <RootNamespace>Duck.UI</RootNamespace>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
         <LangVersion>11</LangVersion>
     </PropertyGroup>
 
@@ -15,7 +13,6 @@
         <ProjectReference Include="..\..\..\..\rmlui\RmlUi.Net\RmlUi.Net.csproj" />
         <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
-        <ProjectReference Include="..\Graphics\Graphics.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />
         <ProjectReference Include="..\Renderer\Renderer.csproj" />
         <ProjectReference Include="..\Serialization\Serialization.csproj" Private="false" />

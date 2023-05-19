@@ -1,40 +1,35 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
-using Duck.Content;
+using Duck.Renderer;
+using Duck.Ui.Components;
 
 namespace Duck.Ui.Systems;
 
-public partial class UserInterfaceRenderSystem : BaseSystem<World, float>
+public partial class UserInterfaceRenderSystem : BaseSystem<World, float>, IPresentationSystem
 {
-    // private readonly IFilter<UserInterfaceComponent> _filter;
-    private readonly IContentModule _contentModule;
+    public CommandBuffer? CommandBuffer { get; set; }
+
     private readonly UiModule _uiModule;
 
-    public UserInterfaceRenderSystem(World world, IContentModule contentModule, UiModule uiModule)
+    public UserInterfaceRenderSystem(World world, UiModule uiModule)
         : base(world)
     {
-        _contentModule = contentModule;
         _uiModule = uiModule;
-
-        // _filter = Filter<UserInterfaceComponent>(world)
-        // .Build();
     }
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Run()
+    public void Run(in ContextComponent component, in ContextLoaded contextLoaded)
     {
-        Console.WriteLine("TODO: UserInterfaceRenderSystem");
-        // foreach (var entityId in _filter.EntityList) {
-        //     var cmp = _filter.Get(entityId);
-        //
-        //     if (cmp.Interface == null) {
-        //         continue;
-        //     }
-        //
-        //     var ui = _uiModule.GetUserInterface(cmp.Interface);
-        //     ui?.Context.Render();
-        // }
+        var context = _uiModule.FindContext(component.Name);
+
+        if (null == context) {
+            return;
+        }
+
+        _uiModule.RenderInterface.CommandBuffer = CommandBuffer;
+
+        context.Render();
     }
 }

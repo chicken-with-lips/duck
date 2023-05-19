@@ -3,8 +3,12 @@ using ChickenWithLips.RmlUi;
 using Duck.Content;
 using Duck.Input;
 using Duck.Logging;
+using Duck.Renderer;
+using Duck.Renderer.Materials;
 using Duck.Renderer.Shaders;
 using Duck.Ui.Assets;
+using Duck.Ui.Content.ContentLoader;
+using Duck.Ui.Content.SourceAssetImporter;
 using Duck.Ui.RmlUi;
 using RenderInterface = ChickenWithLips.RmlUi.RenderInterface;
 using SystemInterface = ChickenWithLips.RmlUi.SystemInterface;
@@ -13,18 +17,24 @@ namespace Duck.Ui;
 
 public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutdownModule
 {
+    #region Properties
+
+    internal RmlUi.RenderInterface? RenderInterface => _renderInterface;
+
+    #endregion
+
     #region Members
 
     private readonly ILogger _logger;
-    private readonly IRenderableModule _renderableModule;
+    private readonly IRendererModule _renderModule;
     private readonly IContentModule _contentModule;
     private readonly IInputModule _inputModule;
 
-    private SystemInterface? _systemInterface;
-    private RenderInterface? _renderInterface;
+    private RmlUi.SystemInterface? _systemInterface;
+    private RmlUi.RenderInterface? _renderInterface;
 
-    private IAsset<ShaderProgram>? _coloredShader;
-    private IAsset<ShaderProgram>? _texturedShader;
+    private IAsset<Material>? _coloredMaterial;
+    private IAsset<Material>? _texturedMaterial;
 
     private readonly ConcurrentDictionary<string, RmlContext> _contexts = new();
     private readonly ConcurrentDictionary<IAssetReference<UserInterface>, RmlUserInterface> _entityToUserInterface = new();
@@ -33,9 +43,9 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     #region Methods
 
-    public UiModule(ILogModule logModule, IRenderableModule renderableModule, IContentModule contentModule, IInputModule inputModule)
+    public UiModule(ILogModule logModule, IRendererModule renderModule, IContentModule contentModule, IInputModule inputModule)
     {
-        _renderableModule = renderableModule;
+        _renderModule = renderModule;
         _contentModule = contentModule;
         _inputModule = inputModule;
 
@@ -45,27 +55,25 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     public bool Init()
     {
-        Console.WriteLine("TODO: UiModule");
-        // _contentModule.RegisterAssetLoader<UserInterface, RmlUserInterface>(new UserInterfaceLoader(this));
-        // _contentModule.RegisterSourceAssetImporter(new RmlUiAssetImporter());
-        //
-        // _coloredShader = _contentModule.Database.Register(CreateColoredShader());
-        // _texturedShader = _contentModule.Database.Register(CreateTexturedShader());
-        //
-        // _systemInterface = new RmlUi.SystemInterface(_logger);
-        // _renderInterface = new RmlUi.RenderInterface(
-        //     _graphicsModule.GraphicsDevice,
-        //     _contentModule,
-        //     (IPlatformAsset<ShaderProgram>)_contentModule.LoadImmediate(_coloredShader.MakeSharedReference()),
-        //     (IPlatformAsset<ShaderProgram>)_contentModule.LoadImmediate(_texturedShader.MakeSharedReference())
-        // );
-        //
-        // Rml.SetRenderInterface(_renderInterface);
-        // Rml.SetSystemInterface(_systemInterface);
-        // Rml.Initialise();
-        //
-        // // FIXME: rml isn't using our content resolver and is looking relative to the root of the project
-        // Rml.LoadFontFace("Content/Fonts/LatoLatin-Regular.ttf", true);
+        _contentModule.RegisterAssetLoader<UserInterface, RmlUserInterface>(new UserInterfaceLoader(this));
+        _contentModule.RegisterSourceAssetImporter(new RmlUiAssetImporter());
+
+        CreateShaders();
+
+        _systemInterface = new RmlUi.SystemInterface(_logger);
+        _renderInterface = new RmlUi.RenderInterface(
+            _renderModule.GraphicsDevice,
+            _contentModule,
+            (IPlatformAsset<Material>)_contentModule.LoadImmediate(_coloredMaterial.MakeSharedReference()),
+            (IPlatformAsset<Material>)_contentModule.LoadImmediate(_texturedMaterial.MakeSharedReference())
+        );
+
+        Rml.SetRenderInterface(_renderInterface);
+        Rml.SetSystemInterface(_systemInterface);
+        Rml.Initialise();
+
+        // FIXME: rml isn't using our content resolver and is looking relative to the root of the project
+        Rml.LoadFontFace(_contentModule.ContentRootDirectory + "/Fonts/LatoLatin-Regular.ttf", true);
 
         return true;
     }
@@ -118,6 +126,15 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
         _entityToUserInterface.TryAdd(assetReference, userInterface);
     }
 
+    internal RmlContext? FindContext(string name)
+    {
+        if (_contexts.TryGetValue(name, out var context)) {
+            return context;
+        }
+
+        return null;
+    }
+
     internal RmlContext GetOrCreateContext(string name)
     {
         if (!_contexts.TryGetValue(name, out var context)) {
@@ -132,28 +149,41 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
         return _entityToUserInterface[assetReference];
     }
 
-    private IAsset<ShaderProgram> CreateColoredShader()
+    private void CreateShaders()
     {
-        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-colored.frag"))));
+        var coloredFragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-colored.frag"))));
+        var texturedFragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-textured.frag"))));
         var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vert"))));
 
-        return new ShaderProgram(
-            new AssetImportData(new Uri("memory://default-ui-color.shader")),
-            vertShader.MakeSharedReference(),
-            fragShader.MakeSharedReference()
+        var coloredShader = _contentModule.Database.Register(
+            new ShaderProgram(
+                new AssetImportData(new Uri("memory://default-ui-color.shader")),
+                vertShader.MakeSharedReference(),
+                coloredFragShader.MakeSharedReference()
+            )
         );
-    }
 
-    private IAsset<ShaderProgram> CreateTexturedShader()
-    {
-        var fragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-textured.frag"))));
-        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vert"))));
-
-        return new ShaderProgram(
-            new AssetImportData(new Uri("memory://default-ui-textured.shader")),
-            vertShader.MakeSharedReference(),
-            fragShader.MakeSharedReference()
+        var texturedShader = _contentModule.Database.Register(
+            new ShaderProgram(
+                new AssetImportData(new Uri("memory://default-ui-textured.shader")),
+                vertShader.MakeSharedReference(),
+                texturedFragShader.MakeSharedReference()
+            )
         );
+
+        var mat = new Material(
+            new AssetImportData(new Uri("memory:///ui/colored.mat"))
+        );
+        mat.Shader = coloredShader.MakeSharedReference();
+
+        _coloredMaterial = _contentModule.Database.Register(mat);
+
+        mat = new Material(
+            new AssetImportData(new Uri("memory:///ui/textured.mat"))
+        );
+        mat.Shader = coloredShader.MakeSharedReference();
+
+        _texturedMaterial = _contentModule.Database.Register(mat);
     }
 
     #endregion

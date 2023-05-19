@@ -56,7 +56,7 @@ public partial class UserInterfaceLoadSystem : BaseSystem<World, float>
         entity.Add<UserInterfaceLoaded>();
 
         // foreach (var entityId in _filter.EntityRemovedList) {
-        //     Console.WriteLine("TODO: remove ui");
+        //     Console.WriteLine("FIXME: remove ui");
         // }
     }
 }

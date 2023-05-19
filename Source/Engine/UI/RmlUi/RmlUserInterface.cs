@@ -1,5 +1,6 @@
 using ChickenWithLips.RmlUi;
 using Duck.Content;
+using Duck.Renderer;
 using Duck.Ui.Assets;
 
 namespace Duck.Ui.RmlUi;

@@ -13,7 +13,6 @@
         <ProjectReference Include="..\..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" Private="false" />
         <ProjectReference Include="..\Content\Content.csproj" Private="false" />
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
-        <ProjectReference Include="..\Graphics\Graphics.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />
         <ProjectReference Include="..\Physics\Physics.csproj" Private="false" />
         <ProjectReference Include="..\Renderer\Renderer.csproj" />

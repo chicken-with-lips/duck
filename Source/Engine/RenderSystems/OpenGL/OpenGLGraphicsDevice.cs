@@ -288,7 +288,6 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
     private Matrix4X4<float> CreateProjectionMatrix(IRenderObject renderable, View view)
     {
         if (renderable.Projection == Projection.Orthographic) {
-            Console.WriteLine("CHECK POSITION");
             return Matrix4X4.CreateOrthographicOffCenter(view.Position.X, view.Dimensions.X, view.Dimensions.Y, _window.Height - view.Dimensions.Y, -10000f, 10000f);
         } else if (renderable.Projection == Projection.Perspective) {
             return Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), (float)view.Dimensions.X / (float)view.Dimensions.Y, 0.1f, 20000f);

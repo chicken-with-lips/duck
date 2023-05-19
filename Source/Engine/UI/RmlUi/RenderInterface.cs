@@ -1,7 +1,9 @@
 using System.Numerics;
 using ChickenWithLips.RmlUi;
 using Duck.Content;
+using Duck.Renderer;
 using Duck.Renderer.Device;
+using Duck.Renderer.Materials;
 using Duck.Renderer.Shaders;
 using Duck.Renderer.Textures;
 using Silk.NET.Maths;
@@ -10,19 +12,29 @@ namespace Duck.Ui.RmlUi;
 
 internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
 {
+    #region Properties
+
+    internal CommandBuffer? CommandBuffer { get; set; }
+
+    #endregion
+
+    #region Members
+
     private readonly IGraphicsDevice _graphicsDevice;
     private readonly IContentModule _contentModule;
-    private readonly IPlatformAsset<ShaderProgram> _coloredShader;
-    private readonly IPlatformAsset<ShaderProgram> _texturedShader;
+    private readonly IPlatformAsset<Material> _coloredMaterial;
+    private readonly IPlatformAsset<Material> _texturedMaterial;
 
     private readonly Dictionary<ulong, IPlatformAsset<Texture2D>> _textureLookup = new();
 
-    public RenderInterface(IGraphicsDevice graphicsDevice, IContentModule contentModule, IPlatformAsset<ShaderProgram> coloredShader, IPlatformAsset<ShaderProgram> texturedShader)
+    #endregion
+
+    public RenderInterface(IGraphicsDevice graphicsDevice, IContentModule contentModule, IPlatformAsset<Material> coloredMaterial, IPlatformAsset<Material> texturedMaterial)
     {
         _graphicsDevice = graphicsDevice;
         _contentModule = contentModule;
-        _coloredShader = coloredShader;
-        _texturedShader = texturedShader;
+        _coloredMaterial = coloredMaterial;
+        _texturedMaterial = texturedMaterial;
     }
 
     public override void RenderGeometry(Vertex[] vertices, int vertexCount, int[] indices, int indexCount, ulong texture, Vector2 translation)
@@ -38,23 +50,22 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
             .Build(_graphicsDevice);
         indexBuffer.SetData(0, new BufferObject<int>(indices));
 
-        throw new NotImplementedException();
-        /*var renderObject = _graphicsDevice.CreateRenderObject(vertexBuffer, indexBuffer);
+        var renderObject = _graphicsDevice.CreateRenderObject(vertexBuffer, indexBuffer);
         renderObject.SetParameter("WorldPosition", Matrix4X4.CreateTranslation(translation.X, translation.Y, 0));
 
         if (texture > 0) {
             renderObject.SetTexture(0, _textureLookup[texture]);
-            renderObject.SetMaterial(_texturedShader);
+            renderObject.SetMaterial(_texturedMaterial);
         } else {
-            renderObject.SetMaterial(_coloredShader);
+            renderObject.SetMaterial(_coloredMaterial);
         }
 
         renderObject.Projection = Projection.Orthographic;
         renderObject.RenderStateFlags = RenderStateFlag.DisableDepthTesting;
 
-        _graphicsDevice.ScheduleRenderable(
+        CommandBuffer?.ScheduleRenderable(
             renderObject
-        );*/
+        );
     }
 
     public override bool GenerateTexture(out ulong textureHandle, byte[] source, int sourceSize, Vector2i sourceDimensions)

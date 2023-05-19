@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Arch.System;
+using Arch.System.SourceGenerator;
 using Duck.Ui.Components;
 
 namespace Duck.Ui.Systems;
@@ -22,6 +23,7 @@ public partial class ContextLoadSystem : BaseSystem<World, float>
     }
 
     [Query]
+    [None<ContextLoaded>]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(in Entity entity, in ContextComponent cmp)
     {
@@ -31,7 +33,7 @@ public partial class ContextLoadSystem : BaseSystem<World, float>
         entity.Add<ContextLoaded>();
 
         /*foreach (var entityId in _filter.EntityRemovedList) {
-            Console.WriteLine("TODO: remove ui context");
+            Console.WriteLine("FIXME: remove ui context");
         }*/
     }
 }
