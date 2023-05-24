@@ -20,7 +20,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\physx\PhysX.Net\PhysX.Net.csproj" />
       <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
-      <ProjectReference Include="..\Renderer\Renderer.csproj" />
+      <ProjectReference Include="..\Renderer\Renderer.csproj" Private="false" />
       <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
     </ItemGroup>
 

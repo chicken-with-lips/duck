@@ -7,7 +7,7 @@ using Duck;
 using Duck.GameHost;
 using Duck.Logging;
 
-namespace Game.Host
+namespace GameLauncher.Host
 {
     public class GameClientHost
     {
@@ -22,16 +22,18 @@ namespace Game.Host
 
         private readonly IApplication _application;
         private readonly ILogger _logger;
+        private readonly string _projectDirectory;
         private IGameClient? _hostedClient;
 
         #endregion
 
         #region Methods
 
-        public GameClientHost(IApplication application, ILogger logger)
+        public GameClientHost(IApplication application, ILogger logger, string projectDirectory)
         {
             _application = application;
             _logger = logger;
+            _projectDirectory = projectDirectory;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -52,8 +54,8 @@ namespace Game.Host
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             // var assemblyFileName = Path.Combine(directory, "Game.dll");
 
-            var assemblyFileName = "/media/jolly_samurai/Data/Projects/chicken-with-lips/duck/Build/Debug/net7.0/Game/net6.0/Game.dll";
-            var assembly = Assembly.LoadFrom(assemblyFileName);
+            var gameDll = Path.Combine(_projectDirectory, "Binaries", "net7.0", "Game.dll");
+            var assembly = Assembly.LoadFrom(gameDll);
 
             var clientTypes = assembly
                 .GetTypes()

@@ -92,7 +92,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         foreach (var renderable in commandBuffer.Renderables) {
             var transform = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
 
-            DrawRenderable(renderable, commandBuffer.View, commandBuffer.ViewMatrix, transform, (renderObject) => {
+            DrawRenderable(renderable, commandBuffer, commandBuffer.View, commandBuffer.ViewMatrix, transform, (renderObject) => {
                 _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);
             });
 
@@ -109,7 +109,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         _context.SwapBuffers();
     }
 
-    private unsafe void DrawRenderable(IRenderObject renderable, View view, Matrix4X4<float> viewMatrix, Matrix4X4<float> transform, RenderCallback renderCallback)
+    private unsafe void DrawRenderable(IRenderObject renderable, CommandBuffer commandBuffer, View view, Matrix4X4<float> viewMatrix, Matrix4X4<float> transform, RenderCallback renderCallback)
     {
         if (renderable is OpenGLRenderObject glRenderObject) {
             glRenderObject.Bind();
@@ -169,25 +169,34 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
             _api.Uniform1(loc, glMaterial.Material.Shininess);
             OpenGLUtil.LogErrors(_api);
 
-            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.ambient");
+            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "enabledLights");
             OpenGLUtil.LogErrors(_api);
-            _api.Uniform3(loc, Time.DirectionalLightAmbient.X, Time.DirectionalLightAmbient.Y, Time.DirectionalLightAmbient.Z);
-            OpenGLUtil.LogErrors(_api);
-
-            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.diffuse");
-            OpenGLUtil.LogErrors(_api);
-            _api.Uniform3(loc, Time.DirectionalLightDiffuse.X, Time.DirectionalLightDiffuse.Y, Time.DirectionalLightDiffuse.Z);
+            _api.Uniform3(loc, (int) commandBuffer.DirectionalLights.Length, (int) 0, (int) 0);
             OpenGLUtil.LogErrors(_api);
 
-            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.specular");
-            OpenGLUtil.LogErrors(_api);
-            _api.Uniform3(loc, Time.DirectionalLightSpecular.X, Time.DirectionalLightSpecular.Y, Time.DirectionalLightSpecular.Z);
-            OpenGLUtil.LogErrors(_api);
+            for (var i = 0; i < commandBuffer.DirectionalLights.Length; i++) {
+                var directionalLight = commandBuffer.DirectionalLights[i];
 
-            loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "directionalLight.direction");
-            OpenGLUtil.LogErrors(_api);
-            _api.Uniform3(loc, Time.DirectionalLightDirection.X, Time.DirectionalLightDirection.Y, Time.DirectionalLightDirection.Z);
-            OpenGLUtil.LogErrors(_api);
+                loc = _api.GetUniformLocation(glShaderProgram.ProgramId, $"directionalLights[{i}].ambient");
+                OpenGLUtil.LogErrors(_api);
+                _api.Uniform3(loc, Time.DirectionalLightAmbient.X, directionalLight.Ambient.Y, directionalLight.Ambient.Z);
+                OpenGLUtil.LogErrors(_api);
+
+                loc = _api.GetUniformLocation(glShaderProgram.ProgramId, $"directionalLights[{i}].diffuse");
+                OpenGLUtil.LogErrors(_api);
+                _api.Uniform3(loc, directionalLight.Diffuse.X, directionalLight.Diffuse.Y, directionalLight.Diffuse.Z);
+                OpenGLUtil.LogErrors(_api);
+
+                loc = _api.GetUniformLocation(glShaderProgram.ProgramId, $"directionalLights[{i}].specular");
+                OpenGLUtil.LogErrors(_api);
+                _api.Uniform3(loc, directionalLight.Specular.X, directionalLight.Specular.Y, directionalLight.Specular.Z);
+                OpenGLUtil.LogErrors(_api);
+
+                loc = _api.GetUniformLocation(glShaderProgram.ProgramId, $"directionalLights[{i}].direction");
+                OpenGLUtil.LogErrors(_api);
+                _api.Uniform3(loc, directionalLight.Direction.X, directionalLight.Direction.Y, directionalLight.Direction.Z);
+                OpenGLUtil.LogErrors(_api);
+            }
 
             loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "pointLight.ambient");
             OpenGLUtil.LogErrors(_api);

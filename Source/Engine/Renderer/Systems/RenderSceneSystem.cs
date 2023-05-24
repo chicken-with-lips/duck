@@ -60,10 +60,12 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RenderDirectionalLight(in TransformComponent transform, in DirectionalLightComponent directionalLight)
     {
-        Time.DirectionalLightDirection = transform.Forward;
-        Time.DirectionalLightAmbient = directionalLight.Ambient;
-        Time.DirectionalLightDiffuse = directionalLight.Diffuse;
-        Time.DirectionalLightSpecular = directionalLight.Specular;
+        CommandBuffer?.AddDirectionalLight(
+            transform.Forward,
+            directionalLight.Ambient,
+            directionalLight.Diffuse,
+            directionalLight.Specular
+        );
     }
 
     [Query]

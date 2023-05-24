@@ -20,7 +20,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Content\Content.csproj" Private="false" />
       <ProjectReference Include="..\Core\Core.csproj" Private="false" />
-      <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
+      <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>

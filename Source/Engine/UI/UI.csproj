@@ -14,14 +14,12 @@
         <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />
-        <ProjectReference Include="..\Renderer\Renderer.csproj" />
+        <ProjectReference Include="..\Renderer\Renderer.csproj" Private="false" />
         <ProjectReference Include="..\Serialization\Serialization.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <!-- Exclude the output of source generators from the compilation -->
-        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
     </ItemGroup>
 
     <ItemGroup>

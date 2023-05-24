@@ -1,22 +1,29 @@
+using System.IO;
+using Duck.Content;
 using Duck.GameFramework;
 using Duck.Logging;
 using Duck.Platform;
 using Duck.Renderer;
-using Game.Host;
+using GameLauncher.Host;
 
-namespace Game;
+namespace GameLauncher;
 
 public class Game : ApplicationBase
 {
-    public Game(IPlatform platform, IRenderSystem renderSystem, bool isEditor)
-        : base(platform, renderSystem, isEditor)
+    private readonly string _projectDirectory;
+
+    public Game(IPlatform platform, IRenderSystem renderSystem, string projectDirectory)
+        : base(platform, renderSystem, false)
     {
+        _projectDirectory = projectDirectory;
     }
 
     protected override void RegisterModules()
     {
         base.RegisterModules();
 
-        AddModule(new GameClientHostModule(this, GetModule<ILogModule>()));
+        GetModule<IContentModule>().ContentRootDirectory = Path.Combine(_projectDirectory, "Content");
+
+        AddModule(new GameClientHostModule(this, GetModule<ILogModule>(), _projectDirectory));
     }
 }

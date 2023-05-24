@@ -11,8 +11,6 @@ using Duck.Renderer.Systems;
 using Duck.Scene.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
-using Duck.Ui;
-using Duck.Ui.Systems;
 using Tracy.Net;
 
 namespace Duck.GameFramework;
@@ -215,7 +213,7 @@ public abstract class ApplicationBase : IApplication
         AddModule(new RendererModule(this, _platform, GetModule<IEventBus>(), _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IRendererModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
+        // AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IRendererModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
     }
 
     public void Run()
@@ -264,20 +262,21 @@ public abstract class ApplicationBase : IApplication
     public void PopulateSystemCompositionWithDefaults(World world, SystemRoot composition)
     {
         composition.SimulationGroup
-            .Add(new RigidBodySynchronizationSystem(world))
             .Add(new RigidBodyLifecycleSystem(world, GetModule<IPhysicsModule>()))
+            .Add(new PhysXPullChanges(world))
             .Add(new CameraSystem(world, GetModule<IRendererModule>()))
-            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()))
-            .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
-            .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
-            .Add(new UserInterfaceTickSystem(world));
+            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()));
+        // .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
+        // .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
+        // .Add(new UserInterfaceTickSystem(world));
 
         composition.LateSimulationGroup
-            .Add(new ContextSyncSystem(world, GetModule<UiModule>()));
+            .Add(new PhysXPushChangesSystem(world));
+        // .Add(new ContextSyncSystem(world, GetModule<UiModule>()));
 
         composition.PresentationGroup
-            .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice))
-            .Add(new UserInterfaceRenderSystem(world, GetModule<UiModule>()));
+            .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice));
+        // .Add(new UserInterfaceRenderSystem(world, GetModule<UiModule>()));
     }
 
     private void ChangeState(State newState)

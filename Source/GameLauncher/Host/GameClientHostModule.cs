@@ -2,17 +2,19 @@ using System;
 using Duck;
 using Duck.Logging;
 
-namespace Game.Host;
+namespace GameLauncher.Host;
 
 public class GameClientHostModule : IInitializableModule, ITickableModule
 {
     private readonly IApplication _app;
+    private readonly string _projectDirectory;
     private readonly ILogger _logger;
     private GameClientHost? _clientHost;
 
-    public GameClientHostModule(IApplication app, ILogModule logModule)
+    public GameClientHostModule(IApplication app, ILogModule logModule, string projectDirectory)
     {
         _app = app;
+        _projectDirectory = projectDirectory;
         _logger = logModule.CreateLogger("GameHost");
         
         _logger.LogInformation("Created client host module.");
@@ -22,7 +24,7 @@ public class GameClientHostModule : IInitializableModule, ITickableModule
     {
         _logger.LogInformation("Initializing client host module...");
 
-        _clientHost = new GameClientHost(_app, _logger);
+        _clientHost = new GameClientHost(_app, _logger, _projectDirectory);
 
         if (!_clientHost.LoadAndInitialize()) {
             throw new Exception("Failed to initialize client");

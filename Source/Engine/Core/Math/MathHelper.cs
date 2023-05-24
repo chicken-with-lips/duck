@@ -144,14 +144,23 @@ public static class MathHelper
         return q2 * q1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ToAngleAxis(Quaternion<float> q, out float angle, out Vector3D<float> axis)
     {
+        var divider = MathF.Sqrt(1.0f - q.W * q.W);
+
         angle = 2 * MathF.Acos(q.W);
-        axis = new Vector3D<float>(
-            q.X / MathF.Sqrt(1 - q.W * q.W),
-            q.Y / MathF.Sqrt(1 - q.W * q.W),
-            q.Z / MathF.Sqrt(1 - q.W * q.W)
-        );
+        angle = ToDegrees(angle);
+
+        if (divider != 0.0f) {
+            axis = new Vector3D<float>(
+                q.X / divider,
+                q.Y / divider,
+                q.Z / divider
+            );
+        } else {
+            axis = new Vector3D<float>(1, 0, 0);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

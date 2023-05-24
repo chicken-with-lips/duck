@@ -21,7 +21,7 @@
       <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
       <ProjectReference Include="..\..\Graphics\Graphics.csproj" Private="false" />
       <ProjectReference Include="..\..\Platforms\Standard\Standard.csproj" Private="false" />
-      <ProjectReference Include="..\..\Renderer\Renderer.csproj" />
+      <ProjectReference Include="..\..\Renderer\Renderer.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>

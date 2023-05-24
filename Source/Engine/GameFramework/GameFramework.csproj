@@ -15,7 +15,7 @@
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />
         <ProjectReference Include="..\Physics\Physics.csproj" Private="false" />
-        <ProjectReference Include="..\Renderer\Renderer.csproj" />
+        <ProjectReference Include="..\Renderer\Renderer.csproj" Private="false" />
         <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
         <ProjectReference Include="..\Serialization\Serialization.csproj" Private="false" />
         <ProjectReference Include="..\UI\UI.csproj" Private="false" />
