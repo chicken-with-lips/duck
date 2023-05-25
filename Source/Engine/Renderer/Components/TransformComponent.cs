@@ -55,7 +55,7 @@ public partial struct TransformComponent
 
     private Vector3D<float> _position = default;
     private Quaternion<float> _rotation = default;
-    private Vector3D<float> _scale = default;
+    private Vector3D<float> _scale = Vector3D<float>.One;
 
     private Vector3D<float> _up = default;
     private Vector3D<float> _forward = default;

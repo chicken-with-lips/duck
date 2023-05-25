@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
+using Arch.System.SourceGenerator;
 using Duck.Renderer;
 using Duck.Ui.Components;
 
@@ -19,8 +20,9 @@ public partial class UserInterfaceRenderSystem : BaseSystem<World, float>, IPres
     }
 
     [Query]
+    [All<ContextLoaded>]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Run(in ContextComponent component, in ContextLoaded contextLoaded)
+    public void Run(in ContextComponent component)
     {
         var context = _uiModule.FindContext(component.Name);
 

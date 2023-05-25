@@ -10,7 +10,7 @@ public partial struct CameraComponent
 {
     public bool IsActive = true;
 
-    public float FieldOfView = 60f;
+    public float FieldOfView = 75f;
     public float AspectRatio = 16f / 9f;
     public float NearClipPlane = 0.1f;
     public float FarClipPlane = 1000f;

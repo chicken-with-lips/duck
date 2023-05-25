@@ -22,6 +22,11 @@ public interface IInitializableModule : IModule
     public bool Init();
 }
 
+public interface IPostInitializableModule : IModule
+{
+    public void PostInit();
+}
+
 public interface ITickableModule : IModule
 {
     public void Tick();

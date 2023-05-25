@@ -38,7 +38,7 @@ internal class OpenGLRenderObject : OpenGLRenderObjectBase
 
         for (var i = 0; i < attributes.Length; i++) {
             _graphicsDevice.API.VertexAttribPointer(
-                (uint)attributes[i].Attribute,
+                (uint)i,//(uint)attributes[i].Attribute,
                 OpenGLUtil.ComponentCount(attributes[i].AttributeType),
                 OpenGLUtil.Convert(attributes[i].AttributeType),
                 attributes[i].Normalized,
@@ -47,7 +47,7 @@ internal class OpenGLRenderObject : OpenGLRenderObjectBase
             );
             OpenGLUtil.LogErrors(_graphicsDevice.API);
 
-            _graphicsDevice.API.EnableVertexAttribArray((uint)attributes[i].Attribute);
+            _graphicsDevice.API.EnableVertexAttribArray((uint)i);//(uint)attributes[i].Attribute);
             OpenGLUtil.LogErrors(_graphicsDevice.API);
         }
 

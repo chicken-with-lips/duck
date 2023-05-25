@@ -98,8 +98,6 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
     public ISourceAssetImporter<TAsset>? FindSourceAssetImporter<TAsset>(string file)
         where TAsset : class, IAsset
     {
-        file = Path.Combine(ContentRootDirectory, file);
-
         foreach (var sourceAssetImporter in _sourceAssetImporters) {
             if (sourceAssetImporter.OutputType == typeof(TAsset)
                 && sourceAssetImporter.CanImport(file)) {
@@ -113,7 +111,6 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
     public TAsset? Import<TAsset>(string file) where TAsset : class, IAsset
     {
         var importer = FindSourceAssetImporter<TAsset>(file);
-        file = Path.Combine(ContentRootDirectory, file);
 
         if (null != importer) {
             _logger.LogInformation($"Importing \"{file}\"");

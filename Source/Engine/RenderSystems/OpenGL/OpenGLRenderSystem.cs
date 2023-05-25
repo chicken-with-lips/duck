@@ -85,8 +85,8 @@ public class OpenGLRenderSystem : IRenderSystem
 
     private IAsset<ShaderProgram> CreateFallbackShader(IContentModule contentModule)
     {
-        var fragShader = contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/fallback.frag"))));
-        var vertShader = contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/fallback.vert"))));
+        var fragShader = contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Builtin/Shaders/fallback.frag"))));
+        var vertShader = contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Builtin/Shaders/fallback.vert"))));
 
         return new ShaderProgram(
             new AssetImportData(new Uri("memory://engine/fallback.shader")),
@@ -108,8 +108,8 @@ public class OpenGLRenderSystem : IRenderSystem
 
     private IAsset<ShaderProgram> CreateDebugShader(IContentModule contentModule)
     {
-        var fragShader = contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/debug.frag"))));
-        var vertShader = contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/debug.vert"))));
+        var fragShader = contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Builtin/Shaders/debug.frag"))));
+        var vertShader = contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Builtin/Shaders/debug.vert"))));
 
         return new ShaderProgram(
             new AssetImportData(new Uri("memory://engine/debug.shader")),

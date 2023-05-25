@@ -6,6 +6,7 @@ namespace Duck.Renderer;
 public class View
 {
     public string Name { get; }
+    public bool IsEnabled { get; set; }
     public Vector2D<int> Dimensions { get; set; }
     public Vector2D<int> Position { get; set; }
 

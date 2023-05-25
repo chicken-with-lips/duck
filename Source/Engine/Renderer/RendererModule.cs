@@ -81,6 +81,7 @@ public class RendererModule : IRendererModule,
         GameView.Position = Vector2D<int>.Zero;
         GameView.Dimensions = new Vector2D<int>(1280, 1024);
         GameView.Position = new Vector2D<int>(0, 0);
+        GameView.IsEnabled = true;
 
         return true;
     }
@@ -140,6 +141,10 @@ public class RendererModule : IRendererModule,
             var view = kvp.Value;
             var sceneRef = view.Scene;
             var cameraRef = view.Camera;
+
+            if (!view.IsEnabled) {
+                continue;
+            }
 
             if (null == sceneRef || !sceneRef.TryGetTarget(out var scene) || !scene.IsActive) {
                 continue;

@@ -55,7 +55,7 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     public bool Init()
     {
-        _contentModule.RegisterAssetLoader<UserInterface, RmlUserInterface>(new UserInterfaceLoader(this));
+        _contentModule.RegisterAssetLoader<UserInterface, RmlUserInterface>(new UserInterfaceLoader(this, _logger));
         _contentModule.RegisterSourceAssetImporter(new RmlUiAssetImporter());
 
         CreateShaders();
@@ -106,6 +106,7 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
             return _contexts[name];
         }
 
+        // FIXME: 1280x1024
         var context = Rml.CreateContext(name, new Vector2i(1280, 1024));
 
         if (context == null) {
@@ -151,9 +152,9 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
 
     private void CreateShaders()
     {
-        var coloredFragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-colored.frag"))));
-        var texturedFragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Shaders/ui-textured.frag"))));
-        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Shaders/ui.vert"))));
+        var coloredFragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Builtin/Shaders/ui-colored.frag"))));
+        var texturedFragShader = _contentModule.Database.Register(new FragmentShader(new AssetImportData(new Uri("file:///Builtin/Shaders/ui-textured.frag"))));
+        var vertShader = _contentModule.Database.Register(new VertexShader(new AssetImportData(new Uri("file:///Builtin/Shaders/ui.vert"))));
 
         var coloredShader = _contentModule.Database.Register(
             new ShaderProgram(
@@ -181,7 +182,7 @@ public class UiModule : IUiModule, IInitializableModule, ITickableModule, IShutd
         mat = new Material(
             new AssetImportData(new Uri("memory:///ui/textured.mat"))
         );
-        mat.Shader = coloredShader.MakeSharedReference();
+        mat.Shader = texturedShader.MakeSharedReference();
 
         _texturedMaterial = _contentModule.Database.Register(mat);
     }

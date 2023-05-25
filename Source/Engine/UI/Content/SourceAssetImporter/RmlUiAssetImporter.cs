@@ -18,7 +18,7 @@ public class RmlUiAssetImporter : SourceAssetImporterBase<UserInterface>
     public override UserInterface Import(string file)
     {
         return new UserInterface(
-            new AssetImportData(new Uri("file://" + file))
+            new AssetImportData(new Uri("file:///" + file))
         );
     }
 }

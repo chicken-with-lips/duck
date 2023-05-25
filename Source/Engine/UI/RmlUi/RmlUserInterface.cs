@@ -9,7 +9,10 @@ public class RmlUserInterface : PlatformAssetBase<UserInterface>
 {
     #region Properties
 
-    public ElementDocument Document => _document;
+    public ElementDocument Document {
+        get => _document;
+        internal set => _document = value;
+    }
 
     internal RmlContext Context => _context;
 
@@ -18,9 +21,9 @@ public class RmlUserInterface : PlatformAssetBase<UserInterface>
     #region Members
 
     private readonly RmlContext _context;
-    private readonly ElementDocument _document;
-
     private readonly Dictionary<ValueTuple<string, Action<Event>, Element>, EventListenerWrapper> _eventListeners = new();
+
+    private ElementDocument _document;
 
     #endregion
 

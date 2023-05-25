@@ -1,4 +1,6 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using ChickenWithLips.RmlUi;
 using Duck.Content;
 using Duck.Renderer;
@@ -26,6 +28,7 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
     private readonly IPlatformAsset<Material> _texturedMaterial;
 
     private readonly Dictionary<ulong, IPlatformAsset<Texture2D>> _textureLookup = new();
+    private int _generatedTextureIndex = 0;
 
     #endregion
 
@@ -37,7 +40,7 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
         _texturedMaterial = texturedMaterial;
     }
 
-    public override void RenderGeometry(Vertex[] vertices, int vertexCount, int[] indices, int indexCount, ulong texture, Vector2 translation)
+    public override void RenderGeometry(Vertex[] vertices, int vertexCount, int[] indices, int indexCount, IntPtr texture, Vector2 translation)
     {
         var vertexBuffer = VertexBufferBuilder<Vertex>.Create(BufferUsage.Static)
             .Attribute(VertexAttribute.Position, 0, AttributeType.Float2)
@@ -53,8 +56,8 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
         var renderObject = _graphicsDevice.CreateRenderObject(vertexBuffer, indexBuffer);
         renderObject.SetParameter("WorldPosition", Matrix4X4.CreateTranslation(translation.X, translation.Y, 0));
 
-        if (texture > 0) {
-            renderObject.SetTexture(0, _textureLookup[texture]);
+        if (texture != IntPtr.Zero) {
+            renderObject.SetTexture(0, (IPlatformAsset<Texture2D>) GCHandle.FromIntPtr(texture).Target);
             renderObject.SetMaterial(_texturedMaterial);
         } else {
             renderObject.SetMaterial(_coloredMaterial);
@@ -68,12 +71,12 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
         );
     }
 
-    public override bool GenerateTexture(out ulong textureHandle, byte[] source, int sourceSize, Vector2i sourceDimensions)
+    public override bool GenerateTexture(out IntPtr textureHandle, byte[] source, int sourceSize, Vector2i sourceDimensions)
     {
         var texture = _contentModule.Database.Register(
             new Texture2D(
                 new AssetImportData(
-                    new Uri("memory://generated-texture")),
+                    new Uri("memory://generated-texture" + (_generatedTextureIndex++))),
                 sourceDimensions.X,
                 sourceDimensions.Y,
                 true
@@ -92,16 +95,18 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
             source
         );
 
-        Console.WriteLine("FIXME: TEXTURE LOADING");
-        // textureHandle = loadedTexture.TextureId;
-        textureHandle = 0;
+        // FIXME: TEXTURE LOADING
+        // FIXME: free gc handle
+        textureHandle = GCHandle.ToIntPtr(
+            GCHandle.Alloc(loadedTexture)
+        );
 
         // _textureLookup.Add(textureHandle, loadedTexture);
 
         return true;
     }
 
-    public override bool LoadTexture(out ulong textureHandle, Vector2i textureDimensions, string source)
+    public override bool LoadTexture(out IntPtr textureHandle, Vector2i textureDimensions, string source)
     {
         // FIXME: assets should be pre-registered with content database
 
@@ -125,6 +130,7 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
         // _textureLookup.Add(textureHandle, glTexture);
 
         Console.WriteLine("FIXME: TEXTURE LOADING");
+        
         textureHandle = 0;
 
         return true;
@@ -133,6 +139,8 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
     public override void ReleaseTexture(IntPtr textureHandle)
     {
         Console.WriteLine("TODO: RELEASE TEXTURE");
+
+        GCHandle.FromIntPtr(textureHandle).Free();
 
         base.ReleaseTexture(textureHandle);
     }
