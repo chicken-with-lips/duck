@@ -8,7 +8,6 @@ using Duck.Physics.Systems;
 using Duck.Platform;
 using Duck.Renderer;
 using Duck.Renderer.Systems;
-using Duck.Scene.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
 using Duck.Ui;
@@ -151,8 +150,6 @@ public abstract class ApplicationBase : IApplication
 
     private void FixedTickModules()
     {
-        GetModule<IEventBus>().Flush();
-
         // borrowed from wicked engine
         if (_shouldSkipFrames) {
             _deltaTimeAccumulator += Time.DeltaFrame;
@@ -281,6 +278,9 @@ public abstract class ApplicationBase : IApplication
         composition.PresentationGroup
             .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice))
             .Add(new UserInterfaceRenderSystem(world, GetModule<UiModule>()));
+
+        composition.ExitFrameGroup
+            .Add(new RemoveCollisionEventsSystem(world));
     }
 
     private void ChangeState(State newState)

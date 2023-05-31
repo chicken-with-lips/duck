@@ -1,6 +1,8 @@
 using System.Numerics;
 using Arch.Core;
+using Arch.Core.Extensions;
 using ChickenWithLips.PhysX;
+using Duck.Physics.Events;
 using Duck.Renderer.Components;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
@@ -26,8 +28,8 @@ public class PhysicsWorld : IPhysicsWorld
     private readonly World _world;
     private readonly PxPhysics _physics;
     private readonly PxScene _scene;
-    private readonly Dictionary<PxActor, Entity> _actorToEntityMap = new();
-    private readonly Dictionary<Entity, PxActor> _entityToActorMap = new();
+    private readonly Dictionary<PxActor, EntityReference> _actorToEntityMap = new();
+    private readonly Dictionary<EntityReference, PxActor> _entityToActorMap = new();
     private readonly SimulationEventCallback _simulationEventCallback;
     private readonly SimulationFilterCallback _simulationFilterCallback;
     private readonly PxFilterShaderCallback _filterShader;
@@ -74,16 +76,17 @@ public class PhysicsWorld : IPhysicsWorld
     public void EmitEvents(IEventBus eventBus)
     {
         foreach (var pairHeader in _simulationEventCallback.Contacts) {
-            Console.WriteLine("TOOD: Collision");
-            // _world.CreateOneShot("PhysicsCollision", (ref PhysicsCollision col) => {
-            //     col.A = GetEntityForActor(pairHeader.Actors[0]);
-            //     col.B = GetEntityForActor(pairHeader.Actors[1]);
-            // });
-            //
-            // _world.CreateOneShot("PhysicsCollision", (ref PhysicsCollision col) => {
-            //     col.A = GetEntityForActor(pairHeader.Actors[1]);
-            //     col.B = GetEntityForActor(pairHeader.Actors[0]);
-            // });
+            _world.Create(
+                new PhysicsCollision {
+                    A = GetEntityForActor(pairHeader.Actors[0]),
+                    B = GetEntityForActor(pairHeader.Actors[1]),
+                });
+
+            _world.Create(
+                new PhysicsCollision {
+                    A = GetEntityForActor(pairHeader.Actors[1]),
+                    B = GetEntityForActor(pairHeader.Actors[0]),
+                });
         }
 
         _simulationEventCallback.ClearContacts();
@@ -119,7 +122,7 @@ public class PhysicsWorld : IPhysicsWorld
 
     public PxRigidBody? GetRigidBody(Entity entity)
     {
-        if (_entityToActorMap.TryGetValue(entity, out var actor)) {
+        if (_entityToActorMap.TryGetValue(entity.Reference(), out var actor)) {
             return actor as PxRigidBody;
         }
 
@@ -128,8 +131,8 @@ public class PhysicsWorld : IPhysicsWorld
 
     internal void MapActorToEntity(Entity entity, PxActor actor)
     {
-        _actorToEntityMap.Add(actor, entity);
-        _entityToActorMap.Add(entity, actor);
+        _actorToEntityMap.Add(actor, entity.Reference());
+        _entityToActorMap.Add(entity.Reference(), actor);
     }
 
     internal void UnmapActor(PxActor actor)
@@ -138,7 +141,7 @@ public class PhysicsWorld : IPhysicsWorld
         _actorToEntityMap.Remove(actor);
     }
 
-    internal Entity GetEntityForActor(PxActor actor)
+    internal EntityReference GetEntityForActor(PxActor actor)
     {
         return _actorToEntityMap[actor];
     }

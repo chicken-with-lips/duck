@@ -15,6 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\Engine\Core\Core.csproj" />
       <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
       <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
@@ -22,7 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Arch" Version="1.2.5" />
       <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     </ItemGroup>
 

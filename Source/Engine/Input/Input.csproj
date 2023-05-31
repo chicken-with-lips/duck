@@ -10,11 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" Private="false" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Arch" Version="1.2.5" />
     </ItemGroup>
 
 </Project>

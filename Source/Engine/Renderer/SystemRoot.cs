@@ -8,6 +8,7 @@ public class SystemRoot
     public Group<float> SimulationGroup { get; }
     public Group<float> LateSimulationGroup { get; }
     public PresentationGroup<float> PresentationGroup { get; }
+    public Group<float> ExitFrameGroup { get; }
 
     private readonly Group<float> _root = new();
 
@@ -17,7 +18,8 @@ public class SystemRoot
             .Add(InitializationGroup = new Group<float>())
             .Add(SimulationGroup = new Group<float>())
             .Add(LateSimulationGroup = new Group<float>())
-            .Add(PresentationGroup = new PresentationGroup<float>());
+            .Add(PresentationGroup = new PresentationGroup<float>())
+            .Add(ExitFrameGroup = new Group<float>());
     }
 
     public void Initialize()
@@ -44,6 +46,7 @@ public class SystemRoot
 public class PresentationGroup<T> : ISystem<T>
 {
     public CommandBuffer? CommandBuffer { get; set; }
+    public View? View { get; set; }
 
     private readonly List<ISystem<T>> _systems = new();
 
@@ -66,6 +69,7 @@ public class PresentationGroup<T> : ISystem<T>
         foreach (var system in _systems) {
             if (system is IPresentationSystem presentationSystem) {
                 presentationSystem.CommandBuffer = CommandBuffer;
+                presentationSystem.View = View;
             }
 
             system.BeforeUpdate(t);
@@ -97,4 +101,5 @@ public class PresentationGroup<T> : ISystem<T>
 public interface IPresentationSystem
 {
     public CommandBuffer? CommandBuffer { get; set; }
+    public View? View { get; set; }
 }

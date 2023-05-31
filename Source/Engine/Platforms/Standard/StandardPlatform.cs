@@ -51,6 +51,6 @@ public class StandardPlatform : IPlatform
     public void PostTick()
     {
     }
-    
+
     #endregion
 }

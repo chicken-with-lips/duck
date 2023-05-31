@@ -101,7 +101,7 @@ internal class RenderInterface : ChickenWithLips.RmlUi.RenderInterface
             GCHandle.Alloc(loadedTexture)
         );
 
-        // _textureLookup.Add(textureHandle, loadedTexture);
+        // _textureLookup.Add(textureHandle, loadedTe   xture);
 
         return true;
     }

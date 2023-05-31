@@ -1,16 +1,15 @@
 ﻿using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
-using Duck.Content;
-using Duck.Renderer;
 using Duck.Renderer.Components;
 using Duck.Renderer.Device;
 
-namespace Duck.Scene.Systems;
+namespace Duck.Renderer.Systems;
 
 public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentationSystem
 {
     public CommandBuffer? CommandBuffer { get; set; }
+    public View? View { get; set; }
 
     private readonly IGraphicsDevice _graphicsDevice;
 

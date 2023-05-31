@@ -45,6 +45,8 @@ public class RendererModule : IRendererModule,
     private readonly IApplication _app;
     private readonly IContentModule _contentModule;
 
+    private IWindow? _window;
+
     #endregion
 
     #region Methods
@@ -69,9 +71,9 @@ public class RendererModule : IRendererModule,
     {
         _logger.LogInformation("Initializing graphics module...");
 
-        var window = _platform.CreateWindow();
+        _window = _platform.CreateWindow();
 
-        _renderSystem.Init(_app, window);
+        _renderSystem.Init(_app, _window);
 
         _contentModule.RegisterSourceAssetImporter(
             new FbxAssetImporter(_renderSystem.FallbackMaterial.MakeSharedReference())
@@ -115,8 +117,6 @@ public class RendererModule : IRendererModule,
                 kvp.Value.Tick(Time.DeltaFrame);
             }
         }
-
-        ;
     }
 
     public void PostTick()
@@ -150,14 +150,14 @@ public class RendererModule : IRendererModule,
                 continue;
             }
 
-            if (null == cameraRef || !cameraRef.IsAlive() || !cameraRef.Entity.Has<CameraComponent, TransformComponent>()) {
+            if (! cameraRef.HasValue || !cameraRef.Value.IsAlive() || !cameraRef.Value.Entity.Has<CameraComponent, TransformComponent>()) {
                 continue;
             }
 
             // FIXME: this does not support multithreading
 
-            var cameraTransform = cameraRef.Entity.Get<TransformComponent>();
-            var camera = cameraRef.Entity.Get<CameraComponent>();
+            var cameraTransform = cameraRef.Value.Entity.Get<TransformComponent>();
+            var camera = cameraRef.Value.Entity.Get<CameraComponent>();
 
 
             var commandBuffer = _renderSystem.GraphicsDevice.CreateCommandBuffer(view);
@@ -172,6 +172,7 @@ public class RendererModule : IRendererModule,
             Time.CameraPosition = cameraTransform.Position;
 
             scene.SystemRoot.PresentationGroup.CommandBuffer = commandBuffer;
+            scene.SystemRoot.PresentationGroup.View = view;
 
             scene.SystemRoot.PresentationGroup.BeforeUpdate(Time.DeltaFrame);
             scene.SystemRoot.PresentationGroup.Update(Time.DeltaFrame);
@@ -188,11 +189,27 @@ public class RendererModule : IRendererModule,
 
     private void ProcessWindowEvents()
     {
-        // foreach (var windowEvent in _nativeWindow.Events) {
-        // if (windowEvent is NativeWindow.ResizeEvent resizeEvent) {
-        // _renderingWindow?.Resize(resizeEvent.NewWidth, resizeEvent.NewHeight);
-        // }
-        // }
+        if (null == _window) {
+            return;
+        }
+
+        foreach (var windowEvent in _window.Events) {
+            if (windowEvent is ResizeEvent resizeEvent) {
+                foreach (var kvp in _views) {
+                    ResizeViewToWindow(kvp.Value);
+                }
+            }
+        }
+    }
+
+    private void ResizeView(View view, Vector2D<int> newSize)
+    {
+        view.Dimensions = newSize;
+    }
+
+    private void ResizeViewToWindow(View view)
+    {
+        ResizeView(view, new Vector2D<int>(_window.Width, _window.Height));
     }
 
     public View CreateView(string name)
@@ -202,6 +219,8 @@ public class RendererModule : IRendererModule,
         if (!_views.TryAdd(name, view)) {
             throw new Exception("TODO: errors");
         }
+
+        ResizeViewToWindow(view);
 
         return view;
     }

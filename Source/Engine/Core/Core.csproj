@@ -10,8 +10,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Arch" Version="1.2.5" />
-      <PackageReference Include="Arch.System" Version="1.0.2" />
       <PackageReference Include="Arch.System.SourceGenerator" Version="1.1.0" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
@@ -22,6 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\Arch\Arch.Extended\Arch.System\Arch.System.csproj" />
+      <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
     </ItemGroup>
 

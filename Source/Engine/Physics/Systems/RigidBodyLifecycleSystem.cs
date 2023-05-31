@@ -22,6 +22,14 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
         : base(world)
     {
         _physicsWorld = (PhysicsWorld)physicsModule.GetOrCreatePhysicsWorld(world);
+
+        world.SubscribeEntityDestroyed(
+            RemoveBody
+        );
+
+        world.SubscribeComponentRemoved(
+            ((in Entity entity, ref PhysXIntegrationComponent cmp) => RemoveBody(entity))
+        );
     }
 
     [Query]
@@ -49,16 +57,15 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
         );
     }
 
-    [Query]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RemoveBox(in PhysXIntegrationComponent integrationComponent)
+    private void RemoveBody(in Entity entity)
     {
-        // Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveBox");
-        // foreach (var entityId in _filter.EntityRemovedList) {
-        // RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
+        if (!entity.Has<PhysXIntegrationComponent>()) {
+            return;
+        }
 
-        // entity.Remove<PhysXIntegrationComponent>();
-        // }
+        ref var cmp = ref entity.Get<PhysXIntegrationComponent>();
+
+        RigidBodyHelper.RemoveBody(ref cmp, _physicsWorld);
     }
 
     [Query]
@@ -79,18 +86,6 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             transform,
             ref entity.Get<PhysXIntegrationComponent>()
         );
-    }
-
-    [Query]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RemoveSphere(in PhysXIntegrationComponent integrationComponent)
-    {
-        // Console.WriteLine("TODO: RigidBodyLifecycleSystem_RemoveSphere");
-        // foreach (var entityId in _filter.EntityRemovedList) {
-        // RemoveBody(ref _filter.Get2(entityId), _physicsWorld);
-
-        // entity.Remove<PhysXIntegrationComponent>();
-        // }
     }
 
     #endregion

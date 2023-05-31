@@ -115,7 +115,7 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
         if (null != importer) {
             _logger.LogInformation($"Importing \"{file}\"");
 
-            var asset = importer.Import(file);
+            var asset = importer.Import(Path.Combine(ContentRootDirectory, file));
 
             if (null != asset) {
                 Database.Register(asset);

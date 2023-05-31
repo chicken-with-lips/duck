@@ -5,6 +5,6 @@ namespace Duck.Physics.Events;
 
 public struct PhysicsCollision : IEvent
 {
-    public Entity A;
-    public Entity B;
+    public EntityReference A;
+    public EntityReference B;
 }

@@ -20,11 +20,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Arch" Version="1.2.5" />
       <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
       <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.15.0" />
     </ItemGroup>

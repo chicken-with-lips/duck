@@ -18,13 +18,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\Content\Content.csproj" Private="false" />
       <ProjectReference Include="..\Core\Core.csproj" Private="false" />
       <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Arch" Version="1.2.5" />
       <PackageReference Include="Silk.NET.Assimp" Version="2.15.0" />
       <PackageReference Include="StbImageSharp" Version="2.27.8" />
     </ItemGroup>

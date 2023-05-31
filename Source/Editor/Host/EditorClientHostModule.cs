@@ -96,7 +96,6 @@ public class EditorClientHostModule : IInitializableModule, IPostInitializableMo
         });
 
         _editorView = _rendererModule.CreateView("Editor.SceneWindow");
-        _editorView.Dimensions = new Vector2D<int>(1280, 1024);
         _editorView.IsEnabled = true;
         _editorView.Camera = cameraEntity.Reference();
         _editorView.Scene = new WeakReference<IScene>(_editorScene);
