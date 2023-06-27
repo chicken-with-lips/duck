@@ -1,22 +1,13 @@
 using System;
-using System.Diagnostics;
 using Arch.Core.Extensions;
 using Duck;
 using Duck.Content;
 using Duck.GameFramework;
-using Duck.Input;
 using Duck.Logging;
-using Duck.Physics;
 using Duck.Renderer;
 using Duck.Renderer.Components;
-using Duck.Renderer.Events;
 using Duck.ServiceBus;
 using Duck.Ui;
-using Duck.Ui.Assets;
-using Duck.Ui.Components;
-using Duck.Ui.Systems;
-using Silk.NET.Input;
-using Silk.NET.Maths;
 
 namespace Editor.Host;
 
@@ -57,26 +48,7 @@ public class EditorClientHostModule : IInitializableModule, IPostInitializableMo
 
     public void PostInit()
     {
-        var sceneWindowInterface = _contentModule.Import<UserInterface>("Editor/UI/Windows/SceneWindow.rml");
-
         _rendererModule.GameView.IsEnabled = false;
-
-        _eventBus.AddListener<SceneWasCreated>(ev => {
-            var scene = ev.Scene;
-            var world = scene.World;
-            var composition = scene.SystemRoot;
-
-            composition.SimulationGroup
-                .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
-                .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
-                .Add(new UserInterfaceTickSystem(world));
-
-            composition.LateSimulationGroup
-                .Add(new ContextSyncSystem(world, GetModule<UiModule>()));
-
-            composition.PresentationGroup
-                .Add(new UserInterfaceRenderSystem(world, GetModule<UiModule>()));
-        });
 
         _editorScene = _rendererModule.CreateScene("Editor.SceneWindow");
         _editorScene.IsActive = true;
@@ -85,15 +57,9 @@ public class EditorClientHostModule : IInitializableModule, IPostInitializableMo
 
         var cameraEntity = world.Create<CameraComponent, TransformComponent>();
 
-        var sceneWindowEntity = world.Create();
-        sceneWindowEntity.AddOrGet(new ContextComponent() {
-            Name = "Editor.SceneWindow",
-            ShouldReceiveInput = true
-        });
-        sceneWindowEntity.AddOrGet(new UserInterfaceComponent() {
-            ContextName = "Editor.SceneWindow",
-            Interface = sceneWindowInterface.MakeUniqueReference(),
-        });
+        // world.Create(
+        // new UserInterfaceComponent()
+        // );
 
         _editorView = _rendererModule.CreateView("Editor.SceneWindow");
         _editorView.IsEnabled = true;

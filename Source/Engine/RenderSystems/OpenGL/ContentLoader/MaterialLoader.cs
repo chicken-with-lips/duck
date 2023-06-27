@@ -1,5 +1,6 @@
 using Duck.Content;
 using Duck.Renderer.Materials;
+using Duck.Renderer.Shaders;
 
 namespace Duck.RenderSystems.OpenGL.ContentLoader;
 
@@ -27,12 +28,12 @@ internal class MaterialLoader : IAssetLoader
             throw new Exception("FIXME: shader is null");
         }
 
-        var shaderProgram = (OpenGLShaderProgram)_contentModule.LoadImmediate(materialAsset.Shader);
+        var shaderProgram = (OpenGLShaderProgram)_contentModule.LoadImmediate(materialAsset.Shader.Value);
 
         OpenGLTexture2D? diffuseTexture = null;
 
         if (null != materialAsset.DiffuseTexture) {
-            diffuseTexture = (OpenGLTexture2D)_contentModule.LoadImmediate(materialAsset.DiffuseTexture);
+            diffuseTexture = (OpenGLTexture2D)_contentModule.LoadImmediate(materialAsset.DiffuseTexture.Value);
         }
 
         if (loadInto != null) {

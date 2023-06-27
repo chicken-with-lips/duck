@@ -10,7 +10,7 @@ public class StaticMesh : AssetBase<StaticMesh>
 {
     #region Properties
 
-    public IAssetReference<Material> Material { get; set; }
+    public AssetReference<Material> Material { get; set; }
     public BufferObject<TexturedVertex> VertexBuffer { get; }
     public BufferObject<uint> IndexBuffer { get; }
 
@@ -18,7 +18,7 @@ public class StaticMesh : AssetBase<StaticMesh>
 
     #region Members
 
-    public Dictionary<uint, IAssetReference<Texture2D>> _textures = new();
+    public Dictionary<uint, AssetReference<Texture2D>> _textures = new();
 
     #endregion
 
@@ -26,7 +26,7 @@ public class StaticMesh : AssetBase<StaticMesh>
         AssetImportData importData,
         BufferObject<TexturedVertex> vertexBuffer,
         BufferObject<uint> indexBuffer,
-        IAssetReference<Material> material)
+        AssetReference<Material> material)
         : base(importData)
     {
         Material = material;
@@ -34,7 +34,7 @@ public class StaticMesh : AssetBase<StaticMesh>
         IndexBuffer = indexBuffer;
     }
 
-    public StaticMesh SetTexture(uint slot, IAssetReference<Texture2D> texture)
+    public StaticMesh SetTexture(uint slot, AssetReference<Texture2D> texture)
     {
         Debug.Assert(slot < IRenderObject.MaxTextureSlots);
 
@@ -43,7 +43,7 @@ public class StaticMesh : AssetBase<StaticMesh>
         return this;
     }
 
-    public IAssetReference<Texture2D> GetTexture(uint slot)
+    public AssetReference<Texture2D> GetTexture(uint slot)
     {
         return _textures[slot];
     }
@@ -64,9 +64,9 @@ public class StaticMesh : AssetBase<StaticMesh>
 public readonly struct TextureSlot
 {
     public readonly uint Slot;
-    public readonly IAssetReference<Texture2D> Texture;
+    public readonly AssetReference<Texture2D> Texture;
 
-    public TextureSlot(uint slot, IAssetReference<Texture2D> texture)
+    public TextureSlot(uint slot, AssetReference<Texture2D> texture)
     {
         Slot = slot;
         Texture = texture;

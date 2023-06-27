@@ -7,7 +7,7 @@ namespace Duck.Renderer.Components;
 [AutoSerializable]
 public partial struct StaticMeshComponent
 {
-    public SharedAssetReference<StaticMesh>? Mesh = default;
+    public AssetReference<StaticMesh>? Mesh = default;
     // public AssetReference<MaterialInstance>[] Materials = new AssetReference<MaterialInstance>[] {};
 
     public StaticMeshComponent()

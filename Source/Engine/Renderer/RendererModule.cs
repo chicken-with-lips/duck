@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Duck.Content;
@@ -76,7 +77,10 @@ public class RendererModule : IRendererModule,
         _renderSystem.Init(_app, _window);
 
         _contentModule.RegisterSourceAssetImporter(
-            new FbxAssetImporter(_renderSystem.FallbackMaterial.MakeSharedReference())
+            new FbxAssetImporter(
+                _app.GetModule<IContentModule>().ContentRootDirectory,
+                _renderSystem.FallbackMaterial.MakeSharedReference()
+            )
         );
 
         GameView = CreateView("Game");
@@ -135,30 +139,22 @@ public class RendererModule : IRendererModule,
 
     public void Render()
     {
-        _renderSystem.Render();
-
         foreach (var kvp in _views) {
             var view = kvp.Value;
-            var sceneRef = view.Scene;
             var cameraRef = view.Camera;
 
-            if (!view.IsEnabled) {
+            if (!view.IsValid) {
                 continue;
             }
 
-            if (null == sceneRef || !sceneRef.TryGetTarget(out var scene) || !scene.IsActive) {
-                continue;
-            }
+            Debug.Assert(view.Scene != null);
+            Debug.Assert(cameraRef.HasValue);
 
-            if (! cameraRef.HasValue || !cameraRef.Value.IsAlive() || !cameraRef.Value.Entity.Has<CameraComponent, TransformComponent>()) {
-                continue;
-            }
+            view.Scene.TryGetTarget(out var scene);
 
             // FIXME: this does not support multithreading
 
             var cameraTransform = cameraRef.Value.Entity.Get<TransformComponent>();
-            var camera = cameraRef.Value.Entity.Get<CameraComponent>();
-
 
             var commandBuffer = _renderSystem.GraphicsDevice.CreateCommandBuffer(view);
             commandBuffer.ViewMatrix =
@@ -168,10 +164,9 @@ public class RendererModule : IRendererModule,
                     cameraTransform.Up
                 );
 
-
             Time.CameraPosition = cameraTransform.Position;
 
-            scene.SystemRoot.PresentationGroup.CommandBuffer = commandBuffer;
+            scene.SystemRoot.PresentationGroup.RenderCommandBuffer = commandBuffer;
             scene.SystemRoot.PresentationGroup.View = view;
 
             scene.SystemRoot.PresentationGroup.BeforeUpdate(Time.DeltaFrame);

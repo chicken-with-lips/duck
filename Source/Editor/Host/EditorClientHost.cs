@@ -73,7 +73,7 @@ public class EditorClientHost
             // _assemblyContext.LoadFromAssemblyPath(Path.Combine(directory, assembly));
         }
 
-        var gameDll = Path.Combine(_projectDirectory, "Binaries", "net7.0", "Game.dll");
+        var gameDll = Path.Combine(_projectDirectory, "Binaries", "net8.0", "Game.dll");
 
         using (_assemblyContext?.EnterContextualReflection()) {
             using (var stream = File.OpenRead(gameDll)) {

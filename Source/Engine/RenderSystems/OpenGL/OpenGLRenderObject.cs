@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Duck.Renderer.Device;
 
 namespace Duck.RenderSystems.OpenGL;
@@ -7,8 +8,8 @@ internal class OpenGLRenderObject : OpenGLRenderObjectBase
     #region Properties
 
     public override uint Id { get; }
-    public override uint VertexCount { get; }
-    public override uint IndexCount { get; }
+    public override uint VertexCount => _vertexBuffer.ElementCount;
+    public override uint IndexCount => _indexBuffer.ElementCount;
     public override Projection Projection { get; set; }
 
     #endregion
@@ -16,6 +17,8 @@ internal class OpenGLRenderObject : OpenGLRenderObjectBase
     #region Members
 
     private readonly OpenGLGraphicsDevice _graphicsDevice;
+    private readonly IVertexBuffer _vertexBuffer;
+    private readonly IIndexBuffer _indexBuffer;
 
     #endregion
 
@@ -24,17 +27,17 @@ internal class OpenGLRenderObject : OpenGLRenderObjectBase
     internal unsafe OpenGLRenderObject(OpenGLGraphicsDevice graphicsDevice, IVertexBuffer vertexBuffer, IIndexBuffer indexBuffer)
     {
         _graphicsDevice = graphicsDevice;
+        _vertexBuffer = vertexBuffer;
+        _indexBuffer = indexBuffer;
 
         Id = _graphicsDevice.API.GenVertexArray();
-        VertexCount = vertexBuffer.ElementCount;
-        IndexCount = indexBuffer.ElementCount;
 
         Bind();
         vertexBuffer.Bind();
         indexBuffer.Bind();
 
         var attributes = vertexBuffer.Attributes;
-        var vertexSize = OpenGLUtil.VertexSize(attributes);
+        var vertexSize = vertexBuffer.Stride;
 
         for (var i = 0; i < attributes.Length; i++) {
             _graphicsDevice.API.VertexAttribPointer(

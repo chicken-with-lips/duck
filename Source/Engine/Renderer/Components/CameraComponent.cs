@@ -2,6 +2,7 @@ using Duck.Renderer.Components;
 using Duck.Math;
 using Duck.Serialization;
 using Silk.NET.Maths;
+using MathF = Duck.Math.MathF;
 
 namespace Duck.Renderer.Components;
 
@@ -25,7 +26,7 @@ public partial struct CameraComponent
         
         // FIXME: fixed to 1280x1024
 
-        var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(FieldOfView), 1280f / 1024f, NearClipPlane, FarClipPlane);
+        var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView(MathF.ToRadians(FieldOfView), 1280f / 1024f, NearClipPlane, FarClipPlane);
         var viewMatrix = Matrix4X4.CreateLookAt(transformComponent.Position, transformComponent.Position + transformComponent.Forward, transformComponent.Up);
 
         var x = (2f * screenCoordinates.X) / 1280f - 1f;

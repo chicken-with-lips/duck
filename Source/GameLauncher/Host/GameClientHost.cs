@@ -54,7 +54,7 @@ namespace GameLauncher.Host
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             // var assemblyFileName = Path.Combine(directory, "Game.dll");
 
-            var gameDll = Path.Combine(_projectDirectory, "Binaries", "net7.0", "Game.dll");
+            var gameDll = Path.Combine(_projectDirectory, "Binaries", "net8.0", "Game.dll");
             var assembly = Assembly.LoadFrom(gameDll);
 
             var clientTypes = assembly

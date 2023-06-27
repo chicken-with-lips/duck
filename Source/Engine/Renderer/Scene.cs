@@ -47,14 +47,18 @@ public partial class Scene : IScene
     {
         _name = name;
         _isActive = false;
-        _world = world;
+        _world = world;  
         _eventBus = eventBus;
-        _systemRoot = new();
+        _systemRoot = new(world);
     }
 
     public void PreTick(in float deltaTime)
     {
         if (IsActive) {
+            _systemRoot.EarlySimulationGroup.BeforeUpdate(deltaTime);
+            _systemRoot.EarlySimulationGroup.Update(deltaTime);
+            _systemRoot.EarlySimulationGroup.AfterUpdate(deltaTime);
+
             _systemRoot.SimulationGroup.BeforeUpdate(deltaTime);
         }
     }

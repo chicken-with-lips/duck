@@ -21,6 +21,8 @@ public class PhysicsWorld : IPhysicsWorld
         set => _scene.Gravity = value.ToSystem();
     }
 
+    public PxPhysics Simulation => _physics;
+
     #endregion
 
     #region Members

@@ -31,7 +31,7 @@ public partial class LoadStaticMeshSystem : BaseSystem<World, float>
 
         entity.Add<RuntimeStaticMeshComponent>();
 
-        var mesh = _contentModule.LoadImmediate<StaticMesh>(staticMesh.Mesh) as IRenderable;
+        var mesh = _contentModule.LoadImmediate<StaticMesh>(staticMesh.Mesh.Value) as IRenderable;
 
         // FIXME: what was I trying to do here?
         ref var runtimeData = ref entity.Get<RuntimeStaticMeshComponent>();

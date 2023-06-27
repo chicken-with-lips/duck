@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Duck.UI</AssemblyName>
@@ -9,9 +9,14 @@
         <LangVersion>11</LangVersion>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\..\Arch\Arch.Extended\Arch.Relationships\Arch.Relationships.csproj" />
         <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
-        <ProjectReference Include="..\..\..\..\rmlui\RmlUi.Net\RmlUi.Net.csproj" />
+        <ProjectReference Include="..\..\..\..\ArteryFont\ArteryFont.csproj" />
         <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />
@@ -21,6 +26,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\..\..\..\..\Arch\Arch.Extended\Arch.System.SourceGenerator\Arch.System.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
-
 </Project>

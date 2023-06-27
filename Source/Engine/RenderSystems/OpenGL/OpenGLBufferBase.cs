@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Duck.Renderer.Device;
 using Silk.NET.OpenGL;
 
@@ -11,6 +12,7 @@ internal abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDispo
 
     public Type DataType => typeof(TDataType);
     public uint ElementCount { get; private set; }
+    public uint Stride => (uint) Unsafe.SizeOf<TDataType>();
 
     #endregion
 
@@ -51,6 +53,11 @@ internal abstract class OpenGLBufferBase<TDataType> : IBuffer<TDataType>, IDispo
     public void SetData(uint index, BufferObject<TDataType> buffer)
     {
         SetData(index, buffer.Data);
+    }
+
+    public void SetData(uint index, in TDataType[] buffer)
+    {
+        SetData(index, buffer.AsSpan());
     }
 
     public unsafe void SetData(uint index, in ReadOnlySpan<TDataType> data)

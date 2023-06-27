@@ -21,42 +21,40 @@ public interface IContentModule : IModule
     public IAssetLoader? FindAssetLoader<T>(T asset, IAssetLoadContext context)
         where T : class, IAsset;
 
-    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference, IAssetLoadContext context, byte[]? fixmeData = null)
+    public IPlatformAsset LoadImmediate<T>(AssetReference<T> assetReference, IAssetLoadContext context, byte[]? fixmeData = null)
         where T : class, IAsset;
 
-    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> asset)
+    public IPlatformAsset LoadImmediate<T>(AssetReference<T> asset)
         where T : class, IAsset;
 
-    bool IsLoaded<T>(IAssetReference<T> assetReference)
+    bool IsLoaded<T>(AssetReference<T> assetReference)
         where T : class, IAsset;
 }
 
-public interface IAssetReference<T>  where T : class, IAsset
-{
-    public Guid AssetId { get; }
-}
-
-public readonly struct SharedAssetReference<T> : IAssetReference<T>
+public readonly struct AssetReference<T>
     where T : class, IAsset
 {
-    public Guid AssetId { get; }
+    public Guid AssetId { get; init; }
 
-    public SharedAssetReference(Guid assetId)
+    public Guid UniqueId { get; init; }
+    public bool IsShared { get; init; }
+    public bool IsUnique => !IsShared;
+
+    public static AssetReference<T> Shared(Guid assetId)
     {
-        AssetId = assetId;
+        return new AssetReference<T>() {
+            AssetId = assetId,
+            IsShared = true,
+        };
     }
-}
 
-public readonly struct UniqueAssetReference<T> : IAssetReference<T>
-    where T : class, IAsset
-{
-    public Guid AssetId { get; }
-    public Guid UniqueId { get; }
-
-    public UniqueAssetReference(Guid assetId)
+    public static AssetReference<T> Unique(Guid assetId)
     {
-        AssetId = assetId;
-        UniqueId = Guid.NewGuid();
+        return new AssetReference<T>() {
+            AssetId = assetId,
+            UniqueId = Guid.NewGuid(),
+            IsShared = false,
+        };
     }
 }
 

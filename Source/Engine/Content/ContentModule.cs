@@ -115,7 +115,8 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
         if (null != importer) {
             _logger.LogInformation($"Importing \"{file}\"");
 
-            var asset = importer.Import(Path.Combine(ContentRootDirectory, file));
+            // var asset = importer.Import(Path.Combine(ContentRootDirectory, file));
+            var asset = importer.Import(file);
 
             if (null != asset) {
                 Database.Register(asset);
@@ -161,7 +162,7 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
         throw new Exception("FIXME: bad asset type");
     }
 
-    public bool IsLoaded<T>(IAssetReference<T> assetReference)
+    public bool IsLoaded<T>(AssetReference<T> assetReference)
         where T : class, IAsset
     {
         T? asset = _database.GetAsset(assetReference);
@@ -169,7 +170,7 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
         return asset is { IsLoaded: true };
     }
 
-    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference, IAssetLoadContext context, byte[]? fixmeData = null)
+    public IPlatformAsset LoadImmediate<T>(AssetReference<T> assetReference, IAssetLoadContext context, byte[]? fixmeData = null)
         where T : class, IAsset
     {
         // FIXME: dont pass data directly like this
@@ -234,7 +235,7 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
         return platformAsset;
     }
 
-    public IPlatformAsset LoadImmediate<T>(IAssetReference<T> assetReference) where T : class, IAsset
+    public IPlatformAsset LoadImmediate<T>(AssetReference<T> assetReference) where T : class, IAsset
     {
         return LoadImmediate(assetReference, EmptyAssetLoadContext.Default);
     }

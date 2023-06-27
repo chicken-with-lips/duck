@@ -11,7 +11,6 @@ using Duck.Renderer.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
 using Duck.Ui;
-using Duck.Ui.Systems;
 using Tracy.Net;
 
 namespace Duck.GameFramework;
@@ -134,6 +133,10 @@ public abstract class ApplicationBase : IApplication
 
     private void PreTickModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         _platform.PreTick();
 
         IterateOverModules<IPreTickableModule>("PreTick", module => module.PreTick());
@@ -141,6 +144,10 @@ public abstract class ApplicationBase : IApplication
 
     private void TickModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         _platform.Tick();
 
         GetModule<IEventBus>().Flush();
@@ -150,6 +157,10 @@ public abstract class ApplicationBase : IApplication
 
     private void FixedTickModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         // borrowed from wicked engine
         if (_shouldSkipFrames) {
             _deltaTimeAccumulator += Time.DeltaFrame;
@@ -172,6 +183,10 @@ public abstract class ApplicationBase : IApplication
 
     private void PostTickModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         _platform.PostTick();
 
         IterateOverModules<IPostTickableModule>("PostTick", module => module.PostTick());
@@ -179,16 +194,28 @@ public abstract class ApplicationBase : IApplication
 
     private void PreRenderModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         IterateOverModules<IPreRenderableModule>("PreRender", module => module.PreRender());
     }
 
     private void RenderModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         IterateOverModules<IRenderableModule>("Render", module => module.Render());
     }
 
     private void PostRenderModules()
     {
+        if (_state != State.Running) {
+            return;
+        }
+
         IterateOverModules<IPostRenderableModule>("PostRender", module => module.PostRender());
     }
 
@@ -201,7 +228,7 @@ public abstract class ApplicationBase : IApplication
     {
         foreach (var module in _modules) {
             if (module is T cast) {
-                TracyClient.Zone<T>(zoneName + "::" + module.GetType().Name, callback, cast);
+                TracyClient.Zone(zoneName + "::" + module.GetType().Name, callback, cast);
             }
         }
     }
@@ -214,7 +241,7 @@ public abstract class ApplicationBase : IApplication
         AddModule(new RendererModule(this, _platform, GetModule<IEventBus>(), _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IRendererModule>(), GetModule<IContentModule>(), GetModule<IInputModule>()));
+        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IContentModule>(), GetModule<IRendererModule>()));
     }
 
     public void Run()
@@ -262,22 +289,20 @@ public abstract class ApplicationBase : IApplication
 
     public void PopulateSystemCompositionWithDefaults(World world, SystemRoot composition)
     {
+        composition.EarlySimulationGroup
+            .Add(new PhysXPullChanges(world));
+        
         composition.SimulationGroup
             .Add(new RigidBodyLifecycleSystem(world, GetModule<IPhysicsModule>()))
-            .Add(new PhysXPullChanges(world))
+            .Add(new JointSystem(world, GetModule<IPhysicsModule>()))
             .Add(new CameraSystem(world, GetModule<IRendererModule>()))
-            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()))
-            .Add(new ContextLoadSystem(world, GetModule<UiModule>()))
-            .Add(new UserInterfaceLoadSystem(world, GetModule<IContentModule>(), GetModule<UiModule>()))
-            .Add(new UserInterfaceTickSystem(world));
+            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()));
 
         composition.LateSimulationGroup
-            .Add(new PhysXPushChangesSystem(world))
-            .Add(new ContextSyncSystem(world, GetModule<UiModule>()));
+            .Add(new PhysXPushChangesSystem(world));
 
         composition.PresentationGroup
-            .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice))
-            .Add(new UserInterfaceRenderSystem(world, GetModule<UiModule>()));
+            .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice));
 
         composition.ExitFrameGroup
             .Add(new RemoveCollisionEventsSystem(world));

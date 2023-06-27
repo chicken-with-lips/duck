@@ -8,7 +8,7 @@ namespace Duck.Renderer.Systems;
 
 public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentationSystem
 {
-    public CommandBuffer? CommandBuffer { get; set; }
+    public CommandBuffer? RenderCommandBuffer { get; set; }
     public View? View { get; set; }
 
     private readonly IGraphicsDevice _graphicsDevice;
@@ -34,7 +34,7 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
         renderObjectInstance.BoundingVolume = boundingBox;
 
-        CommandBuffer?.ScheduleRenderableInstance(runtimeStaticMesh.InstanceId);
+        RenderCommandBuffer?.ScheduleRenderableInstance(runtimeStaticMesh.InstanceId);
     }
 
     [Query]
@@ -52,14 +52,14 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
         renderObjectInstance.BoundingVolume = boundingSphere;
 
-        CommandBuffer?.ScheduleRenderableInstance(runtimeStaticMesh.InstanceId);
+        RenderCommandBuffer?.ScheduleRenderableInstance(runtimeStaticMesh.InstanceId);
     }
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RenderDirectionalLight(in TransformComponent transform, in DirectionalLightComponent directionalLight)
     {
-        CommandBuffer?.AddDirectionalLight(
+        RenderCommandBuffer?.AddDirectionalLight(
             transform.Forward,
             directionalLight.Ambient,
             directionalLight.Diffuse,

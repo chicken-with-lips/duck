@@ -23,6 +23,7 @@ public class Game : ApplicationBase
         base.RegisterModules();
 
         GetModule<IContentModule>().ContentRootDirectory = Path.Combine(_projectDirectory, "Content");
+        GetModule<IContentModule>().ReloadChangedContent = true;
 
         AddModule(new GameClientHostModule(this, GetModule<ILogModule>(), _projectDirectory));
     }

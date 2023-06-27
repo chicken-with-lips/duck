@@ -10,7 +10,8 @@ internal static class OpenGLUtil
     public static BufferUsageARB Convert(BufferUsage usage)
     {
         return usage switch {
-            BufferUsage.Static => BufferUsageARB.StaticRead,
+            BufferUsage.Static => BufferUsageARB.StaticDraw,
+            BufferUsage.Dynamic => BufferUsageARB.DynamicDraw,
             _ => throw new NotImplementedException()
         };
     }

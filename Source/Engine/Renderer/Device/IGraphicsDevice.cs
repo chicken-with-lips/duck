@@ -24,5 +24,6 @@ public interface IGraphicsDevice
 
 public enum BufferUsage
 {
-    Static = 0
+    Static,
+    Dynamic
 }

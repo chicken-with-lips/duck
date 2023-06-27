@@ -4,12 +4,12 @@ namespace Duck.Renderer.Shaders;
 
 public class ShaderProgram : AssetBase<ShaderProgram>
 {
-    public IAssetReference<VertexShader> VertexShader { get; }
-    public IAssetReference<FragmentShader> FragmentShader { get; }
+    public AssetReference<VertexShader> VertexShader { get; }
+    public AssetReference<FragmentShader> FragmentShader { get; }
 
     #region Methods
 
-    public ShaderProgram(AssetImportData importData, IAssetReference<VertexShader> vertexShader, IAssetReference<FragmentShader> fragmentShader)
+    public ShaderProgram(AssetImportData importData, AssetReference<VertexShader> vertexShader, AssetReference<FragmentShader> fragmentShader)
         : base(importData)
     {
         VertexShader = vertexShader;

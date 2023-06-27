@@ -9,10 +9,12 @@ namespace Duck.Renderer.Content.SourceAssetImporter;
 
 public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
 {
-    private readonly IAssetReference<Materials.Material> _fallbackMaterial;
+    private readonly string _contentDirectory;
+    private readonly AssetReference<Materials.Material> _fallbackMaterial;
 
-    public FbxAssetImporter(IAssetReference<Materials.Material> fallbackMaterial)
+    public FbxAssetImporter(string contentDirectory, AssetReference<Materials.Material> fallbackMaterial)
     {
+        _contentDirectory = contentDirectory;
         _fallbackMaterial = fallbackMaterial;
     }
 
@@ -24,7 +26,7 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
     public override unsafe StaticMesh Import(string file)
     {
         var ai = Assimp.GetApi();
-        var scene = ai.ImportFile(file, (uint)(
+        var scene = ai.ImportFile(Path.Combine(_contentDirectory, file), (uint)(
             PostProcessPreset.TargetRealTimeMaximumQuality
             | PostProcessSteps.Triangulate
             | PostProcessSteps.FlipUVs
@@ -33,6 +35,10 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
             | PostProcessSteps.OptimizeGraph
             | PostProcessSteps.OptimizeMeshes
             | PostProcessSteps.ImproveCacheLocality));
+
+        if (scene == null) {
+            throw new Exception("FIXME: errors");
+        }
 
         // TODO: handle multiple meshes
 
@@ -68,7 +74,7 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
         var b = scene->MMeshes[0]->MAABB;
 
         return new StaticMesh(
-            new AssetImportData(new Uri("memory://" + file)),
+            new AssetImportData(new Uri("file:///" + file)),
             new BufferObject<TexturedVertex>(vertices.ToArray()),
             new BufferObject<uint>(indices.ToArray()),
             _fallbackMaterial

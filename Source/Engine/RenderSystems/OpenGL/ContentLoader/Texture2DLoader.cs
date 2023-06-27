@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Duck.Content;
 using Duck.Renderer.Textures;
+using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 using StbImageSharp;
 
@@ -31,7 +32,7 @@ internal class Texture2DLoader : IAssetLoader
         if (textureAsset.UseRawData) {
             data = source.ToArray();
         } else {
-            var image = ImageResult.FromMemory(source.ToArray(), ColorComponents.RedGreenBlueAlpha);
+            var image = ImageResult.FromMemory(source.ToArray(), ConvertPixelFormatToColorComponents(textureAsset.Channels));
             data = image.Data;
         }
 
@@ -104,6 +105,22 @@ internal class Texture2DLoader : IAssetLoader
         return filter switch {
             MagFilter.Nearest => (int)GLEnum.Nearest,
             _ => (int)GLEnum.Linear,
+        };
+    }
+
+    private int ConvertPixelFormat(Channels channels)
+    {
+        return channels switch {
+            Channels.Rgb => (int)GLEnum.Rgb,
+            Channels.Rgba => (int)GLEnum.Rgba,
+        };
+    }
+
+    private ColorComponents ConvertPixelFormatToColorComponents(Channels channels)
+    {
+        return channels switch {
+            Channels.Rgb => ColorComponents.RedGreenBlue,
+            Channels.Rgba => ColorComponents.RedGreenBlueAlpha,
         };
     }
 }

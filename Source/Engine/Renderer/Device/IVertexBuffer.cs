@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Drawing;
 using Silk.NET.Maths;
 
 namespace Duck.Renderer.Device;
@@ -90,12 +91,31 @@ public readonly struct TexturedVertex
     public readonly Vector3D<float> Position;
     public readonly Vector3D<float> Normal;
     public readonly Vector2D<float> TexCoords;
+    public readonly Vector4D<float> BaseColor;
 
     public TexturedVertex(Vector3D<float> position, Vector3D<float> normal, Vector2D<float> texCoords)
+        : this(position, normal, texCoords, Color.White.ToVector())
+    {
+    }
+
+    public TexturedVertex(Vector3D<float> position, Vector3D<float> normal, Vector2D<float> texCoords, Vector4D<float> color)
     {
         Position = position;
         Normal = normal;
         TexCoords = texCoords;
+        BaseColor = color;
+    }
+}
+
+public readonly struct ColoredVertex
+{
+    public readonly Vector3D<float> Position;
+    public readonly Vector4D<float> Color;
+
+    public ColoredVertex(Vector3D<float> position, Vector4D<float> color)
+    {
+        Position = position;
+        Color = color;
     }
 }
 

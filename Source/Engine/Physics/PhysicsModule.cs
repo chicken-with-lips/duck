@@ -39,12 +39,12 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
         _cpuDispatcher = PxDefaultCpuDispatcher.Create(targetThreadCount);
         _scale = PxTolerancesScale.Default;
 
-        var transport = PxPvdTransport.CreateDefaultSocketTransport("192.168.1.77", 5425, 10000);
+        var transport = PxPvdTransport.CreateDefaultSocketTransport("127.0.0.1", 5425, 10000);
 
         _physicsDebugger = new PxPvd(_foundation);
 
         // if (!_physicsDebugger.Connect(transport, PxPvdInstrumentationFlag.All)) {
-        // Console.WriteLine("FIXME: could not connect to pvd");
+            // Console.WriteLine("FIXME: could not connect to pvd");
         // }
 
         _physics = PxPhysics.Create(_foundation, PxVersion.Version, _scale, true, _physicsDebugger);

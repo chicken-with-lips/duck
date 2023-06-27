@@ -8,6 +8,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using AttributeType = Duck.Renderer.Device.AttributeType;
 using IWindow = Duck.Platform.IWindow;
+using MathF = Duck.Math.MathF;
 
 namespace Duck.RenderSystems.OpenGL;
 
@@ -171,7 +172,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
 
             loc = _api.GetUniformLocation(glShaderProgram.ProgramId, "enabledLights");
             OpenGLUtil.LogErrors(_api);
-            _api.Uniform3(loc, (int) commandBuffer.DirectionalLights.Length, (int) 0, (int) 0);
+            _api.Uniform3(loc, (int)commandBuffer.DirectionalLights.Length, (int)0, (int)0);
             OpenGLUtil.LogErrors(_api);
 
             for (var i = 0; i < commandBuffer.DirectionalLights.Length; i++) {
@@ -297,9 +298,9 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
     private Matrix4X4<float> CreateProjectionMatrix(IRenderObject renderable, View view)
     {
         if (renderable.Projection == Projection.Orthographic) {
-            return Matrix4X4.CreateOrthographicOffCenter(view.Position.X, view.Dimensions.X, view.Dimensions.Y, _window.Height - view.Dimensions.Y, -10000f, 10000f);
+            return Matrix4X4.CreateOrthographicOffCenter(view.Position.X, view.Dimensions.X, view.Dimensions.Y, _window.Height - view.Dimensions.Y, 0f, 1f);
         } else if (renderable.Projection == Projection.Perspective) {
-            return Matrix4X4.CreatePerspectiveFieldOfView(MathHelper.ToRadians(75f), (float)view.Dimensions.X / (float)view.Dimensions.Y, 0.1f, 20000f);
+            return Matrix4X4.CreatePerspectiveFieldOfView(MathF.ToRadians(75f), (float)view.Dimensions.X / (float)view.Dimensions.Y, 0.1f, 20000f);
         }
 
         throw new Exception("Unknown projection type");

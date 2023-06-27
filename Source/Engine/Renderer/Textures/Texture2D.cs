@@ -16,12 +16,13 @@ public class Texture2D : AssetBase<Texture2D>
     public WrapMode WrapS { get; set; }
     public WrapMode WrapT { get; set; }
     public WrapMode WrapR { get; set; }
+    public Channels Channels { get; set; }
 
     #endregion
 
     #region Methods
 
-    public Texture2D(AssetImportData importData, int width, int height, bool useRawData = false)
+    public Texture2D(AssetImportData importData, int width, int height, Channels channels = Channels.Rgba, bool useRawData = false)
         : base(importData)
     {
         Width = width;
@@ -33,6 +34,7 @@ public class Texture2D : AssetBase<Texture2D>
         WrapS = WrapMode.Repeat;
         WrapT = WrapMode.Repeat;
         WrapR = WrapMode.Repeat;
+        Channels = channels;
     }
 
     #endregion
@@ -84,4 +86,10 @@ public enum WrapMode : byte
 
     /// <summary>The texture infinitely repeats and mirrors in the wrap direction</summary>
     MirroredRepeat
-};
+}
+
+public enum Channels
+{
+    Rgb,
+    Rgba,
+}

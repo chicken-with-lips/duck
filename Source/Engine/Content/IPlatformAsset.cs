@@ -19,29 +19,29 @@ public interface IPlatformAssetCollection
 public interface IPlatformAssetCollection<T> : IPlatformAssetCollection
     where T : class, IAsset
 {
-    public bool Contains(IAssetReference<T> assetReference);
-    public void Add(IAssetReference<T> assetReference, IPlatformAsset platformAsset);
-    public IPlatformAsset GetBase(IAssetReference<T> assetReference);
-    public bool TryGetBase(IAssetReference<T> assetReference, out IPlatformAsset? value);
+    public bool Contains(AssetReference<T> assetReference);
+    public void Add(AssetReference<T> assetReference, IPlatformAsset platformAsset);
+    public IPlatformAsset GetBase(AssetReference<T> assetReference);
+    public bool TryGetBase(AssetReference<T> assetReference, out IPlatformAsset? value);
 }
 
 public class PlatformAssetCollection<T, U> : IPlatformAssetCollection<T>
     where T : class, IAsset
     where U : class, IPlatformAsset
 {
-    private Dictionary<IAssetReference<T>, U> _items = new();
+    private Dictionary<AssetReference<T>, U> _items = new();
 
-    public void Add(IAssetReference<T> assetReference, U platformAsset)
+    public void Add(AssetReference<T> assetReference, U platformAsset)
     {
         _items.Add(assetReference, platformAsset);
     }
 
-    public void Add(IAssetReference<T> assetReference, IPlatformAsset platformAsset)
+    public void Add(AssetReference<T> assetReference, IPlatformAsset platformAsset)
     {
         _items.Add(assetReference, platformAsset as U);
     }
 
-    public bool TryGet(IAssetReference<T> assetReference, out U? value)
+    public bool TryGet(AssetReference<T> assetReference, out U? value)
     {
         IPlatformAsset? ret;
 
@@ -55,22 +55,22 @@ public class PlatformAssetCollection<T, U> : IPlatformAssetCollection<T>
         return true;
     }
 
-    public U Get(IAssetReference<T> assetReference)
+    public U Get(AssetReference<T> assetReference)
     {
         return _items[assetReference] as U;
     }
 
-    public void Remove(IAssetReference<T> assetReference)
+    public void Remove(AssetReference<T> assetReference)
     {
         _items.Remove(assetReference);
     }
 
-    public IPlatformAsset GetBase(IAssetReference<T> assetReference)
+    public IPlatformAsset GetBase(AssetReference<T> assetReference)
     {
         return Get(assetReference);
     }
 
-    public bool TryGetBase(IAssetReference<T> assetReference, out IPlatformAsset? value)
+    public bool TryGetBase(AssetReference<T> assetReference, out IPlatformAsset? value)
     {
         if (!_items.ContainsKey(assetReference)) {
             value = null;
@@ -82,7 +82,7 @@ public class PlatformAssetCollection<T, U> : IPlatformAssetCollection<T>
         return true;
     }
 
-    public bool Contains(IAssetReference<T> assetReference)
+    public bool Contains(AssetReference<T> assetReference)
     {
         return _items.ContainsKey(assetReference);
     }

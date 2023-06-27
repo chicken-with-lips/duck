@@ -1,29 +1,51 @@
 using System.Diagnostics;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using Silk.NET.Maths;
 
 namespace Duck.Math;
 
 // Mostly sourced from https://github.com/kermado/M3D
-public static class MathHelper
+public static class MathF
 {
-    public const float Deg2Rad = (float)System.Math.PI / 180f;
+    public const float PI = System.MathF.PI;
+    public const float Deg2Rad = System.MathF.PI / 180f;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Acos(float x) => System.MathF.Acos(x);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Sqrt(float x) => System.MathF.Sqrt(x);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Min(float x, float y) => System.MathF.Min(x, y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Max(float x, float y) => System.MathF.Max(x, y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Abs(float x) => System.MathF.Abs(x);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Cos(float x) => System.MathF.Cos(x);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Sin(float x) => System.MathF.Sin(x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Angle(Vector3D<float> from, Vector3D<float> to)
     {
-        float cosTheta = Vector3D.Dot(from, to) / MathF.Sqrt(from.LengthSquared * to.LengthSquared);
-        return MathF.Acos(MathF.Min(1.0f, cosTheta));
+        float cosTheta = Vector3D.Dot(from, to) / Sqrt(from.LengthSquared * to.LengthSquared);
+        return Acos(Min(1.0f, cosTheta));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Angle(Quaternion<float> from, Quaternion<float> to)
     {
         Quaternion<float> relativeRotation = Quaternion<float>.Conjugate(from) * to;
-        Debug.Assert(MathF.Abs(relativeRotation.W) <= 1.0f);
+        Debug.Assert(Abs(relativeRotation.W) <= 1.0f);
 
-        return 2.0f * MathF.Acos(relativeRotation.W);
+        return 2.0f * Acos(relativeRotation.W);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -34,9 +56,9 @@ public static class MathHelper
         Quaternion<float> relativeRotation = Quaternion<float>.Conjugate(from) * to;
 
         // Calculate the angle and axis of the relative quaternion rotation.
-        Debug.Assert(MathF.Abs(relativeRotation.W) <= 1.0f);
+        Debug.Assert(Abs(relativeRotation.W) <= 1.0f);
 
-        float angle = 2.0f * MathF.Acos(relativeRotation.W);
+        float angle = 2.0f * Acos(relativeRotation.W);
         Vector3D<float> axis = new Vector3D<float>(relativeRotation.X, relativeRotation.Y, relativeRotation.Z);
 
         // Apply a step of the relative rotation.
@@ -97,10 +119,10 @@ public static class MathHelper
 
             // Note that we need to normalize the axis as the cross product of
             // two unit vectors is not necessarily a unit vector.
-            return Quaternion<float>.CreateFromAxisAngle(Vector3D.Normalize(axis), MathF.PI);
+            return Quaternion<float>.CreateFromAxisAngle(Vector3D.Normalize(axis), PI);
         } else {
             // Scalar component.
-            float s = MathF.Sqrt(unitFrom.LengthSquared * unitTo.LengthSquared) + Vector3D.Dot(unitFrom, unitTo);
+            float s = Sqrt(unitFrom.LengthSquared * unitTo.LengthSquared) + Vector3D.Dot(unitFrom, unitTo);
 
             // Vector component.
             Vector3D<float> v = Vector3D.Cross(unitFrom, unitTo);
@@ -147,9 +169,9 @@ public static class MathHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ToAngleAxis(Quaternion<float> q, out float angle, out Vector3D<float> axis)
     {
-        var divider = MathF.Sqrt(1.0f - q.W * q.W);
+        var divider = Sqrt(1.0f - q.W * q.W);
 
-        angle = 2 * MathF.Acos(q.W);
+        angle = 2 * Acos(q.W);
         angle = ToDegrees(angle);
 
         if (divider != 0.0f) {

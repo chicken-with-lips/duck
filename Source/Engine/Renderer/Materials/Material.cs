@@ -10,11 +10,11 @@ public class Material : AssetBase<Material>
 {
     #region Properties
 
-    public IAssetReference<Texture2D>? DiffuseTexture { get; set; }
+    public AssetReference<Texture2D>? DiffuseTexture { get; set; }
     public Vector3D<float> Specular { get; set; } = Vector3D<float>.Zero;
     public float Shininess { get; set; } = 32f;
 
-    public IAssetReference<ShaderProgram>? Shader { get; set; }
+    public AssetReference<ShaderProgram>? Shader { get; set; }
 
     #endregion
 
@@ -32,7 +32,7 @@ public class MaterialParameterCollection : IEnumerable
 {
     private readonly Dictionary<string, IParameter> _properties = new();
 
-    public void SetParameter(string name, IAssetReference<Texture2D> texture)
+    public void SetParameter(string name, AssetReference<Texture2D> texture)
     {
         _properties.Add(name, new Texture2DParameter() {
             Name = name,
@@ -68,7 +68,7 @@ public class MaterialParameterCollection : IEnumerable
     public struct Texture2DParameter : IParameter
     {
         public string Name;
-        public IAssetReference<Texture2D> Value;
+        public AssetReference<Texture2D> Value;
     }
 
     public struct RgbColor : IParameter
