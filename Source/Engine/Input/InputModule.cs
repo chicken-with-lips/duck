@@ -175,6 +175,12 @@ public class InputModule : IInputModule, ITickableModule
             return 0f;
         }
 
+        if (name == InputName.MouseButtonLeft
+            || name == InputName.MouseButtonMiddle
+            || name == InputName.MouseButtonRight) {
+            return _mouseButtons[bindingId] ? 1f : 0f;
+        }
+
         if (bindingId <= (int)InputName.Z) {
             return 0 != _states[bindingId] ? 1f : 0f;
         }
