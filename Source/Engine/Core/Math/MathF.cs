@@ -33,6 +33,31 @@ public static class MathF
     public static float Sin(float x) => System.MathF.Sin(x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T Lerp<T>(T start, T end, T percent) where T : unmanaged
+    {
+        return Scalar.Add(start, Scalar.Multiply(Scalar.Subtract(end, start), percent));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2D<T> Lerp<T>(Vector2D<T> start, Vector2D<T> end, T percent) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        return new Vector2D<T>(
+            Lerp(start.X, end.X, percent),
+            Lerp(start.Y, end.Y, percent)
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3D<T> Lerp<T>(Vector3D<T> start, Vector3D<T> end, T percent) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        return new Vector3D<T>(
+            Lerp(start.X, end.X, percent),
+            Lerp(start.Y, end.Y, percent),
+            Lerp(start.Z, end.Z, percent)
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Angle(Vector3D<float> from, Vector3D<float> to)
     {
         float cosTheta = Vector3D.Dot(from, to) / Sqrt(from.LengthSquared * to.LengthSquared);

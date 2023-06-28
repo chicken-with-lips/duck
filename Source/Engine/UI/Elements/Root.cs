@@ -1,8 +1,9 @@
 ﻿using Duck.Content;
+using Silk.NET.Maths;
 
 namespace Duck.Ui.Elements;
 
-public readonly record struct RootProps(in Box Dimensions, in AssetReference<Font>? Font)
+public readonly record struct RootProps(in Box Box, in AssetReference<Font>? Font)
 {
     public static readonly RootProps Default = new(Box.Default, null);
 }
@@ -39,12 +40,17 @@ public class RootRenderer
 {
     public void Render(ref Root root, in ElementRenderContext renderContext, RenderList renderList)
     {
+        var offsetInPixels = renderContext.Position
+                             + Measure.ConvertEmToPixels(new Vector2D<float>(root.Props.Box.Padding.Left, root.Props.Box.Padding.Top));
+
         if (root.Child0.HasValue) {
             root.Child0.Value.ElementRenderer.Render(root.Child0.Value, ElementRenderContext.Default with {
-                Box = root.Props.Dimensions,
+                Position = offsetInPixels,
+                Box = root.Props.Box,
+                BoxInPixels = Measure.ConvertEmToPixels(root.Props.Box),
                 Font = root.Props.Font,
-                ParentBox = renderContext.ParentBox,
-                ParentBoxInPixels = renderContext.ParentBoxInPixels,
+                ParentBox = renderContext.Box,
+                ParentBoxInPixels = renderContext.BoxInPixels,
             }, renderList);
         }
 

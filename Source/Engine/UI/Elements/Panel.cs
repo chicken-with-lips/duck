@@ -48,8 +48,7 @@ public class PanelRenderer : IElementRenderer
 
         var e = fragment.GetElementAs<Panel>();
         var offsetInPixels = renderContext.Position
-                     + Measure.ConvertEmToPixels(new Vector2D<float>(renderContext.Box.Padding.Left, renderContext.Box.Padding.Top))
-                     + Measure.ConvertEmToPixels(new Vector2D<float>(e.Props.Box.Padding.Left, e.Props.Box.Padding.Top));
+                             + Measure.ConvertEmToPixels(new Vector2D<float>(e.Props.Box.Padding.Left, e.Props.Box.Padding.Top));
 
         if (e.Child is { PropertyAccessor: IBoxAccessor accessor0 }) {
             var box = accessor0.GetBox(e.Child.Value);

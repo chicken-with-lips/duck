@@ -68,6 +68,7 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
         _context.AddElementType<Label>(new LabelFactory());
         _context.AddElementType<Panel>(new PanelFactory());
         _context.AddElementType<HorizontalContainer>(new HorizontalContainerFactory());
+        _context.AddElementType<VerticalContainer>(new VerticalContainerFactory());
 
         _texturedMaterial = (IPlatformAsset<Material>)_contentModule.LoadImmediate(
             _contentModule.Database.GetAsset<Material>(new Uri("memory:///ui/textured.mat")).MakeSharedReference()
@@ -174,6 +175,11 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
         _contentModule.Database.Register(mat);
     }
 
+    private uint[] textIndices = new uint[1024];
+    private uint[] boxIndices = new uint[1024];
+    private TexturedVertex[] textVertices = new TexturedVertex[1024];
+    private TexturedVertex[] boxVertices = new TexturedVertex[1024];
+    
     public void Render()
     {
         if (_rendererModule.Views.Length > 1) {
@@ -213,19 +219,19 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
         var boxIndexCount = _renderList.BoxCount * 6;
         var boxVertexCount = _renderList.BoxCount * 4;
 
-        var boxIndices = new uint[boxIndexCount];
+        // var boxIndices = new uint[boxIndexCount];
         uint boxIndicesIndex = 0;
 
-        var boxVertices = new TexturedVertex[boxVertexCount];
+        // var boxVertices = new TexturedVertex[boxVertexCount];
         uint boxVerticesIndex = 0;
 
         var textIndexCount = _renderList.TextCharacterCount * 6;
         var textVertexCount = _renderList.TextCharacterCount * 4;
 
-        var textIndices = new uint[textIndexCount];
+        // var textIndices = new uint[textIndexCount];
         uint textIndicesIndex = 0;
 
-        var textVertices = new TexturedVertex[textVertexCount];
+        // var textVertices = new TexturedVertex[textVertexCount];
         uint textVerticesIndex = 0;
 
         foreach (var primitive in primitives) {

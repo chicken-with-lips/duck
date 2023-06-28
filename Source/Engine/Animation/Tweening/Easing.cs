@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Animation.Tweening;
+namespace Duck.Animation.Tweening;
 
 public class Easing
 {
