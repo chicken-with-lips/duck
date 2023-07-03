@@ -253,6 +253,8 @@ public class RendererModule : IRendererModule,
 
     public void UnloadScene(IScene scene)
     {
+        scene.IsActive = false;
+
         if (!_pendingUnload.Contains(scene)) {
             _pendingUnload.Add(scene);
         }

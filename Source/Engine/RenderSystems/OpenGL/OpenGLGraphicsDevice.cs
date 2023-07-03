@@ -62,11 +62,11 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
 
         _api.PolygonOffset(1, 0);
 
-        _api.Disable(GLEnum.CullFace);
+        _api.Enable(GLEnum.CullFace);
 
-        _api.Enable(GLEnum.StencilTest);
-        _api.StencilFunc(GLEnum.Always, 1, 0);
-        _api.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Keep);
+        // _api.Enable(GLEnum.StencilTest);
+        // _api.StencilFunc(GLEnum.Always, 1, 0);
+        // _api.StencilOp(GLEnum.Keep, GLEnum.Keep, GLEnum.Keep);
 
         _api.Enable(GLEnum.Blend);
         _api.BlendEquation(GLEnum.FuncAdd);
