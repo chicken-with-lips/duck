@@ -33,8 +33,6 @@ public readonly record struct Box(in float ContentWidth, in float ContentHeight,
 {
     public static readonly Box Default = new(0, 0, BoxArea.Default, BoxArea.Default);
 
-    public Vector2D<float> ToVector() => new(ContentWidth, ContentHeight);
-
     public static Box operator +(Box a) => a;
 
     public static Box operator -(Box a)

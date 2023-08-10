@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using Duck.Content;
 using Duck.Renderer;
+using Duck.Ui.Elements;
 using Silk.NET.Maths;
 
 namespace Duck.Ui;
@@ -21,11 +22,22 @@ public class RenderList
     {
         _primitiveIndex = 0;
         _boxCount = 0;
+        _textCharacterCount = 0;
     }
 
     public void DrawBox(in Vector2D<float> position, in Vector2D<float> dimensions)
     {
        DrawBox(position, dimensions, Color.White);
+    }
+
+    public void DrawBox(in Vector2D<float> position, in Box dimensions)
+    {
+       DrawBox(position, Measure.BoxDimensions(dimensions), Color.White);
+    }
+
+    public void DrawBox(in Vector2D<float> position, in Box dimensions, Color color)
+    {
+        DrawBox(position, Measure.BoxDimensions(dimensions), color);
     }
 
     public void DrawBox(in Vector2D<float> position, in Vector2D<float> dimensions, Color color)

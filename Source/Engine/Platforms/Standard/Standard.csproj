@@ -21,7 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
-      <ProjectReference Include="..\..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
+      <ProjectReference Include="..\..\Core\Core.csproj" Private="false" />
     </ItemGroup>
 
     <ItemGroup>

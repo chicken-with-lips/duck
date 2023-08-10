@@ -20,7 +20,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\..\..\..\physx\PhysX.Net\PhysX.Net.csproj" />
-      <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
       <ProjectReference Include="..\Renderer\Renderer.csproj" Private="false" />
       <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" Private="false" />
     </ItemGroup>

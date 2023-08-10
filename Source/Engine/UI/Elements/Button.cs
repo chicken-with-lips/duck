@@ -1,43 +1,80 @@
-﻿namespace Duck.Ui.Elements;
+﻿using System.Drawing;
+using Silk.NET.Maths;
 
-public readonly record struct ButtonProps(in string Label)
+namespace Duck.Ui.Elements;
+
+public readonly record struct ButtonProps(in Box Box, in Color BackgroundColor, in Color HoverColor)
 {
-    public static readonly ButtonProps Default = new("Test");
+    public static readonly ButtonProps Default = new(Box.Default, Color.White, Color.White);
 }
 
-public record struct Button(in ButtonProps Props);
+public record struct Button(ButtonProps Props, in Fragment? Child, Action? OnClicked = null);
 
 public class ButtonFactory : IElementFactory
 {
     private readonly ElementPool<Button> _pool = new();
-    private readonly IElementRenderer _defaultElementRenderer = new ButtonRenderer();
+    private readonly IElementRenderer _elementRenderer = new ButtonRenderer();
+    private readonly IElementPropertyAccessor _propertyAccessor = new ButtonPropertyAccessor();
 
     public void BeginFrame()
     {
         _pool.ResetIndex();
     }
 
-    public Fragment Create(in ButtonProps props)
+    public Fragment Create(in ButtonProps props, in Fragment? child = null, Action? onClicked = null)
     {
         ref var element = ref _pool.Allocate();
         element.Props = props;
+        element.Child = child;
+        element.OnClicked = onClicked;
 
-        return Fragment.From(ref element, _defaultElementRenderer);
+        return Fragment.From(ref element, _elementRenderer, _propertyAccessor);
     }
 }
 
-public class ButtonRenderer : IElementRenderer
+public class ButtonPropertyAccessor : IBoxAccessor
 {
-    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    public Box GetBox(in Fragment fragment)
     {
-        // Console.WriteLine(fragment2.GetElementAs<Button>().Props.Label);
+        return fragment.GetElementAs<Button>().Props.Box;
+    }
+}
+
+public class ButtonRenderer : ElementRendererBase
+{
+    public override void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    {
+        var e = fragment.GetElementAs<Button>();
+        var backgroundColor = e.Props.BackgroundColor;
+
+        if (Measure.IsPointInside(renderContext, fragment, renderContext.Input.GetMousePosition(0))) {
+            backgroundColor = e.Props.HoverColor;
+
+            if (!renderContext.Input.WasMouseButtonDown(0) && renderContext.Input.IsMouseButtonDown(0)) {
+                e.OnClicked?.Invoke();
+            }
+        }
+
+        renderList.DrawBox(
+            Measure.ElementPosition(renderContext, e.Props.Box),
+            e.Props.Box,
+            backgroundColor
+        );
+
+        RenderChildrenVertical(
+            fragment,
+            Vector2D<float>.Zero,
+            renderContext,
+            renderList,
+            fragment.GetElementAs<Button>().Child
+        );
     }
 }
 
 public static class ButtonExtensions
 {
-    public static Fragment Button(this Context context, in ButtonProps props)
+    public static Fragment Button(this Context context, in ButtonProps props, in Fragment? child = null, Action? onClicked = null)
     {
-        return context.GetFactory<ButtonFactory, Button>().Create(props);
+        return context.GetFactory<ButtonFactory, Button>().Create(props, child, onClicked);
     }
 }

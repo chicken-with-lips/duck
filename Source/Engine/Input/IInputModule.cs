@@ -16,4 +16,5 @@ public interface IInputModule : IModule
 
     public Vector2D<int> GetMousePosition(int index);
     public bool IsMouseButtonDown(int index);
+    public bool WasMouseButtonDown(int index);
 }

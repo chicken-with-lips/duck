@@ -13,8 +13,10 @@ public partial class Scene : IScene
     public bool IsActive {
         get => _isActive;
         set {
-            if (value && value != _isActive) {
-                _shouldFireActivated = true;
+            if (value) {
+                if (value != _isActive) {
+                    _shouldFireActivated = true;
+                }
             } else {
                 _shouldFireActivated = false;
             }

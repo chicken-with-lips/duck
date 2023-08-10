@@ -17,7 +17,6 @@
         <ProjectReference Include="..\..\..\..\..\Arch\Arch.Extended\Arch.Relationships\Arch.Relationships.csproj" />
         <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
         <ProjectReference Include="..\..\..\..\ArteryFont\ArteryFont.csproj" />
-        <ProjectReference Include="..\CoreInterfaces\CoreInterfaces.csproj" Private="false" />
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />
         <ProjectReference Include="..\Renderer\Renderer.csproj" Private="false" />

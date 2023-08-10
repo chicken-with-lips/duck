@@ -40,9 +40,13 @@ public class LabelRenderer : IElementRenderer
     public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
     {
         var e = fragment.GetElementAs<Label>();
-        
+
         if (renderContext.Font.HasValue) {
-            renderList.DrawText(renderContext.Font, e.Props.Content, renderContext.Position);
+            renderList.DrawText(
+                renderContext.Font,
+                e.Props.Content,
+                renderContext.Position
+            );
         }
     }
 }

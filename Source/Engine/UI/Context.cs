@@ -38,7 +38,7 @@ public class Context
         if (null == fff) {
             fff = _factories.Values.ToArray();
         }
-        
+
         for (var i = 0; i < fff.Length; i++) {
             fff[i].BeginFrame();
         }

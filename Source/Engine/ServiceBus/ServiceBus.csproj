@@ -12,7 +12,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" Private="false" />
-      <ProjectReference Include="..\ServiceBusInterfaces\ServiceBusInterfaces.csproj" Private="false" />
     </ItemGroup>
 
 </Project>

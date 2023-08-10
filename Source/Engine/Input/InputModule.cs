@@ -23,6 +23,7 @@ public class InputModule : IInputModule, ITickableModule
 
     private readonly float[] _states = new float[(int)InputName.Max];
     private readonly bool[] _mouseButtons = new bool[24];
+    private readonly bool[] _mouseButtonsPrevFrame = new bool[24];
     private int _mouseX;
     private int _mouseY;
 
@@ -49,6 +50,10 @@ public class InputModule : IInputModule, ITickableModule
 
         _states[mouseDeltaXId] = 0;
         _states[mouseDeltaYId] = 0;
+
+        _mouseButtonsPrevFrame[(int)InputName.MouseButtonLeft] = _mouseButtons[(int)InputName.MouseButtonLeft];
+        _mouseButtonsPrevFrame[(int)InputName.MouseButtonMiddle] = _mouseButtons[(int)InputName.MouseButtonMiddle];
+        _mouseButtonsPrevFrame[(int)InputName.MouseButtonRight] = _mouseButtons[(int)InputName.MouseButtonRight];
 
         foreach (var window in _platform.Windows) {
             if (_isFirstTick) {
@@ -131,6 +136,11 @@ public class InputModule : IInputModule, ITickableModule
     public bool IsMouseButtonDown(int index)
     {
         return _mouseButtons[index];
+    }
+
+    public bool WasMouseButtonDown(int index)
+    {
+        return _mouseButtonsPrevFrame[index];
     }
 
     private void UpdateAxis(InputAxis axis)

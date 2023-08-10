@@ -40,25 +40,25 @@ public class PanelPropertyAccessor : IBoxAccessor
     }
 }
 
-public class PanelRenderer : IElementRenderer
+public class PanelRenderer : ElementRendererBase
 {
-    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    public override void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
     {
-        renderList.DrawBox(renderContext.Position, Measure.ConvertEmToPixels(renderContext.Box.ToVector()), fragment.GetElementAs<Panel>().Props.BackgroundColor);
-
         var e = fragment.GetElementAs<Panel>();
-        var offsetInPixels = renderContext.Position
-                             + Measure.ConvertEmToPixels(new Vector2D<float>(e.Props.Box.Padding.Left, e.Props.Box.Padding.Top));
 
-        if (e.Child is { PropertyAccessor: IBoxAccessor accessor0 }) {
-            var box = accessor0.GetBox(e.Child.Value);
+        renderList.DrawBox(
+            Measure.ElementPosition(renderContext, e.Props.Box),
+            e.Props.Box,
+            e.Props.BackgroundColor
+        );
 
-            e.Child.Value.ElementRenderer.Render(e.Child.Value, ElementRenderContext.Default with {
-                Position = offsetInPixels,
-                Box = box,
-                Font = renderContext.Font
-            }, renderList);
-        }
+        RenderChildrenVertical(
+            fragment,
+            Vector2D<float>.Zero,
+            renderContext,
+            renderList,
+            e.Child
+        );
     }
 }
 

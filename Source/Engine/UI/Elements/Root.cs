@@ -40,17 +40,19 @@ public class RootRenderer
 {
     public void Render(ref Root root, in ElementRenderContext renderContext, RenderList renderList)
     {
-        var offsetInPixels = renderContext.Position
-                             + Measure.ConvertEmToPixels(new Vector2D<float>(root.Props.Box.Padding.Left, root.Props.Box.Padding.Top));
-
         if (root.Child0.HasValue) {
-            root.Child0.Value.ElementRenderer.Render(root.Child0.Value, ElementRenderContext.Default with {
-                Position = offsetInPixels,
-                Box = root.Props.Box,
-                BoxInPixels = Measure.ConvertEmToPixels(root.Props.Box),
+            var containerBox = Box.Default with {
+                ContentHeight = Measure.BoxHeight(renderContext.ParentBox) - Measure.BoxHeight(root.Props.Box),
+                ContentWidth = Measure.BoxWidth(renderContext.ParentBox) - Measure.BoxWidth(root.Props.Box),
+            };
+
+            root.Child0.Value.ElementRenderer.Render(root.Child0.Value, renderContext with {
+                ContainerBox = containerBox,
+                ContainerBoxInPixels = Measure.EmToPixels(containerBox),
                 Font = root.Props.Font,
-                ParentBox = renderContext.Box,
-                ParentBoxInPixels = renderContext.BoxInPixels,
+                ParentBox = root.Props.Box,
+                ParentBoxInPixels = Measure.EmToPixels(root.Props.Box),
+                Position = Measure.ElementPosition(renderContext, root.Props.Box),
             }, renderList);
         }
 

@@ -12,6 +12,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
         <ProjectReference Include="..\..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" Private="false" />
+        <ProjectReference Include="..\Audio\Audio.csproj" />
         <ProjectReference Include="..\Content\Content.csproj" Private="false" />
         <ProjectReference Include="..\Core\Core.csproj" Private="false" />
         <ProjectReference Include="..\Input\Input.csproj" Private="false" />

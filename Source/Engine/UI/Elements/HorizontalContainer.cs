@@ -13,6 +13,7 @@ public class HorizontalContainerFactory : IElementFactory
 {
     private readonly ElementPool<HorizontalContainer> _pool = new();
     private readonly IElementRenderer _defaultElementRenderer = new HorizontalContainerRenderer();
+    private readonly IElementPropertyAccessor _propertyAccessor = new HorizontalContainerAccessor();
 
     public void BeginFrame()
     {
@@ -30,76 +31,58 @@ public class HorizontalContainerFactory : IElementFactory
         element.Child4 = child4;
         element.Child5 = child5;
 
-        return Fragment.From(ref element, _defaultElementRenderer);
+        return Fragment.From(ref element, _defaultElementRenderer, _propertyAccessor);
     }
 }
 
-public class HorizontalContainerRenderer : IElementRenderer
+public class HorizontalContainerRenderer : ElementRendererBase
 {
-    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    public override void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
     {
         var e = fragment.GetElementAs<HorizontalContainer>();
-        var offsetInPixels = renderContext.Position
-                             + Measure.ConvertEmToPixels(new Vector2D<float>(e.Props.Box.Padding.Left, e.Props.Box.Padding.Top));
-
-        var gapSizeInPixels = Measure.ConvertEmToPixels(e.Props.GapSize);
-        var contentWidthInPixels = 0f;
-        var child0DimensionsInPixels = Vector2D<float>.Zero;
-        var child1DimensionsInPixels = Vector2D<float>.Zero;
-        var childCount = 0;
-
-        if (e.Child0 is { PropertyAccessor: IBoxAccessor accessor0 }) {
-            var box = accessor0.GetBox(e.Child0.Value);
-            child0DimensionsInPixels = Measure.CalculateBoxDimensionsInPixels(box);
-            contentWidthInPixels += child0DimensionsInPixels.X;
-            childCount++;
-        }
-
-        if (e.Child1 is { PropertyAccessor: IBoxAccessor accessor1 }) {
-            var box = accessor1.GetBox(e.Child1.Value);
-            child1DimensionsInPixels = Measure.CalculateBoxDimensionsInPixels(box);
-            contentWidthInPixels += child1DimensionsInPixels.X;
-            childCount++;
-        }
-
-        contentWidthInPixels += gapSizeInPixels * MathF.Max(0, childCount - 1);
+        var offset = Measure.ElementPosition(renderContext, e.Props.Box);
+        var gapSize = new Vector2D<float>(e.Props.GapSize, 0);
+        var contentDimensions = Measure.ContentDimensions(fragment);
+        var containerWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(e.Props.Box);
 
         switch (e.Props.HorizontalAlignment) {
             case HorizontalAlign.Center:
-                var containerWidthInPixels = Measure.CalculateBoxWidthWithPadding(renderContext.ParentBoxInPixels) - Measure.CalculateBoxWidthWithPadding(renderContext.BoxInPixels);
-                offsetInPixels += new Vector2D<float>((containerWidthInPixels / 2f) - (contentWidthInPixels / 2f), 0);
+                offset += new Vector2D<float>((containerWidth / 2f) - (contentDimensions.X / 2f), 0);
                 break;
 
             case HorizontalAlign.Right:
-                var containerWidthInPixels2 = Measure.CalculateBoxWidthWithPadding(renderContext.ParentBoxInPixels) - Measure.CalculateBoxWidthWithPadding(renderContext.BoxInPixels);
-                offsetInPixels += new Vector2D<float>(containerWidthInPixels2 - contentWidthInPixels, 0);
+                offset += new Vector2D<float>(containerWidth - contentDimensions.X, 0);
                 break;
         }
 
+        RenderChildrenHorizontal(
+            offset,
+            gapSize,
+            renderContext,
+            renderList,
+            e.Child0,
+            e.Child1,
+            e.Child2,
+            e.Child3,
+            e.Child4,
+            e.Child5
+        );
+    }
+}
 
-        if (e.Child0 is { PropertyAccessor: IBoxAccessor accessor2 }) {
-            var box = accessor2.GetBox(e.Child0.Value);
+public class HorizontalContainerAccessor : IContentAccessor
+{
+    public Vector2D<float> GetContentDimensions(in Fragment fragment)
+    {
+        var e = fragment.GetElementAs<HorizontalContainer>();
 
-            e.Child0.Value.ElementRenderer.Render(e.Child0.Value, ElementRenderContext.Default with {
-                Position = offsetInPixels,
-                Box = box,
-                Font = renderContext.Font
-            }, renderList);
-
-            offsetInPixels += new Vector2D<float>(child0DimensionsInPixels.X + gapSizeInPixels, 0);
-        }
-
-        if (e.Child1 is { PropertyAccessor: IBoxAccessor accessor3 }) {
-            var box = accessor3.GetBox(e.Child1.Value);
-
-            e.Child1.Value.ElementRenderer.Render(e.Child1.Value, ElementRenderContext.Default with {
-                Position = offsetInPixels,
-                Box = box,
-                Font = renderContext.Font
-            }, renderList);
-
-            offsetInPixels += new Vector2D<float>(child1DimensionsInPixels.X + gapSizeInPixels, 0);
-        }
+        return Measure.ContentDimensions(
+            BoxArea.Default with {
+                Left = e.Props.GapSize
+            },
+            e.Child0,
+            e.Child1
+        );
     }
 }
 

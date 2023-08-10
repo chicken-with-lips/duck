@@ -236,4 +236,10 @@ public static class MathF
             Scalar.Subtract(Scalar.Add(Scalar.Add(Scalar.Multiply(iz, qw), Scalar.Multiply(iw, Scalar.Negate(qz))), Scalar.Multiply(ix, Scalar.Negate(qy))), Scalar.Multiply(iy, Scalar.Negate(qx)))
         );
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static bool IsPointInside<T>(in Vector2D<float> point, in Box2D<float> box) where T : unmanaged
+    {
+        return box.Contains(point);
+    }
 }

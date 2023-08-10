@@ -1,4 +1,6 @@
 using Arch.Core;
+using Duck.Audio;
+using Duck.Audio.Systems;
 using Duck.Content;
 using Duck.Exceptions;
 using Duck.Input;
@@ -241,7 +243,8 @@ public abstract class ApplicationBase : IApplication
         AddModule(new RendererModule(this, _platform, GetModule<IEventBus>(), _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IContentModule>(), GetModule<IRendererModule>()));
+        AddModule(new AudioModule(GetModule<ILogModule>(), GetModule<IContentModule>()));
+        AddModule(new UiModule(GetModule<ILogModule>(), GetModule<IContentModule>(), GetModule<IRendererModule>(), GetModule<IInputModule>()));
     }
 
     public void Run()
@@ -291,12 +294,13 @@ public abstract class ApplicationBase : IApplication
     {
         composition.EarlySimulationGroup
             .Add(new PhysXPullChanges(world));
-        
+
         composition.SimulationGroup
             .Add(new RigidBodyLifecycleSystem(world, GetModule<IPhysicsModule>()))
             .Add(new JointSystem(world, GetModule<IPhysicsModule>()))
             .Add(new CameraSystem(world, GetModule<IRendererModule>()))
-            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()));
+            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()))
+            .Add(new PlaySoundSystem(world, GetModule<IAudioModule>()));
 
         composition.LateSimulationGroup
             .Add(new PhysXPushChangesSystem(world));
