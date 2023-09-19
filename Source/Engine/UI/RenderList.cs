@@ -1,7 +1,5 @@
 ﻿using System.Drawing;
-using System.Runtime.CompilerServices;
 using Duck.Content;
-using Duck.Renderer;
 using Duck.Ui.Elements;
 using Silk.NET.Maths;
 
@@ -9,15 +7,23 @@ namespace Duck.Ui;
 
 public class RenderList
 {
+    #region Properties
+
     public Span<RenderPrimitive> Primitives => _primitives.AsSpan(0, _primitiveIndex);
     public int BoxCount => _boxCount;
     public int TextCharacterCount => _textCharacterCount;
+
+    #endregion
+
+    #region Members
 
     private readonly RenderPrimitive[] _primitives = new RenderPrimitive[1000];
     private int _primitiveIndex = 0;
     private int _boxCount = 0;
     private int _textCharacterCount = 0;
-    
+
+    #endregion
+
     public void Clear()
     {
         _primitiveIndex = 0;
@@ -27,12 +33,12 @@ public class RenderList
 
     public void DrawBox(in Vector2D<float> position, in Vector2D<float> dimensions)
     {
-       DrawBox(position, dimensions, Color.White);
+        DrawBox(position, dimensions, Color.White);
     }
 
     public void DrawBox(in Vector2D<float> position, in Box dimensions)
     {
-       DrawBox(position, Measure.BoxDimensions(dimensions), Color.White);
+        DrawBox(position, Measure.BoxDimensions(dimensions), Color.White);
     }
 
     public void DrawBox(in Vector2D<float> position, in Box dimensions, Color color)

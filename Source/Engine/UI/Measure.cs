@@ -94,6 +94,21 @@ public static class Measure
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2D<float> BoxDimensions(in Fragment? fragment)
+    {
+        if (!fragment.HasValue) {
+            return default;
+        }
+
+        var box = Box(fragment);
+
+        return new Vector2D<float>(
+            BoxWidth(box),
+            BoxHeight(box)
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> BoxDimensions(in Box box)
     {
         return new Vector2D<float>(
@@ -114,21 +129,18 @@ public static class Measure
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> BoxDimensionsInPixels(in Fragment fragment)
     {
-        if (fragment is { PropertyAccessor: IBoxAccessor accessor }) {
-            return BoxDimensionsInPixels(accessor.GetBox(fragment));
-        }
-
-        return Vector2D<float>.Zero;
+        return BoxDimensionsInPixels(Box(fragment));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> ContentDimensions(in Fragment fragment)
     {
-        if (fragment is { PropertyAccessor: IContentAccessor accessor }) {
-            return accessor.GetContentDimensions(fragment);
-        }
+        var box = Box(fragment);
 
-        return Vector2D<float>.Zero;
+        return new Vector2D<float>(
+            box.ContentWidth,
+            box.ContentHeight
+        );
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,39 +150,77 @@ public static class Measure
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2D<float> ContentDimensions(in BoxArea margin, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null)
+    public static Vector2D<float> ContentDimensionsHorizontal(in BoxArea margin, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null, bool isBlockLevel = true)
+    {
+        return ContentDimensions(
+            margin,
+            (in Fragment fragment, ref Vector2D<float> vector) => {
+                var dim = BoxDimensions(fragment);
+                vector.X += dim.X;
+                vector.Y = Math.MathF.Max(vector.Y, dim.Y);
+            },
+            fragment0,
+            fragment1,
+            fragment2,
+            fragment3,
+            fragment4,
+            fragment5
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2D<float> ContentDimensionsVertical(in BoxArea margin, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null, bool isBlockLevel = true)
+    {
+        return ContentDimensions(
+            margin,
+            (in Fragment fragment, ref Vector2D<float> vector) => {
+                var dim = BoxDimensions(fragment);
+                vector.X = Math.MathF.Max(vector.X, dim.X);
+                vector.Y += dim.Y;
+            },
+            fragment0,
+            fragment1,
+            fragment2,
+            fragment3,
+            fragment4,
+            fragment5
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2D<float> ContentDimensions(in BoxArea margin, ModifyVectorCallback modifyVectorCallback, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null)
     {
         var gapSize = new Vector2D<float>(margin.Left, margin.Top);
         var contentDimensions = Vector2D<float>.Zero;
         var childCount = 0;
 
-        if (fragment0 is { PropertyAccessor: IBoxAccessor accessor0 }) {
-            contentDimensions += BoxDimensions(accessor0.GetBox(fragment0.Value));
+        if (fragment0.HasValue) {
+            modifyVectorCallback(fragment0.Value, ref contentDimensions);
             childCount++;
         }
 
-        if (fragment1 is { PropertyAccessor: IBoxAccessor accessor1 }) {
-            contentDimensions += BoxDimensions(accessor1.GetBox(fragment1.Value));
+        if (fragment1.HasValue) {
+            modifyVectorCallback(fragment1.Value, ref contentDimensions);
             childCount++;
         }
 
-        if (fragment2 is { PropertyAccessor: IBoxAccessor accessor2 }) {
-            contentDimensions += BoxDimensions(accessor2.GetBox(fragment2.Value));
+        if (fragment2.HasValue) {
+            modifyVectorCallback(fragment2.Value, ref contentDimensions);
             childCount++;
         }
 
-        if (fragment3 is { PropertyAccessor: IBoxAccessor accessor3 }) {
-            contentDimensions += BoxDimensions(accessor3.GetBox(fragment3.Value));
+        if (fragment3.HasValue) {
+            modifyVectorCallback(fragment3.Value, ref contentDimensions);
             childCount++;
         }
 
-        if (fragment4 is { PropertyAccessor: IBoxAccessor accessor4 }) {
-            contentDimensions += BoxDimensions(accessor4.GetBox(fragment4.Value));
+        if (fragment4.HasValue) {
+            modifyVectorCallback(fragment4.Value, ref contentDimensions);
             childCount++;
         }
 
-        if (fragment5 is { PropertyAccessor: IBoxAccessor accessor5 }) {
-            contentDimensions += BoxDimensions(accessor5.GetBox(fragment5.Value));
+        if (fragment5.HasValue) {
+            modifyVectorCallback(fragment5.Value, ref contentDimensions);
             childCount++;
         }
 
@@ -181,21 +231,25 @@ public static class Measure
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vector2D<float> ContentDimensionsInPixels(in BoxArea margin, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null)
+    public static Vector2D<float> ContentDimensionHorizontalInPixels(in BoxArea margin, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null)
     {
         return EmToPixels(
-            ContentDimensions(margin, fragment0, fragment1, fragment2, fragment3, fragment4, fragment5)
+            ContentDimensionsHorizontal(margin, fragment0, fragment1, fragment2, fragment3, fragment4, fragment5)
+        );
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2D<float> ContentDimensionVerticalInPixels(in BoxArea margin, in Fragment? fragment0, in Fragment? fragment1 = null, in Fragment? fragment2 = null, in Fragment? fragment3 = null, in Fragment? fragment4 = null, in Fragment? fragment5 = null)
+    {
+        return EmToPixels(
+            ContentDimensionsVertical(margin, fragment0, fragment1, fragment2, fragment3, fragment4, fragment5)
         );
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> ContentPosition(in ElementRenderContext renderContext, in Fragment fragment)
     {
-        if (fragment is { PropertyAccessor: IBoxAccessor accessor }) {
-            return ContentPosition(renderContext, accessor.GetBox(fragment));
-        }
-
-        return Vector2D<float>.Zero;
+        return ContentPosition(renderContext, Box(fragment));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -225,21 +279,13 @@ public static class Measure
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> ContentPositionInPixels(in ElementRenderContext renderContext, in Fragment fragment)
     {
-        if (fragment is { PropertyAccessor: IBoxAccessor accessor }) {
-            return ContentPositionInPixels(renderContext.Position, accessor.GetBox(fragment));
-        }
-
-        return Vector2D<float>.Zero;
+        return ContentPositionInPixels(renderContext.Position, Box(fragment));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> ElementPosition(in ElementRenderContext renderContext, in Fragment fragment)
     {
-        if (fragment is { PropertyAccessor: IBoxAccessor accessor }) {
-            return ElementPosition(renderContext, accessor.GetBox(fragment));
-        }
-
-        return Vector2D<float>.Zero;
+        return ElementPosition(renderContext, Box(fragment));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -269,11 +315,7 @@ public static class Measure
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2D<float> ElementPositionInPixels(in ElementRenderContext renderContext, in Fragment fragment)
     {
-        if (fragment is { PropertyAccessor: IBoxAccessor accessor }) {
-            return ElementPositionInPixels(renderContext.Position, accessor.GetBox(fragment));
-        }
-
-        return Vector2D<float>.Zero;
+        return ElementPositionInPixels(renderContext.Position, Box(fragment));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -290,4 +332,26 @@ public static class Measure
     {
         return IsPointInside(renderContext, fragment, point.As<float>());
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Box Box(in Fragment? fragment)
+    {
+        if (fragment is { PropertyAccessor: IBoxAccessor accessor0 }) {
+            return accessor0.GetBox(fragment.Value);
+        }
+
+        if (fragment is { PropertyAccessor: IContentAccessor accessor1 }) {
+            var contentDimensions = accessor1.GetContentDimensions(fragment.Value);
+
+            return Elements.Box.Default with {
+                ContentWidth = contentDimensions.X,
+                ContentHeight = contentDimensions.Y,
+            };
+        }
+
+        return Elements.Box.Default;
+    }
+
+
+    public delegate void ModifyVectorCallback(in Fragment fragment, ref Vector2D<float> vector);
 }

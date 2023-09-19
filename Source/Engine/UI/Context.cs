@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Duck.Renderer.Device;
 using Duck.Ui.Elements;
 
 namespace Duck.Ui;
@@ -9,6 +10,10 @@ public class Context
 
     public Span<Root> Roots => GetFactory<RootFactory, Root>().Roots;
 
+
+
+    private readonly RenderList _renderList = new();
+    
     #endregion
 
     #region Members

@@ -7,26 +7,6 @@ public readonly record struct LabelProps(in string Content)
 
 public record struct Label(in LabelProps Props);
 
-public class LabelFactory : IElementFactory
-{
-    private readonly ElementPool<Label> _pool = new();
-    private readonly IElementRenderer _defaultRenderer = new LabelRenderer();
-    private readonly IElementPropertyAccessor _propertyAccessor = new LabelPropertyAccessor();
-
-    public void BeginFrame()
-    {
-        _pool.ResetIndex();
-    }
-
-    public Fragment Create(in LabelProps props)
-    {
-        ref var element = ref _pool.Allocate();
-        element.Props = props;
-
-        return Fragment.From(ref element, _defaultRenderer, _propertyAccessor);
-    }
-}
-
 public class LabelPropertyAccessor : IBoxAccessor
 {
     public Box GetBox(in Fragment fragment)
@@ -48,6 +28,26 @@ public class LabelRenderer : IElementRenderer
                 renderContext.Position
             );
         }
+    }
+}
+
+public class LabelFactory : IElementFactory
+{
+    private readonly ElementPool<Label> _pool = new();
+    private readonly IElementRenderer _defaultRenderer = new LabelRenderer();
+    private readonly IElementPropertyAccessor _propertyAccessor = new LabelPropertyAccessor();
+
+    public void BeginFrame()
+    {
+        _pool.ResetIndex();
+    }
+
+    public Fragment Create(in LabelProps props)
+    {
+        ref var element = ref _pool.Allocate();
+        element.Props = props;
+
+        return Fragment.From(ref element, _defaultRenderer, _propertyAccessor);
     }
 }
 

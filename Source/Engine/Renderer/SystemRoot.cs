@@ -3,7 +3,7 @@ using Arch.System;
 
 namespace Duck.Renderer;
 
-public class SystemRoot
+public class SystemRoot : IDisposable
 {
     public Group<float> InitializationGroup { get; }
     public Group<float> SimulationGroup { get; }
@@ -46,6 +46,11 @@ public class SystemRoot
     {
         _root.AfterUpdate(deltaTime);
     }
+
+    public void Dispose()
+    {
+        _root.Dispose();
+    }
 }
 
 public class Group<T> : ISystem<T>
@@ -79,8 +84,9 @@ public class Group<T> : ISystem<T>
 
     public void BeforeUpdate(in T t)
     {
+        OnBeforeUpdate(t);
+
         foreach (var system in _systems) {
-            OnBeforeUpdate(t);
             system.BeforeUpdate(t);
         }
     }
@@ -106,6 +112,8 @@ public class Group<T> : ISystem<T>
         foreach (ISystem<T> system in _systems) {
             system.Dispose();
         }
+
+        _systems.Clear();
     }
 
     protected virtual void OnBeforeUpdate(in T t)

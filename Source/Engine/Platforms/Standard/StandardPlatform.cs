@@ -2,7 +2,7 @@ using Duck.Platform;
 
 namespace Duck.Platforms.Standard;
 
-public class StandardPlatform : IPlatform
+public class StandardPlatform : IPlatform, IPreTickableModule, ITickableModule, IPostTickableModule
 {
     #region Properties
 

@@ -16,34 +16,19 @@ namespace Duck.Ui;
 
 public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRenderableModule
 {
-    #region Properties
-
-    public Context Context => _context;
-
-    #endregion
-
     #region Members
 
     private readonly ILogger _logger;
     private readonly IContentModule _contentModule;
     private readonly IRendererModule _rendererModule;
     private readonly IInputModule _inputModule;
-    private readonly Context _context = new();
 
     private IPlatformAsset<Material> _coloredMaterial;
     private IPlatformAsset<Material> _texturedMaterial;
     private IPlatformAsset<Material> _textMaterial;
+
     private readonly RootRenderer _rootRenderer = new();
-
-    private IRenderObject? _textRenderObject;
-    private IVertexBuffer<TexturedVertex> _textVertexBuffer;
-    private IIndexBuffer<uint> _textIndexBuffer;
-
-    private IRenderObject? _boxRenderObject;
-    private IVertexBuffer<TexturedVertex> _boxVertexBuffer;
-    private IIndexBuffer<uint> _boxIndexBuffer;
-
-    private readonly RenderList _renderList = new();
+    private readonly Dictionary<IScene, ContextData> _contexts = new();
 
     #endregion
 
@@ -61,17 +46,9 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
 
     public bool Init()
     {
-        _contentModule.RegisterAssetLoader<Font, ArteryFont>(new FontLoader(_contentModule));
-
         CreateShaders();
 
-        _context.AddElementType<Root>(new RootFactory());
-        _context.AddElementType<Window>(new WindowFactory());
-        _context.AddElementType<Button>(new ButtonFactory());
-        _context.AddElementType<Label>(new LabelFactory());
-        _context.AddElementType<Panel>(new PanelFactory());
-        _context.AddElementType<HorizontalContainer>(new HorizontalContainerFactory());
-        _context.AddElementType<VerticalContainer>(new VerticalContainerFactory());
+        _contentModule.RegisterAssetLoader<Font, ArteryFont>(new FontLoader(_contentModule));
 
         _texturedMaterial = (IPlatformAsset<Material>)_contentModule.LoadImmediate(
             _contentModule.Database.GetAsset<Material>(new Uri("memory:///ui/textured.mat")).MakeSharedReference()
@@ -81,48 +58,14 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
             _contentModule.Database.GetAsset<Material>(new Uri("memory:///ui/text.mat")).MakeSharedReference()
         );
 
-        _boxVertexBuffer = VertexBufferBuilder<TexturedVertex>.Create(BufferUsage.Dynamic)
-            .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
-            .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
-            .Attribute(VertexAttribute.TexCoord0, 0, AttributeType.Float2)
-            .Attribute(VertexAttribute.Color0, 0, AttributeType.Float4)
-            .Build(_rendererModule.GraphicsDevice);
-
-        _boxIndexBuffer = IndexBufferBuilder<uint>.Create(BufferUsage.Dynamic)
-            .Build(_rendererModule.GraphicsDevice);
-
-        _boxRenderObject = _rendererModule.GraphicsDevice.CreateRenderObject(
-            _boxVertexBuffer,
-            _boxIndexBuffer
-        );
-        _boxRenderObject.Projection = Projection.Orthographic;
-        // _boxRenderObject.RenderStateFlags = RenderStateFlag.DisableDepthTesting;
-        _boxRenderObject.SetMaterial(_texturedMaterial);
-
-        _textVertexBuffer = VertexBufferBuilder<TexturedVertex>.Create(BufferUsage.Dynamic)
-            .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
-            .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
-            .Attribute(VertexAttribute.TexCoord0, 0, AttributeType.Float2)
-            .Attribute(VertexAttribute.Color0, 0, AttributeType.Float4)
-            .Build(_rendererModule.GraphicsDevice);
-
-        _textIndexBuffer = IndexBufferBuilder<uint>.Create(BufferUsage.Dynamic)
-            .Build(_rendererModule.GraphicsDevice);
-
-        _textRenderObject = _rendererModule.GraphicsDevice.CreateRenderObject(
-            _textVertexBuffer,
-            _textIndexBuffer
-        );
-        _textRenderObject.Projection = Projection.Orthographic;
-        _textRenderObject.RenderStateFlags = RenderStateFlag.DisableDepthTesting;
-        _textRenderObject.SetMaterial(_textMaterial);
-
         return true;
     }
 
     public void PreTick()
     {
-        _context.BeginFrame();
+        foreach (var kvp in _contexts) {
+            kvp.Value.Context.BeginFrame();
+        }
     }
 
     private void CreateShaders()
@@ -178,187 +121,280 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
         _contentModule.Database.Register(mat);
     }
 
-    private uint[] textIndices = new uint[1024];
-    private uint[] boxIndices = new uint[1024];
-    private TexturedVertex[] textVertices = new TexturedVertex[1024];
-    private TexturedVertex[] boxVertices = new TexturedVertex[1024];
-
     public void Render()
     {
-        if (_rendererModule.Views.Length > 1) {
-            throw new Exception("Multiple views not supported");
-        }
+        foreach (var kvp in _contexts) {
+            var pair = kvp.Value;
+            var renderList = pair.RenderList;
+            var renderData = pair.RenderData;
+            var context = pair.Context;
 
-        _renderList.Clear();
+            var view = _rendererModule.FindViewForScene(kvp.Key);
 
-        var view = _rendererModule.Views[0];
-
-        foreach (ref var root in _context.Roots) {
-            if (!root.Props.Font.HasValue) {
-                throw new Exception("FIXME: font should be set");
+            if (view == null) {
+                continue;
             }
 
-            var widthInEm = Measure.EmSizeFromPixels(view.Dimensions.X);
-            var heightInEm = Measure.EmSizeFromPixels(view.Dimensions.Y);
+            renderList.Clear();
 
-            _rootRenderer.Render(ref root, new ElementRenderContext() {
-                ParentBox = Box.Default with {
-                    ContentWidth = widthInEm,
-                    ContentHeight = heightInEm,
-                },
-                ParentBoxInPixels = Box.Default with {
-                    ContentWidth = view.Dimensions.X,
-                    ContentHeight = view.Dimensions.Y
-                },
-                Input = _inputModule,
-            }, _renderList);
-        }
+            foreach (ref var root in context.Roots) {
+                if (!root.Props.Font.HasValue) {
+                    throw new Exception("FIXME: font should be set");
+                }
 
-        var primitives = _renderList.Primitives;
+                var widthInEm = Measure.EmSizeFromPixels(view.Dimensions.X);
+                var heightInEm = Measure.EmSizeFromPixels(view.Dimensions.Y);
 
-        if (primitives.Length == 0) {
-            return;
-        }
+                _rootRenderer.Render(ref root, new ElementRenderContext() {
+                    ParentBox = Box.Default with {
+                        ContentWidth = widthInEm,
+                        ContentHeight = heightInEm,
+                    },
+                    ParentBoxInPixels = Box.Default with {
+                        ContentWidth = view.Dimensions.X,
+                        ContentHeight = view.Dimensions.Y
+                    },
+                    Input = _inputModule,
+                }, renderList);
+            }
 
-        var boxIndexCount = _renderList.BoxCount * 6;
-        var boxVertexCount = _renderList.BoxCount * 4;
+            var primitives = renderList.Primitives;
 
-        uint boxIndicesIndex = 0;
-        uint boxVerticesIndex = 0;
+            if (primitives.Length == 0) {
+                return;
+            }
 
-        var textIndexCount = _renderList.TextCharacterCount * 6;
-        var textVertexCount = _renderList.TextCharacterCount * 4;
+            var boxIndexCount = renderList.BoxCount * 6;
+            var boxVertexCount = renderList.BoxCount * 4;
 
-        uint textIndicesIndex = 0;
-        uint textVerticesIndex = 0;
+            uint boxIndicesIndex = 0;
+            uint boxVerticesIndex = 0;
 
-        foreach (var primitive in primitives) {
-            var positionInPixels = Measure.EmToPixels(primitive.Position);
-            var dimensionsInPixels = Measure.EmToPixels(primitive.Dimensions);
+            var textIndexCount = renderList.TextCharacterCount * 6;
+            var textVertexCount = renderList.TextCharacterCount * 4;
 
-            switch (primitive.Type) {
-                case RenderPrimitiveType.Text:
-                    if (!primitive.Font.HasValue || string.IsNullOrEmpty(primitive.Text)) {
-                        continue;
-                    }
+            uint textIndicesIndex = 0;
+            uint textVerticesIndex = 0;
 
-                    var font = (ArteryFont)_contentModule.LoadImmediate(primitive.Font.Value);
+            foreach (var primitive in primitives) {
+                var positionInPixels = Measure.EmToPixels(primitive.Position);
+                var dimensionsInPixels = Measure.EmToPixels(primitive.Dimensions);
 
-                    // FIXME: only one shader
-                    _textRenderObject.SetTexture(0, font.Textures[0]);
-
-                    var scale = 0.5f;
-                    var xOffset = positionInPixels.X;
-                    var yOffset = positionInPixels.Y + (font.Ascender * scale);
-
-                    for (var i = 0; i < primitive.Text.Length; i++) {
-                        var glyph = font.GetGlyph(primitive.Text[i]);
-                        var advance = glyph.Advance.X * scale;
-
-                        if (glyph.IsWhitespace) {
-                            xOffset += advance;
+                switch (primitive.Type) {
+                    case RenderPrimitiveType.Text:
+                        if (!primitive.Font.HasValue || string.IsNullOrEmpty(primitive.Text)) {
                             continue;
                         }
 
-                        textIndices[textIndicesIndex] = textVerticesIndex;
-                        textIndices[textIndicesIndex + 1] = textVerticesIndex + 3;
-                        textIndices[textIndicesIndex + 2] = textVerticesIndex + 1;
+                        var font = (ArteryFont)_contentModule.LoadImmediate(primitive.Font.Value);
 
-                        textIndices[textIndicesIndex + 3] = textVerticesIndex + 1;
-                        textIndices[textIndicesIndex + 4] = textVerticesIndex + 3;
-                        textIndices[textIndicesIndex + 5] = textVerticesIndex + 2;
+                        // FIXME: only one shader
+                        renderData.TextRenderObject.SetTexture(0, font.Textures[0]);
 
-                        var x0 = glyph.PlaneBounds.Left * scale;
-                        var x1 = glyph.PlaneBounds.Right * scale;
-                        var y0 = glyph.PlaneBounds.Top * scale;
-                        var y1 = glyph.PlaneBounds.Bottom * scale;
+                        var scale = 0.5f;
+                        var xOffset = positionInPixels.X;
+                        var yOffset = positionInPixels.Y + (font.Ascender * scale);
 
-                        var textTopLeft = new Vector3D<float>(xOffset + x0, yOffset + y0, 0);
-                        var textTopRight = new Vector3D<float>(xOffset + x1, yOffset + y0, 0);
-                        var textBottomRight = new Vector3D<float>(xOffset + x1, yOffset + y1, 0);
-                        var textBottomLeft = new Vector3D<float>(xOffset + x0, yOffset + y1, 0);
+                        for (var i = 0; i < primitive.Text.Length; i++) {
+                            var glyph = font.GetGlyph(primitive.Text[i]);
+                            var advance = glyph.Advance.X * scale;
 
-                        textVertices[textVerticesIndex] = new TexturedVertex(textTopLeft, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Left, glyph.AtlasCoordinates.Top), primitive.Color.ToVector());
-                        textVertices[textVerticesIndex + 1] = new TexturedVertex(textTopRight, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Right, glyph.AtlasCoordinates.Top), primitive.Color.ToVector());
-                        textVertices[textVerticesIndex + 2] = new TexturedVertex(textBottomRight, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Right, glyph.AtlasCoordinates.Bottom), primitive.Color.ToVector());
-                        textVertices[textVerticesIndex + 3] = new TexturedVertex(textBottomLeft, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Left, glyph.AtlasCoordinates.Bottom), primitive.Color.ToVector());
+                            if (glyph.IsWhitespace) {
+                                xOffset += advance;
+                                continue;
+                            }
 
-                        xOffset += advance;
+                            renderData.TextIndices[textIndicesIndex] = textVerticesIndex;
+                            renderData.TextIndices[textIndicesIndex + 1] = textVerticesIndex + 3;
+                            renderData.TextIndices[textIndicesIndex + 2] = textVerticesIndex + 1;
 
-                        textIndicesIndex += 6;
-                        textVerticesIndex += 4;
-                    }
+                            renderData.TextIndices[textIndicesIndex + 3] = textVerticesIndex + 1;
+                            renderData.TextIndices[textIndicesIndex + 4] = textVerticesIndex + 3;
+                            renderData.TextIndices[textIndicesIndex + 5] = textVerticesIndex + 2;
 
-                    break;
+                            var x0 = glyph.PlaneBounds.Left * scale;
+                            var x1 = glyph.PlaneBounds.Right * scale;
+                            var y0 = glyph.PlaneBounds.Top * scale;
+                            var y1 = glyph.PlaneBounds.Bottom * scale;
 
-                case RenderPrimitiveType.Box:
-                    boxIndices[boxIndicesIndex] = boxVerticesIndex;
-                    boxIndices[boxIndicesIndex + 1] = boxVerticesIndex + 3;
-                    boxIndices[boxIndicesIndex + 2] = boxVerticesIndex + 1;
+                            var textTopLeft = new Vector3D<float>(xOffset + x0, yOffset + y0, 0);
+                            var textTopRight = new Vector3D<float>(xOffset + x1, yOffset + y0, 0);
+                            var textBottomRight = new Vector3D<float>(xOffset + x1, yOffset + y1, 0);
+                            var textBottomLeft = new Vector3D<float>(xOffset + x0, yOffset + y1, 0);
 
-                    boxIndices[boxIndicesIndex + 3] = boxVerticesIndex + 1;
-                    boxIndices[boxIndicesIndex + 4] = boxVerticesIndex + 3;
-                    boxIndices[boxIndicesIndex + 5] = boxVerticesIndex + 2;
+                            renderData.TextVertices[textVerticesIndex] = new TexturedVertex(textTopLeft, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Left, glyph.AtlasCoordinates.Top), primitive.Color.ToVector());
+                            renderData.TextVertices[textVerticesIndex + 1] = new TexturedVertex(textTopRight, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Right, glyph.AtlasCoordinates.Top), primitive.Color.ToVector());
+                            renderData.TextVertices[textVerticesIndex + 2] = new TexturedVertex(textBottomRight, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Right, glyph.AtlasCoordinates.Bottom), primitive.Color.ToVector());
+                            renderData.TextVertices[textVerticesIndex + 3] = new TexturedVertex(textBottomLeft, Vector3D<float>.Zero, new Vector2D<float>(glyph.AtlasCoordinates.Left, glyph.AtlasCoordinates.Bottom), primitive.Color.ToVector());
 
-                    var boxTopLeft = new Vector3D<float>(positionInPixels.X, positionInPixels.Y, 0);
-                    var boxTopRight = new Vector3D<float>(positionInPixels.X + dimensionsInPixels.X, positionInPixels.Y, 0);
-                    var boxBottomRight = new Vector3D<float>(positionInPixels.X + dimensionsInPixels.X, positionInPixels.Y + dimensionsInPixels.Y, 0);
-                    var boxBottomLeft = new Vector3D<float>(positionInPixels.X, positionInPixels.Y + dimensionsInPixels.Y, 0);
+                            xOffset += advance;
 
-                    boxVertices[boxVerticesIndex] = new TexturedVertex(boxTopLeft, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
-                    boxVertices[boxVerticesIndex + 1] = new TexturedVertex(boxTopRight, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
-                    boxVertices[boxVerticesIndex + 2] = new TexturedVertex(boxBottomRight, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
-                    boxVertices[boxVerticesIndex + 3] = new TexturedVertex(boxBottomLeft, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
+                            textIndicesIndex += 6;
+                            textVerticesIndex += 4;
+                        }
 
-                    boxIndicesIndex += 6;
-                    boxVerticesIndex += 4;
-                    break;
+                        break;
+
+                    case RenderPrimitiveType.Box:
+                        renderData.BoxIndices[boxIndicesIndex] = boxVerticesIndex;
+                        renderData.BoxIndices[boxIndicesIndex + 1] = boxVerticesIndex + 3;
+                        renderData.BoxIndices[boxIndicesIndex + 2] = boxVerticesIndex + 1;
+
+                        renderData.BoxIndices[boxIndicesIndex + 3] = boxVerticesIndex + 1;
+                        renderData.BoxIndices[boxIndicesIndex + 4] = boxVerticesIndex + 3;
+                        renderData.BoxIndices[boxIndicesIndex + 5] = boxVerticesIndex + 2;
+
+                        var boxTopLeft = new Vector3D<float>(positionInPixels.X, positionInPixels.Y, 0);
+                        var boxTopRight = new Vector3D<float>(positionInPixels.X + dimensionsInPixels.X, positionInPixels.Y, 0);
+                        var boxBottomRight = new Vector3D<float>(positionInPixels.X + dimensionsInPixels.X, positionInPixels.Y + dimensionsInPixels.Y, 0);
+                        var boxBottomLeft = new Vector3D<float>(positionInPixels.X, positionInPixels.Y + dimensionsInPixels.Y, 0);
+
+                        renderData.BoxVertices[boxVerticesIndex] = new TexturedVertex(boxTopLeft, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
+                        renderData.BoxVertices[boxVerticesIndex + 1] = new TexturedVertex(boxTopRight, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
+                        renderData.BoxVertices[boxVerticesIndex + 2] = new TexturedVertex(boxBottomRight, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
+                        renderData.BoxVertices[boxVerticesIndex + 3] = new TexturedVertex(boxBottomLeft, Vector3D<float>.Zero, Vector2D<float>.Zero, primitive.Color.ToVector());
+
+                        boxIndicesIndex += 6;
+                        boxVerticesIndex += 4;
+                        break;
+                }
             }
+
+            if (boxIndexCount == 0 && textIndexCount == 0) {
+                return;
+            }
+
+            if (boxIndexCount > 0) {
+                renderData.BoxIndexBuffer.SetData(0, renderData.BoxIndices.AsSpan(0, boxIndexCount));
+                renderData.BoxVertexBuffer.SetData(0, renderData.BoxVertices.AsSpan(0, boxVertexCount));
+            }
+
+            if (textIndexCount > 0) {
+                renderData.TextIndexBuffer.SetData(0, renderData.TextIndices.AsSpan(0, textIndexCount));
+                renderData.TextVertexBuffer.SetData(0, renderData.TextVertices.AsSpan(0, textVertexCount));
+            }
+
+            // foreach (var view in _rendererModule.Views) {
+            var cameraRef = view.Camera;
+
+            if (!view.IsValid || !cameraRef.HasValue) {
+                return;
+            }
+
+            // FIXME: this does not support multithreading
+
+            var cameraTransform = view.Scene.World.Get<TransformComponent>(cameraRef.Value.Entity);
+
+            var commandBuffer = _rendererModule.GraphicsDevice.CreateCommandBuffer(view);
+            commandBuffer.ViewMatrix = cameraTransform.CreateLookAtMatrix();
+
+            if (renderData.BoxIndexBuffer.ElementCount > 0) {
+                commandBuffer.ScheduleRenderable(renderData.BoxRenderObject);
+            }
+
+            if (renderData.TextIndexBuffer.ElementCount > 0) {
+                commandBuffer.ScheduleRenderable(renderData.TextRenderObject);
+            }
+
+            _rendererModule.GraphicsDevice.Render(commandBuffer);
+        }
+    }
+
+    public Context GetContextForScene(IScene scene)
+    {
+        // TODO: cleanup contexts when scene is destroyed
+
+        if (_contexts.TryGetValue(scene, out var existing)) {
+            return existing.Context;
         }
 
-        if (boxIndexCount == 0 && textIndexCount == 0) {
-            return;
-        }
+        var context = new Context();
+        context.AddElementType<Root>(new RootFactory());
+        context.AddElementType<Window>(new WindowFactory());
+        context.AddElementType<Button>(new ButtonFactory());
+        context.AddElementType<Label>(new LabelFactory());
+        context.AddElementType<Panel>(new PanelFactory());
+        context.AddElementType<HorizontalContainer>(new HorizontalContainerFactory());
+        context.AddElementType<VerticalContainer>(new VerticalContainerFactory());
+        context.AddElementType<RenderView>(new RenderViewFactory());
 
-        if (boxIndexCount > 0) {
-            _boxIndexBuffer.SetData(0, boxIndices.AsSpan(0, boxIndexCount));
-            _boxVertexBuffer.SetData(0, boxVertices.AsSpan(0, boxVertexCount));
-        }
+        var boxVertexBuffer = VertexBufferBuilder<TexturedVertex>.Create(BufferUsage.Dynamic)
+            .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
+            .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
+            .Attribute(VertexAttribute.TexCoord0, 0, AttributeType.Float2)
+            .Attribute(VertexAttribute.Color0, 0, AttributeType.Float4)
+            .Build(_rendererModule.GraphicsDevice);
 
-        if (textIndexCount > 0) {
-            _textIndexBuffer.SetData(0, textIndices.AsSpan(0, textIndexCount));
-            _textVertexBuffer.SetData(0, textVertices.AsSpan(0, textVertexCount));
-        }
 
-        // foreach (var view in _rendererModule.Views) {
-        var cameraRef = view.Camera;
+        var boxIndexBuffer = IndexBufferBuilder<uint>.Create(BufferUsage.Dynamic)
+            .Build(_rendererModule.GraphicsDevice);
 
-        if (!view.IsValid || !cameraRef.HasValue) {
-            return;
-        }
+        var boxRenderObject = _rendererModule.GraphicsDevice.CreateRenderObject(
+            boxVertexBuffer,
+            boxIndexBuffer
+        );
+        boxRenderObject.Projection = Projection.Orthographic;
+        boxRenderObject.RenderStateFlags = RenderStateFlag.DisableDepthTesting;
+        boxRenderObject.SetMaterial(_texturedMaterial);
 
-        // FIXME: this does not support multithreading
+        var textVertexBuffer = VertexBufferBuilder<TexturedVertex>.Create(BufferUsage.Dynamic)
+            .Attribute(VertexAttribute.Position, 0, AttributeType.Float3)
+            .Attribute(VertexAttribute.Normal, 0, AttributeType.Float3)
+            .Attribute(VertexAttribute.TexCoord0, 0, AttributeType.Float2)
+            .Attribute(VertexAttribute.Color0, 0, AttributeType.Float4)
+            .Build(_rendererModule.GraphicsDevice);
 
-        var cameraTransform = cameraRef.Value.Entity.Get<TransformComponent>();
+        var textIndexBuffer = IndexBufferBuilder<uint>.Create(BufferUsage.Dynamic)
+            .Build(_rendererModule.GraphicsDevice);
 
-        var commandBuffer = _rendererModule.GraphicsDevice.CreateCommandBuffer(view);
-        commandBuffer.ViewMatrix =
-            Matrix4X4.CreateLookAt(
-                cameraTransform.Position,
-                cameraTransform.Position + cameraTransform.Forward,
-                cameraTransform.Up
-            );
+        var textRenderObject = _rendererModule.GraphicsDevice.CreateRenderObject(
+            textVertexBuffer,
+            textIndexBuffer
+        );
+        textRenderObject.Projection = Projection.Orthographic;
+        textRenderObject.RenderStateFlags = RenderStateFlag.DisableDepthTesting;
+        textRenderObject.SetMaterial(_textMaterial);
 
-        if (_boxIndexBuffer.ElementCount > 0) {
-            commandBuffer.ScheduleRenderable(_boxRenderObject);
-        }
+        var pair = new ContextData {
+            Context = context,
+            RenderList = new RenderList(),
+            RenderData = new RenderData {
+                TextRenderObject = textRenderObject,
+                TextVertexBuffer = textVertexBuffer,
+                TextIndexBuffer = textIndexBuffer,
+                BoxRenderObject = boxRenderObject,
+                BoxVertexBuffer = boxVertexBuffer,
+                BoxIndexBuffer = boxIndexBuffer,
+            }
+        };
 
-        if (_textIndexBuffer.ElementCount > 0) {
-            commandBuffer.ScheduleRenderable(_textRenderObject);
-        }
-        
-        _rendererModule.GraphicsDevice.Render(commandBuffer);
+        _contexts.Add(scene, pair);
+
+        return _contexts[scene].Context;
     }
 
     #endregion
+
+    private class ContextData
+    {
+        public Context Context;
+        public RenderList RenderList;
+        public RenderData RenderData;
+    }
+
+    private class RenderData
+    {
+        public IRenderObject TextRenderObject;
+        public IVertexBuffer<TexturedVertex> TextVertexBuffer;
+        public IIndexBuffer<uint> TextIndexBuffer;
+
+        public IRenderObject BoxRenderObject;
+        public IVertexBuffer<TexturedVertex> BoxVertexBuffer;
+        public IIndexBuffer<uint> BoxIndexBuffer;
+
+        public uint[] TextIndices = new uint[1024];
+        public uint[] BoxIndices = new uint[1024];
+        public TexturedVertex[] TextVertices = new TexturedVertex[1024];
+        public TexturedVertex[] BoxVertices = new TexturedVertex[1024];
+    }
 }

@@ -1,4 +1,5 @@
 using Duck.Content;
+using Duck.ECS;
 using Duck.Renderer.Mesh;
 using Duck.Serialization;
 
@@ -15,7 +16,7 @@ public partial struct StaticMeshComponent
     }
 }
 
-[AutoSerializable]
+[AutoSerializable, RuntimeComponent]
 public partial struct RuntimeStaticMeshComponent
 {
     public uint InstanceId = default;

@@ -7,6 +7,14 @@ public record struct WindowProps(in string Title, in int Width, in int Height)
 
 public record struct Window(in WindowProps Props, in Fragment? Child0, in Fragment? Child1, in Fragment? Child2, in Fragment? Child3, in Fragment? Child4, in Fragment? Child5);
 
+public class WindowRenderer : IElementRenderer
+{
+    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    {
+        // Console.WriteLine(fragment2.GetElementAs<Window2>().Props.Title);
+    }
+}
+
 public class WindowFactory : IElementFactory
 {
     private readonly ElementPool<Window> _pool = new();
@@ -29,14 +37,6 @@ public class WindowFactory : IElementFactory
         element.Child5 = child5;
 
         return Fragment.From(ref element, _defaultElementRenderer);
-    }
-}
-
-public class WindowRenderer : IElementRenderer
-{
-    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
-    {
-        // Console.WriteLine(fragment2.GetElementAs<Window2>().Props.Title);
     }
 }
 

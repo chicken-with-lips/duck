@@ -80,6 +80,15 @@ public partial struct TransformComponent
         _isScaleDirty = false;
     }
 
+    public Matrix4X4<float> CreateLookAtMatrix()
+    {
+        return Matrix4X4.CreateLookAt(
+            Position,
+            Position + Forward,
+            Up
+        );
+    }
+
     private void UpdateVectors()
     {
         _forward = Vector3D.Normalize(Vector3D.Transform(Vector3D<float>.UnitZ, _rotation));

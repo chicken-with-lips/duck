@@ -5,18 +5,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Duck.SourceGenerators.Serialization;
+namespace Duck.SerializationGenerators;
 
 [Generator]
 public class SerializerGenerator : IIncrementalGenerator
 {
-    private static void Debug(string message)
-    {
-        //var writer = new StreamWriter("/tmp/debug", true);
-        //writer.WriteLine(message);
-        //writer.Dispose();
-    }
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var enumTypes = context.SyntaxProvider
@@ -38,18 +31,12 @@ public class SerializerGenerator : IIncrementalGenerator
                      .Where(type => type is not null)) {
             context.CancellationToken.ThrowIfCancellationRequested();
 
-            try {
-                var code = GenerateCode(type);
-                var typeNamespace = type.ContainingNamespace.IsGlobalNamespace
-                    ? null
-                    : $"{type.ContainingNamespace}.";
+            var code = GenerateCode(type);
+            var typeNamespace = type.ContainingNamespace.IsGlobalNamespace
+                ? null
+                : $"{type.ContainingNamespace}.";
 
-                context.AddSource($"{typeNamespace}{type.Name}.Generated.cs", code);
-            } catch (Exception ex) {
-                Debug(ex.ToString());
-
-                throw;
-            }
+            context.AddSource($"{typeNamespace}{type.Name}.Generated.cs", code);
         }
     }
 
@@ -59,46 +46,30 @@ public class SerializerGenerator : IIncrementalGenerator
             return true;
         }
 
-        Debug("IsSerializable: " + symbol.Name + " -> " + symbol.GetType().Name + " -> " + symbol.Type.GetType().Name);
-
         if (symbol.Type is IArrayTypeSymbol) {
-            Debug("Yes");
             return true;
         }
 
-        if (symbol.Type is INamedTypeSymbol namedSymbol && IsSupportedContainerType(symbol.Type)) {
-            Debug("IsSerializable.Arity: " + symbol.Name);
-            foreach (var typeSymbolTypeArgument in namedSymbol.TypeArguments) {
-                Debug("--" + typeSymbolTypeArgument.Name);
-            }
-
-            Debug("Yes");
+        if (symbol.Type is INamedTypeSymbol && IsSupportedContainerType(symbol.Type)) {
             return true;
         }
 
         if (symbol.AssociatedSymbol != null) {
-            Debug("No");
             return false;
         }
 
         foreach (var data in symbol.Type.GetAttributes()) {
-            Debug("IsSerializable.data: " + data.AttributeClass?.Name);
             if (data.AttributeClass?.Name is "AutoSerializable" or "AutoSerializableAttribute") {
-                Debug("Yes");
                 return true;
             }
         }
 
         foreach (var typeSymbol in symbol.Type.AllInterfaces) {
-            Debug("IsSerializable.TypeSymbol: " + typeSymbol.Name + " -> " + typeSymbol.ContainingNamespace);
-
             if (typeSymbol.Name == "ISerializable" && typeSymbol.ContainingNamespace.Name == "Duck.Serialization") {
-                Debug("Yes");
                 return true;
             }
         }
 
-        Debug("No");
         return false;
     }
 
@@ -107,8 +78,6 @@ public class SerializerGenerator : IIncrementalGenerator
         if (null == symbol) {
             return false;
         }
-
-        Debug("IsSupportedContainerType: " + symbol.Name + " -> " + symbol.ContainingNamespace);
 
         if (symbol.ContainingNamespace.ToString() != "System.Collections.Generic") {
             return false;
@@ -182,20 +151,14 @@ public partial {typeIdentifier} {name}
         var serialize = new StringBuilder();
         var deserialize = new StringBuilder();
 
-        Debug("GenerateCode: " + type.Name);
-
         foreach (var member in type.GetMembers()) {
             if (member is not IFieldSymbol fieldSymbol) {
                 continue;
             }
 
-            Debug("Member: " + member.Name + " -> " + member.GetType().FullName);
-
             if (fieldSymbol.Kind != SymbolKind.Field || !IsSerializable(fieldSymbol)) {
                 continue;
             }
-
-            Debug("Member2 : " + member.Name);
 
             var symbolName = fieldSymbol.AssociatedSymbol?.Name ?? fieldSymbol.Name;
             var fieldTypeSymbol = fieldSymbol.Type as INamedTypeSymbol;
@@ -203,8 +166,6 @@ public partial {typeIdentifier} {name}
             if (fieldTypeSymbol == null) {
                 continue;
             }
-
-            Debug("Member3 : " + member.Name);
 
             if (!hasSerializeBeenImplemented) {
                 if (IsSupportedContainerType(fieldSymbol.Type)) {

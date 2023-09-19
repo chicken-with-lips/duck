@@ -1,4 +1,5 @@
-﻿using Duck.Content;
+﻿using System.Diagnostics;
+using Duck.Content;
 using Duck.Renderer;
 using Duck.Renderer.Device;
 using Duck.Renderer.Materials;
@@ -16,9 +17,26 @@ public class OpenGLRenderSystem : IRenderSystem
 {
     #region Properties
 
-    public IGraphicsDevice? GraphicsDevice => _graphicsDevice;
-    public IAsset<ShaderProgram>? FallbackShader => _fallbackShader;
-    public IAsset<Material>? FallbackMaterial => _fallbackMaterial;
+    public IGraphicsDevice GraphicsDevice {
+        get {
+            Debug.Assert(_graphicsDevice != null, "GraphicsDevice has not been initialized");
+            return _graphicsDevice;
+        }
+    }
+
+    public IAsset<ShaderProgram> FallbackShader {
+        get {
+            Debug.Assert(_fallbackShader != null, "Fallback shader has not been initialized");
+            return _fallbackShader;
+        }
+    }
+
+    public IAsset<Material> FallbackMaterial {
+        get {
+            Debug.Assert(_fallbackMaterial != null, "Fallback material has not been initialized");
+            return _fallbackMaterial;
+        }
+    }
 
     #endregion
 

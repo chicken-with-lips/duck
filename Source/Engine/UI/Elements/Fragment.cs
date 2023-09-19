@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using Silk.NET.Maths;
 
 namespace Duck.Ui.Elements;
 

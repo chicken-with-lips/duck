@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Duck.SourceGenerators.Serialization;
+namespace Duck.SerializationGenerators;
 
 [Generator]
 public class SerializerInstanciatorGenerator : IIncrementalGenerator

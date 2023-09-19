@@ -3,44 +3,108 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 using Duck;
 using Duck.GameFramework;
 using Duck.GameHost;
+using Duck.Input;
 using Duck.Logging;
 
-namespace Editor.Host;
+namespace Editor.Modules;
 
-public class EditorClientHost
+public class GameHostModule : IInitializableModule,
+    ITickableModule,
+    IRenderableModule,
+    IShutdownModule,
+    IEnterPlayModeModule,
+    IExitPlayModeModule
 {
-    #region Properties
-
+    public IApplication InstancedApplication => _instancedApplication;
     public bool IsLoaded { get; private set; }
     public bool IsBusy { get; private set; }
 
-    #endregion
-
-    #region Members
-
     private readonly ApplicationBase _application;
-    private readonly ILogger _logger;
     private readonly string _projectDirectory;
+    private readonly ApplicationBase _instancedApplication;
+    private readonly ILogger _logger;
 
-    private EditorClientAssemblyLoadContext? _assemblyContext;
+    private GameAssemblyLoadContext? _assemblyContext;
     private IGameClient? _hostedClient;
+    private bool _isInPlayMode;
 
-    #endregion
-
-    #region Methods
-
-    public EditorClientHost(ApplicationBase application, ILogger logger, string projectDirectory)
+    public GameHostModule(ApplicationBase application, ILogModule logModule, string projectDirectory)
     {
+        _logger = logModule.CreateLogger("GameHost");
+        _logger.LogInformation("Created game host module.");
+
         _application = application;
-        _logger = logger;
         _projectDirectory = projectDirectory;
+        _instancedApplication = (ApplicationBase)application.CreateProxy(false);
+    }
+
+    public bool Init()
+    {
+        _logger.LogInformation("Initializing game host module...");
+
+        if (!LoadAndInitialize()) {
+            throw new Exception("Failed to initialize game client");
+        }
+
+        return true;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public bool Load()
+    public void Shutdown()
+    {
+        ExitPlayMode();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void Tick()
+    {
+        AssertContextIsReady();
+
+        _instancedApplication.Tick();
+        _hostedClient?.Tick();
+
+        if (_application.GetModule<IInputModule>().WasMouseButtonDown(1) && !IsBusy) {
+            Reload();
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void Render()
+    {
+        AssertContextIsReady();
+
+        _instancedApplication.Render();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void EnterPlayMode()
+    {
+        AssertContextIsReady();
+
+        _instancedApplication.EnterPlayMode();
+        _hostedClient?.EnterPlayMode();
+    }
+
+    public T GetModule<T>() where T : IModule
+    {
+        return _instancedApplication.GetModule<T>();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public void ExitPlayMode()
+    {
+        AssertContextIsReady();
+
+        _hostedClient?.ExitPlayMode();
+        _instancedApplication.ExitPlayMode();
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private bool Load()
     {
         if (IsLoaded) {
             _logger.LogError("Client has already been loaded.");
@@ -54,7 +118,7 @@ public class EditorClientHost
 
         IsBusy = true;
 
-        _assemblyContext = new EditorClientAssemblyLoadContext("Editor", true);
+        _assemblyContext = new GameAssemblyLoadContext("Editor", true);
 
         var assemblies = new[] {
             "Duck.dll",
@@ -79,16 +143,6 @@ public class EditorClientHost
             using (var stream = File.OpenRead(gameDll)) {
                 var assembly = _assemblyContext?.LoadFromStream(stream);
 
-                // var clientTypes = assembly
-                //     .GetTypes()
-                //     .Where(type => !type.IsAbstract && typeof(IGameClient).IsAssignableFrom(type))
-                //     .ToArray();
-                //
-                // if (clientTypes.Length != 1) {
-                //     _logger.LogError("There must be exactly one IClient defined.");
-                //     return false;
-                // }
-
                 var clientType = assembly?.GetType("Game.GameClient");
                 var x = Activator.CreateInstance(clientType);
                 _hostedClient = x as IGameClient;
@@ -102,14 +156,14 @@ public class EditorClientHost
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public bool LoadAndInitialize()
+    private bool LoadAndInitialize()
     {
         return Load()
                && Initialize(false);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public bool Unload()
+    private bool Unload()
     {
         if (!IsLoaded) {
             _logger.LogError("Client cannot be unloaded because it was never loaded.");
@@ -121,7 +175,7 @@ public class EditorClientHost
             return false;
         }
 
-        // IsBusy = true;
+        IsBusy = true;
         IsLoaded = false;
 
         var hotReloadContext = DoUnload(out var assemblyRef);
@@ -133,7 +187,7 @@ public class EditorClientHost
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            if (unloadTimer.Elapsed.TotalSeconds > 0.1) {
+            if (unloadTimer.Elapsed.TotalSeconds > 1) {
                 _logger.LogError("Waiting for game context to shutdown...");
                 unloadTimer.Restart();
             }
@@ -159,7 +213,7 @@ public class EditorClientHost
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public bool Reload()
+    private bool Reload()
     {
         return Unload()
                && Load()
@@ -174,30 +228,56 @@ public class EditorClientHost
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public bool Initialize(bool isHotReload)
+    private bool Initialize(bool isHotReload)
     {
         AssertContextIsReady();
 
         using (_assemblyContext?.EnterContextualReflection()) {
             var type = Type.GetType("Duck.GameFramework.GameClient.GameClientInitializationContext, Duck.GameFramework");
             var context = (IGameClientInitializationContext)Activator.CreateInstance(type, new object[] {
-                _application,
+                _instancedApplication,
                 isHotReload
             });
 
+            _instancedApplication.Initialize();
             _hostedClient?.Initialize(context);
         }
 
+        _instancedApplication.ChangeState(ApplicationState.Running);
+
         return true;
     }
+}
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public void Tick()
+class GameAssemblyLoadContext : AssemblyLoadContext
+{
+    public GameAssemblyLoadContext(string? name, bool isCollectible = false) : base(name, isCollectible)
     {
-        AssertContextIsReady();
-
-        _hostedClient?.Tick();
     }
 
-    #endregion
+    protected override Assembly? Load(AssemblyName assemblyName)
+    {
+        if (assemblyName.FullName.StartsWith("Duck.")) {
+            return null;
+        }
+
+        Console.WriteLine("EditorClientAssemblyLoadContext.Load: " + assemblyName.FullName);
+
+        // return null;
+        // string file = "/home/jolly_samurai/Projects/chicken-with-lips/infectic/Code/bin/Debug/net8.0/" + assemblyName.Name + ".dll";
+        string file = "/media/jolly_samurai/Data/Projects/chicken-with-lips/Duck/Build/Debug/net8.0/" + assemblyName.Name + ".dll";
+
+        if (File.Exists(file)) {
+            return LoadFromAssemblyPath(file);
+        }
+
+        return null;
+    }
+
+    protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+    {
+        Console.WriteLine("EditorClientAssemblyLoadContext.LoadUnmanagedDll: " + unmanagedDllName);
+
+        return base.LoadUnmanagedDll(unmanagedDllName);
+    }
 }

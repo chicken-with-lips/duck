@@ -2,10 +2,19 @@ using System.Collections.Concurrent;
 
 namespace Duck.ServiceBus;
 
-public class EventBus : IEventBus
+public class EventBus : IEventBus, IHotReloadAwareModule, IModuleCanBeInstanced
 {
     private readonly ConcurrentQueue<IEvent> _pending = new();
     private readonly ConcurrentDictionary<Type, ListenerCollectionBase> _listeners = new();
+
+    public void BeginHotReload()
+    {
+        _listeners.Clear();
+    }
+
+    public void EndHotReload()
+    {
+    }
 
     public void Emit(IEvent ev)
     {
@@ -38,6 +47,11 @@ public class EventBus : IEventBus
             var collection = baseCollection as ListenerCollection<TE>;
             collection?.Remove(listener);
         }
+    }
+
+    public IModule CreateModuleInstance(IApplication app)
+    {
+        return new EventBus();
     }
 
     private abstract class ListenerCollectionBase

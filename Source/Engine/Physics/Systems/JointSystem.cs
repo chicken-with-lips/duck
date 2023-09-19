@@ -1,13 +1,8 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Arch.Core;
-using Arch.Core.Extensions;
 using Arch.System;
 using Arch.System.SourceGenerator;
-using ChickenWithLips.PhysX;
 using Duck.Physics.Components;
-using Duck.Physics.Events;
-using Silk.NET.Maths;
 
 namespace Duck.Physics.Systems;
 
@@ -34,11 +29,11 @@ public partial class JointSystem : BaseSystem<World, float>
             return;
         }
 
-        if (cmp.Target.IsAlive() && cmp.Target.Entity.Has<PhysXIntegrationComponent>()) {
+        if (World.IsAlive(cmp.Target) && World.Has<PhysXIntegrationComponent>(cmp.Target.Entity)) {
             var actor0 = _physicsWorld.GetRigidBody(entity);
             var actor1 = _physicsWorld.GetRigidBody(cmp.Target);
 
-            var joint = _physicsWorld.Simulation.CreateDistanceJoint(
+            /*var joint = _physicsWorld.Simulation.CreateDistanceJoint(
                 actor0,
                 new PxTransform(),
                 actor1,
@@ -47,8 +42,10 @@ public partial class JointSystem : BaseSystem<World, float>
             joint.MinDistance = 500f;
             joint.MaxDistance = 500f;
             joint.SetDistanceJointFlag(PxDistanceJointFlag.MaxDistanceEnabled, true);
-            joint.SetDistanceJointFlag(PxDistanceJointFlag.MinDistanceEnabled, true);
+            joint.SetDistanceJointFlag(PxDistanceJointFlag.MinDistanceEnabled, true);*/
 
+            Console.WriteLine("WIP");
+            
             cmp.ClearDirtyFlags();
         }
     }

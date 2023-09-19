@@ -8,20 +8,28 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>../../Build/Debug/</OutputPath>
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <OutputPath>../../Build/Debug/</OutputPath>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Engine\Content\Content.csproj" />
-      <ProjectReference Include="..\Engine\Core\Core.csproj" />
-      <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
-      <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
-      <ProjectReference Include="..\Engine\Renderer\Renderer.csproj" />
-      <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
+        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.Relationships\Arch.Relationships.csproj" />
+        <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
+        <ProjectReference Include="..\Engine\Animation\Animation.csproj" />
+        <ProjectReference Include="..\Engine\Content\Content.csproj" />
+        <ProjectReference Include="..\Engine\Core\Core.csproj" />
+        <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
+        <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
+        <ProjectReference Include="..\Engine\Renderer\Renderer.csproj" />
+        <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
+        <ProjectReference Include="..\Engine\UI\UI.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.System.SourceGenerator\Arch.System.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 </Project>

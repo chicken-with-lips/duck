@@ -15,18 +15,16 @@ public readonly record struct ElementRenderContext(in Vector2D<float> Position, 
     public static readonly ElementRenderContext Default = new();
 }
 
-public abstract class ElementRendererBase : IElementRenderer
+public abstract class ElementRendererBase
 {
     public delegate Vector2D<float> CalculateOffsetCallback(in Box box, in Vector2D<float> position, in Vector2D<float> gapSize);
-
-    public abstract void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList);
 
     public void RenderChildren(in Vector2D<float> position, in Vector2D<float> gapSize, in ElementRenderContext renderContext, RenderList renderList, in Fragment? fragment0, in Fragment? fragment1, in Fragment? fragment2, in Fragment? fragment3, in Fragment? fragment4, in Fragment? fragment5, CalculateOffsetCallback calculateOffset)
     {
         var offset = position;
 
-        if (fragment0 is { PropertyAccessor: IBoxAccessor accessor0 }) {
-            var box = accessor0.GetBox(fragment0.Value);
+        if (fragment0.HasValue) {
+            var box = Measure.Box(fragment0);
             var containerBox = Box.Default with {
                 ContentHeight = Measure.BoxHeight(renderContext.ContainerBox) - Measure.BoxHeight(box),
                 ContentWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(box),
@@ -44,8 +42,8 @@ public abstract class ElementRendererBase : IElementRenderer
             offset = calculateOffset(box, offset, gapSize);
         }
 
-        if (fragment1 is { PropertyAccessor: IBoxAccessor accessor1 }) {
-            var box = accessor1.GetBox(fragment1.Value);
+        if (fragment1.HasValue) {
+            var box = Measure.Box(fragment1.Value);
             var containerBox = Box.Default with {
                 ContentHeight = Measure.BoxHeight(renderContext.ContainerBox) - Measure.BoxHeight(box),
                 ContentWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(box),
@@ -63,8 +61,8 @@ public abstract class ElementRendererBase : IElementRenderer
             offset = calculateOffset(box, offset, gapSize);
         }
 
-        if (fragment2 is { PropertyAccessor: IBoxAccessor accessor2 }) {
-            var box = accessor2.GetBox(fragment2.Value);
+        if (fragment2.HasValue) {
+            var box = Measure.Box(fragment2.Value);
             var containerBox = Box.Default with {
                 ContentHeight = Measure.BoxHeight(renderContext.ContainerBox) - Measure.BoxHeight(box),
                 ContentWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(box),
@@ -82,8 +80,8 @@ public abstract class ElementRendererBase : IElementRenderer
             offset = calculateOffset(box, offset, gapSize);
         }
 
-        if (fragment3 is { PropertyAccessor: IBoxAccessor accessor3 }) {
-            var box = accessor3.GetBox(fragment3.Value);
+        if (fragment3.HasValue) {
+            var box = Measure.Box(fragment3.Value);
             var containerBox = Box.Default with {
                 ContentHeight = Measure.BoxHeight(renderContext.ContainerBox) - Measure.BoxHeight(box),
                 ContentWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(box),
@@ -101,8 +99,8 @@ public abstract class ElementRendererBase : IElementRenderer
             offset = calculateOffset(box, offset, gapSize);
         }
 
-        if (fragment4 is { PropertyAccessor: IBoxAccessor accessor4 }) {
-            var box = accessor4.GetBox(fragment4.Value);
+        if (fragment4.HasValue) {
+            var box = Measure.Box(fragment4.Value);
             var containerBox = Box.Default with {
                 ContentHeight = Measure.BoxHeight(renderContext.ContainerBox) - Measure.BoxHeight(box),
                 ContentWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(box),
@@ -120,8 +118,8 @@ public abstract class ElementRendererBase : IElementRenderer
             offset = calculateOffset(box, offset, gapSize);
         }
 
-        if (fragment5 is { PropertyAccessor: IBoxAccessor accessor5 }) {
-            var box = accessor5.GetBox(fragment5.Value);
+        if (fragment5.HasValue) {
+            var box = Measure.Box(fragment5.Value);
             var containerBox = Box.Default with {
                 ContentHeight = Measure.BoxHeight(renderContext.ContainerBox) - Measure.BoxHeight(box),
                 ContentWidth = Measure.BoxWidth(renderContext.ContainerBox) - Measure.BoxWidth(box),
@@ -153,17 +151,13 @@ public abstract class ElementRendererBase : IElementRenderer
             fragment3,
             fragment4,
             fragment5,
-            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(Measure.BoxDimensions(box).X + gapSize.X, 0)
+            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(Measure.BoxWidth(box) + gapSize.X, 0)
         );
     }
 
     public void RenderChildrenHorizontal(in Fragment parent, in Vector2D<float> gapSize, in ElementRenderContext renderContext, RenderList renderList, in Fragment? fragment0, in Fragment? fragment1, in Fragment? fragment2, in Fragment? fragment3, in Fragment? fragment4, in Fragment? fragment5)
     {
-        var box = Box.Default;
-
-        if (parent is { PropertyAccessor: IBoxAccessor accessor }) {
-            box = accessor.GetBox(parent);
-        }
+        var box = Measure.Box(parent);
 
         RenderChildren(
             Measure.ContentPosition(renderContext, box),
@@ -176,7 +170,7 @@ public abstract class ElementRendererBase : IElementRenderer
             fragment3,
             fragment4,
             fragment5,
-            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(Measure.BoxDimensions(box).X + gapSize.X, 0)
+            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(Measure.BoxWidth(box) + gapSize.X, 0)
         );
     }
 
@@ -193,7 +187,7 @@ public abstract class ElementRendererBase : IElementRenderer
             fragment3,
             fragment4,
             fragment5,
-            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(0, Measure.BoxDimensions(box).Y + gapSize.Y)
+            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(0, Measure.BoxHeight(box) + gapSize.Y)
         );
     }
 
@@ -210,7 +204,7 @@ public abstract class ElementRendererBase : IElementRenderer
             fragment3,
             fragment4,
             fragment5,
-            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(0, Measure.BoxDimensions(box).Y + gapSize.Y)
+            (in Box box, in Vector2D<float> position, in Vector2D<float> gapSize) => position + new Vector2D<float>(0, Measure.BoxHeight(box) + gapSize.Y)
         );
     }
 }

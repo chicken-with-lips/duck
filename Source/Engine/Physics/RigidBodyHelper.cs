@@ -14,29 +14,28 @@ internal static class RigidBodyHelper
     {
         var position = transformComponent.Position.ToSystem();
         var rotation = transformComponent.Rotation.ToSystem();
+        PxRigidActor body = null;
 
         if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Dynamic || rigidBodyComponent.Type == RigidBodyComponent.BodyType.Kinematic) {
-            var body = physics.CreateRigidDynamic(
+            var dynBody = physics.CreateRigidDynamic(
                 new PxTransform(rotation, position)
             );
 
-            PxRigidBodyExt.UpdateMassAndInertia(body, rigidBodyComponent.Mass);
+            PxRigidBodyExt.UpdateMassAndInertia(dynBody, rigidBodyComponent.Mass);
 
             if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Kinematic) {
-                body.SetFlag(PxRigidBodyFlag.Kinematic, true);
+                dynBody.SetFlag(PxRigidBodyFlag.Kinematic, true);
             }
 
-            body.LockFlags = (PxRigidDynamicLockFlag)rigidBodyComponent.AxisLock;
-            body.AngularDamping = rigidBodyComponent.AngularDamping;
-            body.LinearDamping = rigidBodyComponent.LinearDamping;
+            dynBody.LockFlags = (PxRigidDynamicLockFlag)rigidBodyComponent.AxisLock;
+            dynBody.AngularDamping = rigidBodyComponent.AngularDamping;
+            dynBody.LinearDamping = rigidBodyComponent.LinearDamping;
 
-            physxComponent.Body = body;
+            body = dynBody;
         } else if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Static) {
-            var body = physics.CreateRigidStatic(
+            body = physics.CreateRigidStatic(
                 new PxTransform(rotation, position)
             );
-
-            physxComponent.Body = body;
         }
 
         // FIXME: integrate materials in to asset system
@@ -45,20 +44,22 @@ internal static class RigidBodyHelper
         // FIXME: share shapes
         var shape = physics.CreateShape(geometry, material);
 
-        if (!physxComponent.Body.AttachShape(shape)) {
+        if (!body.AttachShape(shape)) {
             throw new Exception("FIXME: errors");
         }
 
-        world.MapActorToEntity(entity, physxComponent.Body);
-        world.Scene.AddActor(physxComponent.Body);
+        var bodyId = world.AddActor(body);
+        world.MapActorToEntity(entity, bodyId);
 
-        return physxComponent.Body;
+        physxComponent.BodyId = bodyId;
+
+        return body;
     }
 
     public static void RemoveBody(ref PhysXIntegrationComponent physxComponent, PhysicsWorld world)
     {
-        world.UnmapActor(physxComponent.Body);
-        world.Scene.RemoveActor(physxComponent.Body);
+        world.UnmapActor(physxComponent.BodyId);
+        world.RemoveActor(physxComponent.BodyId);
     }
     
     #endregion

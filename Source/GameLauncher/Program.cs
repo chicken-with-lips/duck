@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Duck;
 using Duck.Platforms.Standard;
 using Duck.RenderSystems.OpenGL;
 
@@ -24,13 +25,15 @@ namespace GameLauncher
             rootCommand.AddOption(projectOption);
 
             rootCommand.SetHandler((projectDirectory) => {
-                var app = new Game(
+                var app = new LauncherApp(
                     new StandardPlatform(),
                     new OpenGLRenderSystem(),
                     projectDirectory
                 );
 
                 if (app.Initialize()) {
+                    app.ChangeState(ApplicationState.Running);
+                    app.EnterPlayMode();
                     app.Run();
                 }
             }, projectOption);

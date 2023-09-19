@@ -1,12 +1,14 @@
 using Arch.Core;
 using Duck.Renderer.Events;
+using Duck.Renderer.Serialization;
 using Duck.Serialization;
 using Duck.ServiceBus;
+using Utf8Json;
 
 namespace Duck.Renderer;
 
 [AutoSerializable]
-public partial class Scene : IScene
+public partial class Scene : IScene, ICloneable
 {
     #region Properties
 
@@ -45,11 +47,11 @@ public partial class Scene : IScene
 
     #region Methods
 
-    internal Scene(string name, World world, IEventBus eventBus)
+    internal Scene(string name, World world, IEventBus eventBus, bool isActive = false)
     {
         _name = name;
-        _isActive = false;
-        _world = world;  
+        _isActive = isActive;
+        _world = world;
         _eventBus = eventBus;
         _systemRoot = new(world);
     }
@@ -67,6 +69,10 @@ public partial class Scene : IScene
 
     public void Tick(in float deltaTime)
     {
+        if (!IsActive) {
+            return;
+        }
+
         if (_shouldFireActivated) {
             _eventBus.Emit(new SceneWasMadeActive() {
                 Scene = this
@@ -86,6 +92,16 @@ public partial class Scene : IScene
             _systemRoot.LateSimulationGroup.Update(deltaTime);
             _systemRoot.LateSimulationGroup.AfterUpdate(deltaTime);
         }
+    }
+
+    public object Clone()
+    {
+        return new Scene(
+            _name,
+            InMemoryWorldCloner.Copy(World),
+            _eventBus,
+            IsActive
+        );
     }
 
     #endregion

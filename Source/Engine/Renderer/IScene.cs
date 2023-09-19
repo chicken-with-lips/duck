@@ -4,7 +4,7 @@ using Duck.Serialization;
 namespace Duck.Renderer;
 
 [AutoSerializable]
-public partial interface IScene
+public partial interface IScene : ICloneable
 {
     public bool IsActive { get; set; }
 

@@ -9,7 +9,7 @@ namespace Duck.Renderer;
 
 public interface IRenderSystem
 {
-    public IGraphicsDevice? GraphicsDevice { get; }
+    public IGraphicsDevice GraphicsDevice { get; }
     public IAsset<ShaderProgram> FallbackShader { get; }
     public IAsset<Material> FallbackMaterial { get; }
 

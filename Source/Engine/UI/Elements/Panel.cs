@@ -10,6 +10,37 @@ public readonly record struct PanelProps(in Box Box, in Color BackgroundColor)
 
 public record struct Panel(PanelProps Props, in Fragment? Child);
 
+public class PanelRenderer : ElementRendererBase, IElementRenderer
+{
+    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    {
+        var e = fragment.GetElementAs<Panel>();
+
+        renderList.DrawBox(
+            Measure.ElementPosition(renderContext, e.Props.Box),
+            e.Props.Box,
+            e.Props.BackgroundColor
+        );
+
+        RenderChildrenVertical(
+            fragment,
+            Vector2D<float>.Zero,
+            renderContext,
+            renderList,
+            e.Child
+        );
+    }
+}
+
+public class PanelPropertyAccessor : IBoxAccessor
+{
+    public Box GetBox(in Fragment fragment)
+    {
+        var props = fragment.GetElementAs<Panel>().Props;
+        return props.Box;
+    }
+}
+
 public class PanelFactory : IElementFactory
 {
     private readonly ElementPool<Panel> _pool = new();
@@ -28,37 +59,6 @@ public class PanelFactory : IElementFactory
         element.Child = child;
 
         return Fragment.From(ref element, _elementRenderer, _propertyAccessor);
-    }
-}
-
-public class PanelPropertyAccessor : IBoxAccessor
-{
-    public Box GetBox(in Fragment fragment)
-    {
-        var props = fragment.GetElementAs<Panel>().Props;
-        return props.Box;
-    }
-}
-
-public class PanelRenderer : ElementRendererBase
-{
-    public override void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
-    {
-        var e = fragment.GetElementAs<Panel>();
-
-        renderList.DrawBox(
-            Measure.ElementPosition(renderContext, e.Props.Box),
-            e.Props.Box,
-            e.Props.BackgroundColor
-        );
-
-        RenderChildrenVertical(
-            fragment,
-            Vector2D<float>.Zero,
-            renderContext,
-            renderList,
-            e.Child
-        );
     }
 }
 

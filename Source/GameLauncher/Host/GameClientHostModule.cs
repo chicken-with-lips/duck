@@ -1,10 +1,11 @@
 using System;
+using System.Runtime.CompilerServices;
 using Duck;
 using Duck.Logging;
 
 namespace GameLauncher.Host;
 
-public class GameClientHostModule : IInitializableModule, ITickableModule
+public class GameClientHostModule : IInitializableModule, ITickableModule, IShutdownModule
 {
     private readonly IApplication _app;
     private readonly string _projectDirectory;
@@ -36,5 +37,10 @@ public class GameClientHostModule : IInitializableModule, ITickableModule
     public void Tick()
     {
         _clientHost?.Tick();
+    }
+
+    public void Shutdown()
+    {
+        _clientHost?.ExitPlayMode();
     }
 }

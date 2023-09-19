@@ -48,5 +48,13 @@ public abstract class GameClientBase : IGameClient
     {
     }
 
+    public virtual void EnterPlayMode()
+    {
+    }
+
+    public virtual void ExitPlayMode()
+    {
+    }
+
     #endregion
 }

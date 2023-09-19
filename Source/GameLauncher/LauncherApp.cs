@@ -8,11 +8,11 @@ using GameLauncher.Host;
 
 namespace GameLauncher;
 
-public class Game : ApplicationBase
+public class LauncherApp : ApplicationBase
 {
     private readonly string _projectDirectory;
 
-    public Game(IPlatform platform, IRenderSystem renderSystem, string projectDirectory)
+    public LauncherApp(IPlatform platform, IRenderSystem renderSystem, string projectDirectory)
         : base(platform, renderSystem, false)
     {
         _projectDirectory = projectDirectory;

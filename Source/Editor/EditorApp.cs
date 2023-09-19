@@ -4,15 +4,15 @@ using Duck.GameFramework;
 using Duck.Logging;
 using Duck.Platform;
 using Duck.Renderer;
-using Editor.Host;
+using Editor.Modules;
 
 namespace Editor;
 
-public class Editor : ApplicationBase
+public class EditorApp : ApplicationBase
 {
     private readonly string _projectDirectory;
 
-    public Editor(IPlatform platform, IRenderSystem renderSystem, string projectDirectory)
+    public EditorApp(IPlatform platform, IRenderSystem renderSystem, string projectDirectory)
         : base(platform, renderSystem, true)
     {
         _projectDirectory = projectDirectory;
@@ -30,6 +30,7 @@ public class Editor : ApplicationBase
     {
         base.RegisterModules();
 
-        AddModule(new EditorClientHostModule(this, GetModule<ILogModule>(), _projectDirectory));
+        AddModule(new EditorModule(this, GetModule<ILogModule>(), GetModule<IRendererModule>(), GetModule<IContentModule>(), _projectDirectory));
+        AddModule(new GameHostModule(this, GetModule<ILogModule>(), _projectDirectory));
     }
 }

@@ -1,12 +1,10 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
-using Arch.Core.Extensions;
 using Arch.System;
 using Arch.System.SourceGenerator;
 using Duck.Content;
 using Duck.Renderer.Components;
 using Duck.Renderer.Device;
-using Duck.Renderer.Mesh;
 
 namespace Duck.Renderer.Systems;
 
@@ -29,12 +27,12 @@ public partial class LoadStaticMeshSystem : BaseSystem<World, float>
             return;
         }
 
-        entity.Add<RuntimeStaticMeshComponent>();
+        World.Add<RuntimeStaticMeshComponent>(entity);
 
-        var mesh = _contentModule.LoadImmediate<StaticMesh>(staticMesh.Mesh.Value) as IRenderable;
+        var mesh = _contentModule.LoadImmediate(staticMesh.Mesh.Value) as IRenderable;
 
         // FIXME: what was I trying to do here?
-        ref var runtimeData = ref entity.Get<RuntimeStaticMeshComponent>();
+        ref var runtimeData = ref World.Get<RuntimeStaticMeshComponent>(entity);
         runtimeData.InstanceId = mesh.RenderObject.CreateInstance().Id;
     }
 }

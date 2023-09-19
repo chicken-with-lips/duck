@@ -32,6 +32,7 @@ public class PhysicsWorld : IPhysicsWorld
     private readonly PxScene _scene;
     private readonly Dictionary<PxActor, EntityReference> _actorToEntityMap = new();
     private readonly Dictionary<EntityReference, PxActor> _entityToActorMap = new();
+    private readonly Dictionary<int, PxActor> _actorList = new();
     private readonly SimulationEventCallback _simulationEventCallback;
     private readonly SimulationFilterCallback _simulationFilterCallback;
     private readonly PxFilterShaderCallback _filterShader;
@@ -124,23 +125,43 @@ public class PhysicsWorld : IPhysicsWorld
 
     public PxRigidBody? GetRigidBody(Entity entity)
     {
-        if (_entityToActorMap.TryGetValue(entity.Reference(), out var actor)) {
+        if (_entityToActorMap.TryGetValue(_world.Reference(entity), out var actor)) {
             return actor as PxRigidBody;
         }
 
         return null;
     }
 
-    internal void MapActorToEntity(Entity entity, PxActor actor)
+    public PxRigidActor? GetActor(int bodyId)
     {
-        _actorToEntityMap.Add(actor, entity.Reference());
-        _entityToActorMap.Add(entity.Reference(), actor);
+        return _actorList[bodyId] as PxRigidActor;
     }
 
-    internal void UnmapActor(PxActor actor)
+    internal int AddActor(PxActor actor)
     {
-        _entityToActorMap.Remove(_actorToEntityMap[actor]);
-        _actorToEntityMap.Remove(actor);
+        var idx = _actorList.Count;
+        _actorList.Add(idx, actor);
+        Scene.AddActor(actor);
+
+        return idx;
+    }
+
+    internal void RemoveActor(int id)
+    {
+        Scene.RemoveActor(_actorList[id]);
+        _actorList.Remove(id);
+    }
+
+    internal void MapActorToEntity(Entity entity, int actor)
+    {
+        _actorToEntityMap.Add(_actorList[actor], _world.Reference(entity));
+        _entityToActorMap.Add(_world.Reference(entity), _actorList[actor]);
+    }
+
+    internal void UnmapActor(int actor)
+    {
+        _entityToActorMap.Remove(_actorToEntityMap[_actorList[actor]]);
+        _actorToEntityMap.Remove(_actorList[actor]);
     }
 
     internal EntityReference GetEntityForActor(PxActor actor)

@@ -5,7 +5,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Input;
 
-public class InputModule : IInputModule, ITickableModule
+public class InputModule : IInputModule, ITickableModule, IModuleCanBeInstanced
 {
     #region Properties
 
@@ -16,6 +16,7 @@ public class InputModule : IInputModule, ITickableModule
     #region Members
 
     private readonly ILogger _logger;
+    private readonly ILogModule _logModule;
     private readonly IPlatform _platform;
 
     private readonly Dictionary<string, InputAction> _actions = new();
@@ -35,6 +36,7 @@ public class InputModule : IInputModule, ITickableModule
 
     public InputModule(ILogModule logModule, IPlatform platform)
     {
+        _logModule = logModule;
         _platform = platform;
 
         _logger = logModule.CreateLogger("Input");
@@ -141,6 +143,11 @@ public class InputModule : IInputModule, ITickableModule
     public bool WasMouseButtonDown(int index)
     {
         return _mouseButtonsPrevFrame[index];
+    }
+
+    public IModule CreateModuleInstance(IApplication app)
+    {
+        return new InputModule(_logModule, _platform);
     }
 
     private void UpdateAxis(InputAxis axis)

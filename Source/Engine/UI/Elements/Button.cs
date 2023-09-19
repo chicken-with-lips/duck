@@ -10,39 +10,9 @@ public readonly record struct ButtonProps(in Box Box, in Color BackgroundColor, 
 
 public record struct Button(ButtonProps Props, in Fragment? Child, Action? OnClicked = null);
 
-public class ButtonFactory : IElementFactory
+public class ButtonRenderer : ElementRendererBase, IElementRenderer
 {
-    private readonly ElementPool<Button> _pool = new();
-    private readonly IElementRenderer _elementRenderer = new ButtonRenderer();
-    private readonly IElementPropertyAccessor _propertyAccessor = new ButtonPropertyAccessor();
-
-    public void BeginFrame()
-    {
-        _pool.ResetIndex();
-    }
-
-    public Fragment Create(in ButtonProps props, in Fragment? child = null, Action? onClicked = null)
-    {
-        ref var element = ref _pool.Allocate();
-        element.Props = props;
-        element.Child = child;
-        element.OnClicked = onClicked;
-
-        return Fragment.From(ref element, _elementRenderer, _propertyAccessor);
-    }
-}
-
-public class ButtonPropertyAccessor : IBoxAccessor
-{
-    public Box GetBox(in Fragment fragment)
-    {
-        return fragment.GetElementAs<Button>().Props.Box;
-    }
-}
-
-public class ButtonRenderer : ElementRendererBase
-{
-    public override void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
+    public void Render(in Fragment fragment, in ElementRenderContext renderContext, RenderList renderList)
     {
         var e = fragment.GetElementAs<Button>();
         var backgroundColor = e.Props.BackgroundColor;
@@ -68,6 +38,36 @@ public class ButtonRenderer : ElementRendererBase
             renderList,
             fragment.GetElementAs<Button>().Child
         );
+    }
+}
+
+public class ButtonPropertyAccessor : IBoxAccessor
+{
+    public Box GetBox(in Fragment fragment)
+    {
+        return fragment.GetElementAs<Button>().Props.Box;
+    }
+}
+
+public class ButtonFactory : IElementFactory
+{
+    private readonly ElementPool<Button> _pool = new();
+    private readonly IElementRenderer _elementRenderer = new ButtonRenderer();
+    private readonly IElementPropertyAccessor _propertyAccessor = new ButtonPropertyAccessor();
+
+    public void BeginFrame()
+    {
+        _pool.ResetIndex();
+    }
+
+    public Fragment Create(in ButtonProps props, in Fragment? child = null, Action? onClicked = null)
+    {
+        ref var element = ref _pool.Allocate();
+        element.Props = props;
+        element.Child = child;
+        element.OnClicked = onClicked;
+
+        return Fragment.From(ref element, _elementRenderer, _propertyAccessor);
     }
 }
 

@@ -4,13 +4,33 @@ namespace Duck;
 
 public interface IApplication
 {
+    public bool IsInPlayMode { get; }
+
+    public IModule[] Modules { get; }
+
     public bool Initialize();
 
-    public void Run();
+    public void RunFrame();
 
     public void Shutdown();
 
     public T GetModule<T>() where T : IModule;
+
+    public void ChangeState(ApplicationState newState);
+
+    public void EnterPlayMode();
+    public void ExitPlayMode();
+}
+
+
+public enum ApplicationState
+{
+    Uninitialized,
+    Initializing,
+    Initialized,
+    Running,
+    HotReloading,
+    TearingDown,
 }
 
 public interface IModule
@@ -67,6 +87,16 @@ public interface IShutdownModule : IModule
     public void Shutdown();
 }
 
+public interface IEnterPlayModeModule : IModule
+{
+    public void EnterPlayMode();
+}
+
+public interface IExitPlayModeModule : IModule
+{
+    public void ExitPlayMode();
+}
+
 public interface IHotReloadAwareModule : IModule
 {
     public void BeginHotReload();
@@ -76,4 +106,9 @@ public interface IHotReloadAwareModule : IModule
 public interface IHotReloadContext
 {
     public ISerializer Serializer { get; }
+}
+
+public interface IModuleCanBeInstanced
+{
+    public IModule CreateModuleInstance(IApplication app);
 }

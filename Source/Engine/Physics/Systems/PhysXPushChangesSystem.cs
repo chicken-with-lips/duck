@@ -10,19 +10,22 @@ namespace Duck.Physics.Systems;
 
 public partial class PhysXPushChangesSystem : BaseSystem<World, float>
 {
+    private readonly PhysicsWorld _physicsWorld;
+
     #region Methods
 
-    public PhysXPushChangesSystem(World world)
+    public PhysXPushChangesSystem(World world, PhysicsWorld physicsWorld)
         : base(world)
     {
+        _physicsWorld = physicsWorld;
     }
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(ref RigidBodyComponent rigidBody, in PhysXIntegrationComponent physXIntegration, ref TransformComponent transform)
     {
-        var pxTransform = physXIntegration.Body.GlobalPose;
-        var pxBody = physXIntegration.Body;
+        var pxBody = _physicsWorld.GetActor(physXIntegration.BodyId);
+        var pxTransform = pxBody.GlobalPose;
 
         if (transform.IsPositionDirty || transform.IsRotationDirty) {
             pxBody.GlobalPose = new PxTransform(
@@ -56,7 +59,7 @@ public partial class PhysXPushChangesSystem : BaseSystem<World, float>
         rigidBody.ClearDirtyFlags();
         rigidBody.ClearForces();
 
-        physXIntegration.Body.SetActorFlag(PxActorFlag.DisableGravity, !rigidBody.IsGravityEnabled);
+        pxBody.SetActorFlag(PxActorFlag.DisableGravity, !rigidBody.IsGravityEnabled);
     }
 
     #endregion

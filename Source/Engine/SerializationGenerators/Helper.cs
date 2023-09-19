@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Duck.SourceGenerators.Serialization;
+namespace Duck.SerializationGenerators;
 
 public static class Helper
 {

@@ -1,15 +1,11 @@
-using Arch.Core;
 using Duck.Audio;
-using Duck.Audio.Systems;
 using Duck.Content;
 using Duck.Exceptions;
 using Duck.Input;
 using Duck.Logging;
 using Duck.Physics;
-using Duck.Physics.Systems;
 using Duck.Platform;
 using Duck.Renderer;
-using Duck.Renderer.Systems;
 using Duck.Serialization;
 using Duck.ServiceBus;
 using Duck.Ui;
@@ -19,17 +15,25 @@ namespace Duck.GameFramework;
 
 public abstract class ApplicationBase : IApplication
 {
+    #region Properties
+
+    public IModule[] Modules => _modules.ToArray();
+    public bool IsInPlayMode => _isInPlayMode;
+
+    #endregion
+
     #region Members
 
     private readonly IPlatform _platform;
     private readonly IRenderSystem _renderSystem;
     private readonly List<IModule> _modules = new();
 
-    private State _state = State.Uninitialized;
+    private ApplicationState _state = ApplicationState.Uninitialized;
     private ILogger? _systemLogger;
 
     private bool _isEditor;
     private bool _isHotReloading;
+    private bool _isInPlayMode;
 
     private float _deltaTimeAccumulator;
     private bool _shouldSkipFrames = true;
@@ -43,15 +47,15 @@ public abstract class ApplicationBase : IApplication
         _isEditor = isEditor;
     }
 
-    public bool Initialize()
+    public virtual bool Initialize()
     {
-        if (_state != State.Uninitialized) {
+        if (_state != ApplicationState.Uninitialized) {
             throw new Exception("Application already initialized");
         }
 
         TracyClient.ZoneBegin("Application::Init");
 
-        ChangeState(State.Initializing);
+        ChangeState(ApplicationState.Initializing);
 
         Instanciator.Init();
         RegisterModules();
@@ -64,7 +68,7 @@ public abstract class ApplicationBase : IApplication
             return false;
         }
 
-        ChangeState(State.Initialized);
+        ChangeState(ApplicationState.Initialized);
 
         TracyClient.ZoneEnd();
 
@@ -75,7 +79,7 @@ public abstract class ApplicationBase : IApplication
     {
     }
 
-    public T GetModule<T>() where T : IModule
+    public virtual T GetModule<T>() where T : IModule
     {
         foreach (var module in _modules) {
             if (module is T cast) {
@@ -92,12 +96,12 @@ public abstract class ApplicationBase : IApplication
         var serializer = new GraphSerializer(serializationContext);
 
         IterateOverModules<IHotReloadAwareModule>("HotReload", module => {
-            if (module is not ISerializable serializable) {
-                _systemLogger?.LogError("Hot reloadable module is not serializable: " + module.GetType().Name);
-            } else {
-                serializable.Serialize(serializer, serializationContext);
-                module.BeginHotReload();
-            }
+            // if (module is not ISerializable serializable) {
+            // _systemLogger?.LogError("Hot reloadable module is not serializable: " + module.GetType().Name);
+            // } else {
+            // serializable.Serialize(serializer, serializationContext);
+            module.BeginHotReload();
+            // }
         });
 
         serializer.Close();
@@ -108,6 +112,11 @@ public abstract class ApplicationBase : IApplication
     public void EndHotReload(IHotReloadContext context)
     {
         IterateOverModules<IHotReloadAwareModule>("EndHotReload", module => module.EndHotReload());
+    }
+
+    public IApplication CreateProxy(bool isEditor)
+    {
+        return new InstancedApplication(this, _platform, _renderSystem, isEditor);
     }
 
     private bool InitializeModules()
@@ -135,22 +144,18 @@ public abstract class ApplicationBase : IApplication
 
     private void PreTickModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
-
-        _platform.PreTick();
 
         IterateOverModules<IPreTickableModule>("PreTick", module => module.PreTick());
     }
 
     private void TickModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
-
-        _platform.Tick();
 
         GetModule<IEventBus>().Flush();
 
@@ -159,7 +164,7 @@ public abstract class ApplicationBase : IApplication
 
     private void FixedTickModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
 
@@ -185,18 +190,16 @@ public abstract class ApplicationBase : IApplication
 
     private void PostTickModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
-
-        _platform.PostTick();
 
         IterateOverModules<IPostTickableModule>("PostTick", module => module.PostTick());
     }
 
     private void PreRenderModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
 
@@ -205,7 +208,7 @@ public abstract class ApplicationBase : IApplication
 
     private void RenderModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
 
@@ -214,7 +217,7 @@ public abstract class ApplicationBase : IApplication
 
     private void PostRenderModules()
     {
-        if (_state != State.Running) {
+        if (_state != ApplicationState.Running) {
             return;
         }
 
@@ -235,8 +238,31 @@ public abstract class ApplicationBase : IApplication
         }
     }
 
+    public void EnterPlayMode()
+    {
+        if (_state != ApplicationState.Running) {
+            return;
+        }
+
+        IterateOverModules<IEnterPlayModeModule>("EnterPlayMode", module => module.EnterPlayMode());
+
+        _isInPlayMode = true;
+    }
+
+    public void ExitPlayMode()
+    {
+        if (_state != ApplicationState.Running) {
+            return;
+        }
+
+        IterateOverModules<IExitPlayModeModule>("ExitPlayMode", module => module.ExitPlayMode());
+
+        _isInPlayMode = false;
+    }
+
     protected virtual void RegisterModules()
     {
+        AddModule(_platform);
         AddModule(new LogModule());
         AddModule(new EventBus());
         AddModule(new ContentModule(GetModule<ILogModule>()));
@@ -249,39 +275,53 @@ public abstract class ApplicationBase : IApplication
 
     public void Run()
     {
-        if (_state != State.Initialized) {
+        if (_state != ApplicationState.Running && _state != ApplicationState.Initialized) {
             throw new Exception("Application has not been initialized");
         }
 
-        ChangeState(State.Running);
+        ChangeState(ApplicationState.Running);
 
         Time.FrameTimer?.Start();
 
-        while (_state is State.Running or State.HotReloading) {
-            Time.FrameTimer?.Update();
-
-            PreTickModules();
-            FixedTickModules();
-            TickModules();
-            PostTickModules();
-
-            PreRenderModules();
-            RenderModules();
-            PostRenderModules();
-
-            TracyClient.FrameMark();
+        while (_state is ApplicationState.Running or ApplicationState.HotReloading) {
+            RunFrame();
         }
     }
 
-    public void Shutdown()
+    public virtual void RunFrame()
     {
-        if (_state == State.TearingDown) {
+        Time.FrameTimer?.Update();
+
+        Tick();
+        Render();
+
+        TracyClient.FrameMark();
+    }
+
+    public virtual void Tick()
+    {
+        PreTickModules();
+        FixedTickModules();
+        TickModules();
+        PostTickModules();
+    }
+
+    public virtual void Render()
+    {
+        PreRenderModules();
+        RenderModules();
+        PostRenderModules();
+    }
+
+    public virtual void Shutdown()
+    {
+        if (_state == ApplicationState.TearingDown) {
             return;
         }
 
         _systemLogger?.LogInformation("Shutdown requested");
 
-        ChangeState(State.TearingDown);
+        ChangeState(ApplicationState.TearingDown);
         ShutdownModules();
     }
 
@@ -290,41 +330,9 @@ public abstract class ApplicationBase : IApplication
         _modules.Add(module);
     }
 
-    public void PopulateSystemCompositionWithDefaults(World world, SystemRoot composition)
-    {
-        composition.EarlySimulationGroup
-            .Add(new PhysXPullChanges(world));
-
-        composition.SimulationGroup
-            .Add(new RigidBodyLifecycleSystem(world, GetModule<IPhysicsModule>()))
-            .Add(new JointSystem(world, GetModule<IPhysicsModule>()))
-            .Add(new CameraSystem(world, GetModule<IRendererModule>()))
-            .Add(new LoadStaticMeshSystem(world, GetModule<IContentModule>()))
-            .Add(new PlaySoundSystem(world, GetModule<IAudioModule>()));
-
-        composition.LateSimulationGroup
-            .Add(new PhysXPushChangesSystem(world));
-
-        composition.PresentationGroup
-            .Add(new RenderSceneSystem(world, GetModule<IRendererModule>().GraphicsDevice));
-
-        composition.ExitFrameGroup
-            .Add(new RemoveCollisionEventsSystem(world));
-    }
-
-    private void ChangeState(State newState)
+    public void ChangeState(ApplicationState newState)
     {
         _state = newState;
-    }
-
-    public enum State
-    {
-        Uninitialized,
-        Initializing,
-        Initialized,
-        Running,
-        HotReloading,
-        TearingDown,
     }
 }
 

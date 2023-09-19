@@ -105,6 +105,7 @@ namespace GameLauncher.Host
             });
 
             _hostedClient?.Initialize(context);
+            _hostedClient?.EnterPlayMode();
 
             return true;
         }
@@ -115,6 +116,14 @@ namespace GameLauncher.Host
             AssertContextIsReady();
 
             _hostedClient?.Tick();
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void ExitPlayMode()
+        {
+            AssertContextIsReady();
+
+            _hostedClient?.ExitPlayMode();
         }
 
         #endregion

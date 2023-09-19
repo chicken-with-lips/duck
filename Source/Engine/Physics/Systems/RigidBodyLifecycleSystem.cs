@@ -39,7 +39,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
     {
         var physics = _physicsWorld.Physics;
 
-        entity.Add<PhysXIntegrationComponent>();
+        World.Add<PhysXIntegrationComponent>(entity);
 
         var geometry = PhysXHelper.CreateBoxGeometry(
             boundingBox.Box,
@@ -53,17 +53,17 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             geometry,
             rigidBody,
             transform,
-            ref entity.Get<PhysXIntegrationComponent>()
+            ref World.Get<PhysXIntegrationComponent>(entity)
         );
     }
 
     private void RemoveBody(in Entity entity)
     {
-        if (!entity.Has<PhysXIntegrationComponent>()) {
+        if (!World.Has<PhysXIntegrationComponent>(entity)) {
             return;
         }
 
-        ref var cmp = ref entity.Get<PhysXIntegrationComponent>();
+        ref var cmp = ref World.Get<PhysXIntegrationComponent>(entity);
 
         RigidBodyHelper.RemoveBody(ref cmp, _physicsWorld);
     }
@@ -75,7 +75,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
     {
         var physics = _physicsWorld.Physics;
 
-        entity.Add<PhysXIntegrationComponent>();
+        World.Add<PhysXIntegrationComponent>(entity);
 
         RigidBodyHelper.CreateBody(
             entity,
@@ -84,7 +84,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             PhysXHelper.CreateSphereGeometry(boundingSphere, transform.Scale),
             rigidBody,
             transform,
-            ref entity.Get<PhysXIntegrationComponent>()
+            ref World.Get<PhysXIntegrationComponent>(entity)
         );
     }
 

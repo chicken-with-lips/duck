@@ -1,6 +1,6 @@
 namespace Duck.Platform;
 
-public interface IPlatform
+public interface IPlatform : IModule
 {
     public IWindow[] Windows { get; }
     

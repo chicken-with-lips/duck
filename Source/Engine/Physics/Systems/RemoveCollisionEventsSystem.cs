@@ -22,7 +22,6 @@ public partial class RemoveCollisionEventsSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(in Entity entity, in PhysicsCollision cmp)
     {
-        Console.WriteLine("REMOMOVEMVOE");
         World.Destroy(entity);
     }
 

@@ -1,6 +1,8 @@
+using Duck.Renderer;
+
 namespace Duck.Ui;
 
 public interface IUiModule : IModule
 {
-    public Context Context { get; }
+    public Context GetContextForScene(IScene scene);
 }

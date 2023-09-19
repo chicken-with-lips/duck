@@ -1,10 +1,10 @@
-using ChickenWithLips.PhysX;
+using Duck.ECS;
 using Duck.Serialization;
 
 namespace Duck.Physics.Components;
 
-[AutoSerializable]
+[AutoSerializable, RuntimeComponent]
 public partial struct PhysXIntegrationComponent
 {
-    public PxRigidActor Body;
+    public int BodyId;
 }

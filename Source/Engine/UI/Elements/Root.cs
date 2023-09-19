@@ -36,9 +36,37 @@ public class RootFactory : IElementFactory
     }
 }
 
-public class RootRenderer
+public class RootRenderer : ElementRendererBase
 {
     public void Render(ref Root root, in ElementRenderContext renderContext, RenderList renderList)
+    {
+        var containerBox = Box.Default with {
+            ContentHeight = Measure.BoxHeight(renderContext.ParentBox) - Measure.BoxHeight(root.Props.Box),
+            ContentWidth = Measure.BoxWidth(renderContext.ParentBox) - Measure.BoxWidth(root.Props.Box),
+        };
+
+        RenderChildrenVertical(
+            Vector2D<float>.Zero,
+            Vector2D<float>.Zero,
+            renderContext with {
+                ContainerBox = containerBox,
+                ContainerBoxInPixels = Measure.EmToPixels(containerBox),
+                Font = root.Props.Font,
+                ParentBox = root.Props.Box,
+                ParentBoxInPixels = Measure.EmToPixels(root.Props.Box),
+                Position = Measure.ElementPosition(renderContext, root.Props.Box),
+            },
+            renderList,
+            root.Child0,
+            root.Child1,
+            root.Child2,
+            root.Child3,
+            root.Child4,
+            root.Child5
+        );
+    }
+
+    /*public void Render(ref Root root, in ElementRenderContext renderContext, RenderList renderList)
     {
         if (root.Child0.HasValue) {
             var containerBox = Box.Default with {
@@ -80,5 +108,5 @@ public class RootRenderer
             throw new Exception("TODO: block level");
             root.Child5.Value.ElementRenderer.Render(root.Child5.Value, ElementRenderContext.Default, renderList);
         }
-    }
+    }*/
 }
