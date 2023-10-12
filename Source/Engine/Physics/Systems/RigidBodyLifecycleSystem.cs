@@ -1,10 +1,9 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
-using Arch.Core.Extensions;
 using Arch.System;
 using Arch.System.SourceGenerator;
+using Duck.Graphics.Components;
 using Duck.Physics.Components;
-using Duck.Renderer.Components;
 
 namespace Duck.Physics.Systems;
 

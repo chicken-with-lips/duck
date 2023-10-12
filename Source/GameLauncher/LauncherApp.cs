@@ -3,7 +3,7 @@ using Duck.Content;
 using Duck.GameFramework;
 using Duck.Logging;
 using Duck.Platform;
-using Duck.Renderer;
+using Duck.Graphics;
 using GameLauncher.Host;
 
 namespace GameLauncher;

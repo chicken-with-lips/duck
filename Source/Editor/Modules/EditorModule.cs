@@ -1,12 +1,10 @@
 using System;
-using Arch.Core.Extensions;
-using Duck;
 using Duck.Content;
-using Duck.GameFramework;
+using Duck.Graphics;
+using Duck.Graphics.Components;
+using Duck.Graphics.Systems;
 using Duck.Logging;
-using Duck.Renderer;
-using Duck.Renderer.Components;
-using Duck.Renderer.Systems;
+using Duck.Platform;
 using Duck.Ui;
 using Editor.Ui;
 

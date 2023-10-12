@@ -1,6 +1,6 @@
 using ChickenWithLips.ArteryFont;
 using Duck.Content;
-using Duck.Renderer.Textures;
+using Duck.Graphics.Textures;
 using Duck.Ui;
 using Duck.Ui.Artery;
 

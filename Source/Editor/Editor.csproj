@@ -14,15 +14,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.Relationships\Arch.Relationships.csproj" />
+        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.System\Arch.System.csproj" />
         <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
-        <ProjectReference Include="..\Engine\Animation\Animation.csproj" />
-        <ProjectReference Include="..\Engine\Content\Content.csproj" />
-        <ProjectReference Include="..\Engine\Core\Core.csproj" />
-        <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
-        <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
-        <ProjectReference Include="..\Engine\Renderer\Renderer.csproj" />
-        <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
-        <ProjectReference Include="..\Engine\UI\UI.csproj" />
+        <ProjectReference Include="..\Engine\Engine.csproj" />
+        <ProjectReference Include="..\GameFramework\GameFramework.csproj" />
+        <ProjectReference Include="..\Platforms\Standard\Standard.csproj" />
+        <ProjectReference Include="..\RenderSystems\OpenGLRenderSystem\OpenGLRenderSystem.csproj" />
     </ItemGroup>
 
     <ItemGroup>

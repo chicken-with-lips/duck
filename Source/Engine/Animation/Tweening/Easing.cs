@@ -62,16 +62,16 @@ public class Easing
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float InSine(float t) => (float)-Math.Cos(t * Math.PI / 2);
+    public static float InSine(float t) => (float)-System.Math.Cos(t * System.Math.PI / 2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float OutSine(float t) => (float)Math.Sin(t * Math.PI / 2);
+    public static float OutSine(float t) => (float)System.Math.Sin(t * System.Math.PI / 2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float InOutSine(float t) => (float)(Math.Cos(t * Math.PI) - 1) / -2;
+    public static float InOutSine(float t) => (float)(System.Math.Cos(t * System.Math.PI) - 1) / -2;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float InExpo(float t) => (float)Math.Pow(2, 10 * (t - 1));
+    public static float InExpo(float t) => (float)System.Math.Pow(2, 10 * (t - 1));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float OutExpo(float t) => 1 - InExpo(1 - t);
@@ -84,7 +84,7 @@ public class Easing
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float InCirc(float t) => -((float)Math.Sqrt(1 - t * t) - 1);
+    public static float InCirc(float t) => -((float)System.Math.Sqrt(1 - t * t) - 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float OutCirc(float t) => 1 - InCirc(1 - t);
@@ -103,7 +103,7 @@ public class Easing
     public static float OutElastic(float t)
     {
         float p = 0.3f;
-        return (float)Math.Pow(2, -10 * t) * (float)Math.Sin((t - p / 4) * (2 * Math.PI) / p) + 1;
+        return (float)System.Math.Pow(2, -10 * t) * (float)System.Math.Sin((t - p / 4) * (2 * System.Math.PI) / p) + 1;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

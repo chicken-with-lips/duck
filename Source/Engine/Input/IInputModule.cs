@@ -1,3 +1,4 @@
+using Duck.Platform;
 using Silk.NET.Maths;
 
 namespace Duck.Input;

@@ -4,11 +4,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
-using Duck;
 using Duck.GameFramework;
 using Duck.GameHost;
 using Duck.Input;
 using Duck.Logging;
+using Duck.Platform;
 
 namespace Editor.Modules;
 

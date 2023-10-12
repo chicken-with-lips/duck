@@ -1,4 +1,5 @@
-using Duck.Renderer;
+using Duck.Graphics;
+using Duck.Platform;
 
 namespace Duck.Ui;
 

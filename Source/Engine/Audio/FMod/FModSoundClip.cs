@@ -1,6 +1,5 @@
 ﻿using Duck.Content;
 using FmodAudio;
-using WeakEvent;
 
 namespace Duck.Audio.FMod;
 

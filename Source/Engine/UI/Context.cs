@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Duck.Renderer.Device;
+using Duck.Graphics.Device;
 using Duck.Ui.Elements;
 
 namespace Duck.Ui;

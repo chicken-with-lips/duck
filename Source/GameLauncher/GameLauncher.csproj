@@ -17,10 +17,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
-      <ProjectReference Include="..\Engine\Core\Core.csproj" />
-      <ProjectReference Include="..\Engine\GameFramework\GameFramework.csproj" />
-      <ProjectReference Include="..\Engine\Platforms\Standard\Standard.csproj" />
-      <ProjectReference Include="..\Engine\RenderSystems\OpenGL\OpenGL.csproj" />
+      <ProjectReference Include="..\Engine\Engine.csproj" />
+      <ProjectReference Include="..\GameFramework\GameFramework.csproj" />
+      <ProjectReference Include="..\Platforms\Standard\Standard.csproj" />
+      <ProjectReference Include="..\RenderSystems\OpenGLRenderSystem\OpenGLRenderSystem.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Duck;
+using Duck.Platform;
 using Duck.Platforms.Standard;
 using Duck.RenderSystems.OpenGL;
 

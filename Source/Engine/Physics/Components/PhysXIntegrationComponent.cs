@@ -1,4 +1,4 @@
-using Duck.ECS;
+using Duck.ECS.Components;
 using Duck.Serialization;
 
 namespace Duck.Physics.Components;

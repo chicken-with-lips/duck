@@ -1,8 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using CommunityToolkit.HighPerformance.Helpers;
 using Duck.Ui.Elements;
 using Silk.NET.Maths;
-using Silk.NET.OpenGL;
+using MathF = Duck.Math.MathF;
 
 namespace Duck.Ui;
 
@@ -157,7 +156,7 @@ public static class Measure
             (in Fragment fragment, ref Vector2D<float> vector) => {
                 var dim = BoxDimensions(fragment);
                 vector.X += dim.X;
-                vector.Y = Math.MathF.Max(vector.Y, dim.Y);
+                vector.Y = MathF.Max(vector.Y, dim.Y);
             },
             fragment0,
             fragment1,
@@ -175,7 +174,7 @@ public static class Measure
             margin,
             (in Fragment fragment, ref Vector2D<float> vector) => {
                 var dim = BoxDimensions(fragment);
-                vector.X = Math.MathF.Max(vector.X, dim.X);
+                vector.X = MathF.Max(vector.X, dim.X);
                 vector.Y += dim.Y;
             },
             fragment0,
@@ -225,8 +224,8 @@ public static class Measure
         }
 
         return new Vector2D<float>(
-            contentDimensions.X + (gapSize.X * MathF.Max(0, childCount - 1)),
-            contentDimensions.Y + (gapSize.Y * MathF.Max(0, childCount - 1))
+            contentDimensions.X + (gapSize.X * System.MathF.Max(0, childCount - 1)),
+            contentDimensions.Y + (gapSize.Y * System.MathF.Max(0, childCount - 1))
         );
     }
 
@@ -324,7 +323,7 @@ public static class Measure
         var position = ElementPositionInPixels(renderContext, fragment);
         var dimensions = BoxDimensionsInPixels(fragment);
 
-        return Math.MathF.IsPointInside<float>(point, new Box2D<float>(position, position + dimensions));
+        return MathF.IsPointInside<float>(point, new Box2D<float>(position, position + dimensions));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

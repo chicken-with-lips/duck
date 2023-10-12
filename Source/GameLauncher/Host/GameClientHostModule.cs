@@ -1,7 +1,6 @@
 using System;
-using System.Runtime.CompilerServices;
-using Duck;
 using Duck.Logging;
+using Duck.Platform;
 
 namespace GameLauncher.Host;
 

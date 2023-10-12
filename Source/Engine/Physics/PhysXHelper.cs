@@ -1,5 +1,5 @@
 using ChickenWithLips.PhysX;
-using Duck.Renderer.Components;
+using Duck.Graphics.Components;
 using Silk.NET.Maths;
 using MathF = Duck.Math.MathF;
 

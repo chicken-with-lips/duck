@@ -3,7 +3,7 @@ using Arch.Core;
 using Arch.Core.Extensions;
 using ChickenWithLips.PhysX;
 using Duck.Physics.Events;
-using Duck.Renderer.Components;
+using Duck.Graphics.Components;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
 

@@ -1,12 +1,12 @@
-using Arch.Core.Extensions;
 using Duck.Content;
+using Duck.Graphics;
+using Duck.Graphics.Components;
+using Duck.Graphics.Device;
+using Duck.Graphics.Materials;
+using Duck.Graphics.Shaders;
 using Duck.Input;
 using Duck.Logging;
-using Duck.Renderer;
-using Duck.Renderer.Components;
-using Duck.Renderer.Device;
-using Duck.Renderer.Materials;
-using Duck.Renderer.Shaders;
+using Duck.Platform;
 using Duck.Ui.Artery;
 using Duck.UI.Content;
 using Duck.Ui.Elements;
@@ -14,7 +14,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Ui;
 
-public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRenderableModule
+public class UIModule : IUiModule, IInitializableModule, IPreTickableModule, IRenderableModule
 {
     #region Members
 
@@ -34,7 +34,7 @@ public class UiModule : IUiModule, IInitializableModule, IPreTickableModule, IRe
 
     #region Methods
 
-    public UiModule(ILogModule logModule, IContentModule contentModule, IRendererModule rendererModule, IInputModule inputModule)
+    public UIModule(ILogModule logModule, IContentModule contentModule, IRendererModule rendererModule, IInputModule inputModule)
     {
         _contentModule = contentModule;
         _rendererModule = rendererModule;

@@ -4,10 +4,8 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>Duck.Platforms.Standard</AssemblyName>
-        <RootNamespace>Duck.Platforms.Standard</RootNamespace>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <AssemblyName>Duck.RenderSystems.OpenGL</AssemblyName>
+        <RootNamespace>Duck.RenderSystems.OpenGL</RootNamespace>
         <LangVersion>11</LangVersion>
     </PropertyGroup>
 
@@ -20,13 +18,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
-      <ProjectReference Include="..\..\Core\Core.csproj" Private="false" />
+      <ProjectReference Include="..\..\Engine\Engine.csproj" />
+      <ProjectReference Include="..\..\Platforms\Standard\Standard.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
-      <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.15.0" />
+      <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
+      <PackageReference Include="Silk.NET.Windowing.Common" Version="2.15.0" />
+      <PackageReference Include="StbImageSharp" Version="2.27.13" />
     </ItemGroup>
 
 </Project>

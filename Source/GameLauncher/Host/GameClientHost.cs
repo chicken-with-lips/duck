@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Duck;
 using Duck.GameHost;
 using Duck.Logging;
+using Duck.Platform;
 
 namespace GameLauncher.Host
 {

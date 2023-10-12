@@ -1,3 +1,5 @@
+using Duck.Platform;
+
 namespace Duck.Content;
 
 public interface IContentModule : IModule

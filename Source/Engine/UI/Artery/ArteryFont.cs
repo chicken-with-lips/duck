@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using ChickenWithLips.ArteryFont;
 using Duck.Content;
-using Duck.Renderer.Textures;
+using Duck.Graphics.Textures;
 using Silk.NET.Maths;
 
 namespace Duck.Ui.Artery;
@@ -41,13 +41,13 @@ internal class ArteryFont : PlatformAssetBase<Font>
                     glyph.ImageBounds.Right - glyph.ImageBounds.Left,
                     glyph.ImageBounds.Top - glyph.ImageBounds.Bottom
                 ),
-                PlaneBounds = new Renderer.Rectangle<float>(
+                PlaneBounds = new Graphics.Rectangle<float>(
                     glyph.PlaneBounds.Left,
                     -glyph.PlaneBounds.Top,
                     glyph.PlaneBounds.Right,
                     -glyph.PlaneBounds.Bottom
                 ).Scale(variant.Metrics.FontSize),
-                AtlasCoordinates = new Renderer.Rectangle<float>(
+                AtlasCoordinates = new Graphics.Rectangle<float>(
                     glyph.ImageBounds.Left / image.Width,
                     (image.Height - glyph.ImageBounds.Top) / image.Height,
                     glyph.ImageBounds.Right / image.Width,
@@ -67,7 +67,7 @@ internal class ArteryFont : PlatformAssetBase<Font>
         return _glyphs[codepoint];
     }
 
-    public readonly record struct Glyph(in Vector2D<float> Dimensions, in Renderer.Rectangle<float> PlaneBounds, in Renderer.Rectangle<float> AtlasCoordinates, in Vector2D<float> Advance)
+    public readonly record struct Glyph(in Vector2D<float> Dimensions, in Graphics.Rectangle<float> PlaneBounds, in Graphics.Rectangle<float> AtlasCoordinates, in Vector2D<float> Advance)
     {
         public bool IsWhitespace => PlaneBounds is { Left: 0, Right: 0, Top: 0, Bottom: 0 };
     }

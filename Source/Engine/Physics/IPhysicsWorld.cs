@@ -1,6 +1,6 @@
 using Arch.Core;
 using ChickenWithLips.PhysX;
-using Duck.Renderer.Components;
+using Duck.Graphics.Components;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
 
