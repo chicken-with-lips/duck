@@ -3,7 +3,7 @@ using Duck.Platform;
 
 namespace Duck.Ui;
 
-public interface IUiModule : IModule
+public interface IUIModule : IModule
 {
     public Context GetContextForScene(IScene scene);
 }

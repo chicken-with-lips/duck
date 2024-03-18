@@ -45,7 +45,7 @@ public class EditorModule : IInitializableModule, IPostInitializableModule
         _editorScene.IsActive = true;
 
         _editorScene.SystemRoot.SimulationGroup
-            .Add(new SceneEditorWindow(_editorScene.World, _editorScene, _application.GetModule<IUiModule>(), _application.GetModule<IContentModule>(), _application, _application.GetModule<GameHostModule>()));
+            .Add(new SceneEditorWindow(_editorScene.World, _editorScene, _application.GetModule<IUIModule>(), _application.GetModule<IContentModule>(), _application, _application.GetModule<GameHostModule>()));
 
         _editorScene.SystemRoot.PresentationGroup
             .Add(new RenderSceneSystem(_editorScene.World, _application.GetModule<IRendererModule>().GraphicsDevice));

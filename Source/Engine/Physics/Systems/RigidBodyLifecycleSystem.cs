@@ -34,7 +34,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
     [Query]
     [None<PhysXIntegrationComponent>]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddBox(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingBoxComponent boundingBox)
+    public void AddBox(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingBoxComponent boundingBox, in MassComponent mass)
     {
         var physics = _physicsWorld.Physics;
 
@@ -51,6 +51,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             physics,
             geometry,
             rigidBody,
+            mass,
             transform,
             ref World.Get<PhysXIntegrationComponent>(entity)
         );
@@ -70,7 +71,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
     [Query]
     [None<PhysXIntegrationComponent>]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AddSphere(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingSphereComponent boundingSphere)
+    public void AddSphere(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingSphereComponent boundingSphere, in MassComponent mass)
     {
         var physics = _physicsWorld.Physics;
 
@@ -82,6 +83,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             physics,
             PhysXHelper.CreateSphereGeometry(boundingSphere, transform.Scale),
             rigidBody,
+            mass,
             transform,
             ref World.Get<PhysXIntegrationComponent>(entity)
         );

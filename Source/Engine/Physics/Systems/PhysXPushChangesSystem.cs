@@ -5,6 +5,7 @@ using ChickenWithLips.PhysX;
 using Duck.Physics.Components;
 using Duck.Graphics.Components;
 using Silk.NET.Maths;
+using MathF = Duck.Math.MathF;
 
 namespace Duck.Physics.Systems;
 
@@ -39,6 +40,10 @@ public partial class PhysXPushChangesSystem : BaseSystem<World, float>
             // pxDynamic.SetForceAndTorque(rigidBody.AccumulatedForceForce.ToSystem(), rigidBody.AccumulatedForceForce.ToSystem(), PxForceMode.Force);
             // pxDynamic.SetForceAndTorque(rigidBody.AccumulatedImpulseForce.ToSystem(), rigidBody.AccumulatedImpulseTorque.ToSystem(), PxForceMode.Impulse);
             // pxDynamic.SetForceAndTorque(rigidBody.AccumulatedVelocityChangeForce.ToSystem(), rigidBody.AccumulatedVelocityChangeTorque.ToSystem(), PxForceMode.VelocityChange);
+
+            if (rigidBody.MaxLinearVelocity != -1f) {
+                pxDynamic.MaxLinearVelocity = rigidBody.MaxLinearVelocity;
+            }
 
             pxDynamic.AddForce(rigidBody.AccumulatedAccelerationForce.ToSystem(), PxForceMode.Acceleration);
             pxDynamic.AddForce(rigidBody.AccumulatedForceForce.ToSystem(), PxForceMode.Force);

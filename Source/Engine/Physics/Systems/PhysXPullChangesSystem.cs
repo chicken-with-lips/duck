@@ -32,6 +32,7 @@ public partial class PhysXPullChanges : BaseSystem<World, float>
 
         if (rigidBody.Type == RigidBodyComponent.BodyType.Dynamic && pxBody is PxRigidDynamic pxDynamic) {
             rigidBody.LinearVelocity = pxDynamic.LinearVelocity.ToGeneric();
+            
             rigidBody.AngularVelocity = pxDynamic.AngularVelocity.ToGeneric();
 
             rigidBody.InertiaTensor = pxDynamic.MassSpaceInertiaTensor.ToGeneric();

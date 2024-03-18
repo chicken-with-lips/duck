@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Duck.GameFramework</AssemblyName>
+        <RootNamespace>Duck.GameFramework</RootNamespace>
+        <LangVersion>11</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
+        <ProjectReference Include="..\..\..\tracy\Tracy.Net\Tracy.Net.csproj" />
+        <ProjectReference Include="..\Engine\Engine.csproj" />
+    </ItemGroup>
+
+</Project>

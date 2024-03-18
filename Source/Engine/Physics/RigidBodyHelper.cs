@@ -10,7 +10,7 @@ internal static class RigidBodyHelper
 {
     #region Methods
 
-    public static PxRigidActor CreateBody(in Entity entity, PhysicsWorld world, PxPhysics physics, PxGeometry geometry, in RigidBodyComponent rigidBodyComponent, in TransformComponent transformComponent, ref PhysXIntegrationComponent physxComponent)
+    public static PxRigidActor CreateBody(in Entity entity, PhysicsWorld world, PxPhysics physics, PxGeometry geometry, in RigidBodyComponent rigidBodyComponent, in MassComponent mass, in TransformComponent transformComponent, ref PhysXIntegrationComponent physxComponent)
     {
         var position = transformComponent.Position.ToSystem();
         var rotation = transformComponent.Rotation.ToSystem();
@@ -21,7 +21,7 @@ internal static class RigidBodyHelper
                 new PxTransform(rotation, position)
             );
 
-            PxRigidBodyExt.UpdateMassAndInertia(dynBody, rigidBodyComponent.Mass);
+            PxRigidBodyExt.UpdateMassAndInertia(dynBody, mass.Value);
 
             if (rigidBodyComponent.Type == RigidBodyComponent.BodyType.Kinematic) {
                 dynBody.SetFlag(PxRigidBodyFlag.Kinematic, true);

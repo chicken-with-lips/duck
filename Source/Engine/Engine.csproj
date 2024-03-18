@@ -1,0 +1,79 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Duck</AssemblyName>
+        <RootNamespace>Duck</RootNamespace>
+        <LangVersion>11</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FmodAudio" Version="2.2.5"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0"/>
+        <PackageReference Include="Silk.NET.Assimp" Version="2.17.1"/>
+        <PackageReference Include="StbImageSharp" Version="2.27.13"/>
+        <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj"/>
+        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.System\Arch.System.csproj"/>
+        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.System.SourceGenerator\Arch.System.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\..\ArteryFont\ArteryFont.csproj"/>
+        <ProjectReference Include="..\..\..\physx\PhysX.Net\PhysX.Net.csproj"/>
+        <ProjectReference Include="SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="Ecs\Events\**"/>
+        <Compile Remove="Ecs\Generated\**"/>
+        <Compile Remove="Ecs\Serialization\**"/>
+        <Compile Remove="Ecs\Systems\**"/>
+        <Compile Remove="Ecs\ComponentPool.cs"/>
+        <Compile Remove="Ecs\ComponentPoolCollection.cs"/>
+        <Compile Remove="Ecs\EcsModule.cs"/>
+        <Compile Remove="Ecs\Entity.cs"/>
+        <Compile Remove="Ecs\EntityPool.cs"/>
+        <Compile Remove="Ecs\Filter.cs"/>
+        <Compile Remove="Ecs\FilterEvaluator.cs"/>
+        <Compile Remove="Ecs\IComponentPool.cs"/>
+        <Compile Remove="Ecs\IComponentPoolCollection.cs"/>
+        <Compile Remove="Ecs\IEcsModule.cs"/>
+        <Compile Remove="Ecs\IEntity.cs"/>
+        <Compile Remove="Ecs\IEntityPool.cs"/>
+        <Compile Remove="Ecs\IFilter.cs"/>
+        <Compile Remove="Ecs\ISystem.cs"/>
+        <Compile Remove="Ecs\ISystemComposition.cs"/>
+        <Compile Remove="Ecs\IWorld.cs"/>
+        <Compile Remove="Ecs\World.cs"/>
+        <Compile Remove="SerializationGenerators\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Remove="Ecs\Events\**"/>
+        <EmbeddedResource Remove="Ecs\Generated\**"/>
+        <EmbeddedResource Remove="Ecs\Serialization\**"/>
+        <EmbeddedResource Remove="Ecs\Systems\**"/>
+        <EmbeddedResource Remove="SerializationGenerators\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Ecs\Events\**"/>
+        <None Remove="Ecs\Generated\**"/>
+        <None Remove="Ecs\Serialization\**"/>
+        <None Remove="Ecs\Systems\**"/>
+        <None Remove="SerializationGenerators\**"/>
+    </ItemGroup>
+
+
+</Project>

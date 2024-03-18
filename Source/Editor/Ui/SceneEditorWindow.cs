@@ -22,13 +22,13 @@ public struct SceneEditorWindowComponent
 public partial class SceneEditorWindow : BaseSystem<World, float>
 {
     private readonly IScene _scene;
-    private readonly IUiModule _uiModule;
+    private readonly IUIModule _uiModule;
     private readonly IContentModule _contentModule;
     private readonly IApplication _app;
     private readonly GameHostModule _gameHost;
     private readonly Action _onPlayClicked;
 
-    public SceneEditorWindow(World world, IScene scene, IUiModule uiModule, IContentModule contentModule, IApplication app, GameHostModule gameHost)
+    public SceneEditorWindow(World world, IScene scene, IUIModule uiModule, IContentModule contentModule, IApplication app, GameHostModule gameHost)
         : base(world)
     {
         _scene = scene;

@@ -13,9 +13,10 @@ public partial struct RigidBodyComponent
     public bool UseGravityOverride = false;
     public Vector3D<float> GravityOverride = Vector3D<float>.Zero;
 
-    public float Mass = 1;
     public float AngularDamping = 0.05f;
     public float LinearDamping = 0f;
+
+    public float MaxLinearVelocity { get; set; } = -1f;
 
     public Vector3D<float> LinearVelocity { get; internal set; } = default;
     public Vector3D<float> AngularVelocity { get; internal set; } = default;

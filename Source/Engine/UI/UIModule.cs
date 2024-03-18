@@ -14,7 +14,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Ui;
 
-public class UIModule : IUiModule, IInitializableModule, IPreTickableModule, IRenderableModule
+public class UIModule : IUIModule, IInitializableModule, IPreTickableModule, IRenderableModule
 {
     #region Members
 
