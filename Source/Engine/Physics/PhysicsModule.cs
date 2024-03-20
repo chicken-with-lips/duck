@@ -1,5 +1,4 @@
 using Arch.Core;
-using ChickenWithLips.PhysX;
 using Duck.Logging;
 using Duck.Physics.Events;
 using Duck.Platform;
@@ -13,12 +12,6 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
 
     private readonly IEventBus _eventBus;
     private readonly ILogger _logger;
-
-    private readonly PxDefaultCpuDispatcher _cpuDispatcher;
-    private readonly PxFoundation _foundation;
-    private readonly PxPhysics _physics;
-    private readonly PxPvd _physicsDebugger;
-    private readonly PxTolerancesScale _scale;
 
     private readonly Dictionary<World, IPhysicsWorld> _physicsWorlds = new();
 
@@ -36,23 +29,9 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
 
         var targetThreadCount = (uint)System.Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
 
-        _foundation = PxFoundation.Create(PxVersion.Version);
-        _cpuDispatcher = PxDefaultCpuDispatcher.Create(targetThreadCount);
-        _scale = PxTolerancesScale.Default;
-
-        var transport = PxPvdTransport.CreateDefaultSocketTransport("127.0.0.1", 5425, 10000);
-
-        _physicsDebugger = new PxPvd(_foundation);
-
-        // if (!_physicsDebugger.Connect(transport, PxPvdInstrumentationFlag.All)) {
-            // Console.WriteLine("FIXME: could not connect to pvd");
-        // }
-
-        _physics = PxPhysics.Create(_foundation, PxVersion.Version, _scale, true, _physicsDebugger);
-        _physics.InitExtensions(_physicsDebugger);
-
+      
         _logger.LogInformation("Created physics module.");
-        _logger.LogInformation("Thread count: {0}", _cpuDispatcher.WorkerCount);
+        Console.WriteLine("TODO: _logger.LogInformation(\"Thread count: {0}\", _cpuDispatcher.WorkerCount);");
     }
 
     public void PreTick()
@@ -82,7 +61,7 @@ public class PhysicsModule : IPhysicsModule, IPreTickableModule, IPostTickableMo
             return p;
         }
 
-        IPhysicsWorld physicsWorld = new PhysicsWorld(world, _physics, _cpuDispatcher);
+        IPhysicsWorld physicsWorld = new PhysicsWorld(world);
 
         _physicsWorlds.Add(world, physicsWorld);
 

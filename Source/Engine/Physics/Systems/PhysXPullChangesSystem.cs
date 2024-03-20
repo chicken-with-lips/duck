@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
-using ChickenWithLips.PhysX;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;
 using Silk.NET.Maths;
@@ -24,7 +23,7 @@ public partial class PhysXPullChanges : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(ref RigidBodyComponent rigidBody, in PhysXIntegrationComponent physXIntegration, ref TransformComponent transform)
     {
-        var pxBody = _physicsWorld.GetActor(physXIntegration.BodyId);
+        /*var pxBody = _physicsWorld.GetActor(physXIntegration.BodyId);
         var pxTransform = pxBody.GlobalPose;
 
         transform.Position = pxTransform.Position.ToGeneric();
@@ -38,7 +37,7 @@ public partial class PhysXPullChanges : BaseSystem<World, float>
             rigidBody.InertiaTensor = pxDynamic.MassSpaceInertiaTensor.ToGeneric();
             rigidBody.MassSpaceInvInertiaTensor = pxDynamic.MassSpaceInvInertiaTensor.ToGeneric();
             rigidBody.InertiaTensorRotation = pxDynamic.CenterMassLocalPose.Quaternion.ToGeneric();
-        }
+        }*/
     }
 
     #endregion

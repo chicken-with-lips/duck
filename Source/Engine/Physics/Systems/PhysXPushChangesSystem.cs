@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
-using ChickenWithLips.PhysX;
 using Duck.Physics.Components;
 using Duck.Graphics.Components;
 using Silk.NET.Maths;
@@ -25,7 +24,7 @@ public partial class PhysXPushChangesSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(ref RigidBodyComponent rigidBody, in PhysXIntegrationComponent physXIntegration, ref TransformComponent transform)
     {
-        var pxBody = _physicsWorld.GetActor(physXIntegration.BodyId);
+        /*var pxBody = _physicsWorld.GetActor(physXIntegration.BodyId);
         var pxTransform = pxBody.GlobalPose;
 
         if (transform.IsPositionDirty || transform.IsRotationDirty) {
@@ -64,7 +63,7 @@ public partial class PhysXPushChangesSystem : BaseSystem<World, float>
         rigidBody.ClearDirtyFlags();
         rigidBody.ClearForces();
 
-        pxBody.SetActorFlag(PxActorFlag.DisableGravity, !rigidBody.IsGravityEnabled);
+        pxBody.SetActorFlag(PxActorFlag.DisableGravity, !rigidBody.IsGravityEnabled);*/
     }
 
     #endregion

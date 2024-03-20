@@ -1,5 +1,4 @@
 using Arch.Core;
-using ChickenWithLips.PhysX;
 using Duck.Graphics.Components;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
@@ -11,7 +10,6 @@ public interface IPhysicsWorld
     #region Properties
 
     Vector3D<float> Gravity { get; set; }
-    public PxPhysics Simulation { get; }
 
     #endregion
 
@@ -21,8 +19,6 @@ public interface IPhysicsWorld
     void EmitEvents(IEventBus eventBus);
 
     bool Overlaps(IBoundingVolume volume, Vector3D<float> position, Quaternion<float> rotation);
-
-    public PxRigidBody? GetRigidBody(Entity entity);
 
     #endregion
 }

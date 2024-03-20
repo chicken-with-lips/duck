@@ -29,7 +29,7 @@ public partial class JointSystem : BaseSystem<World, float>
             return;
         }
 
-        if (World.IsAlive(cmp.Target) && World.Has<PhysXIntegrationComponent>(cmp.Target.Entity)) {
+        /*if (World.IsAlive(cmp.Target) && World.Has<PhysXIntegrationComponent>(cmp.Target.Entity)) {
             var actor0 = _physicsWorld.GetRigidBody(entity);
             var actor1 = _physicsWorld.GetRigidBody(cmp.Target);
 
@@ -44,10 +44,10 @@ public partial class JointSystem : BaseSystem<World, float>
             joint.SetDistanceJointFlag(PxDistanceJointFlag.MaxDistanceEnabled, true);
             joint.SetDistanceJointFlag(PxDistanceJointFlag.MinDistanceEnabled, true);*/
 
-            Console.WriteLine("WIP");
+          /*  Console.WriteLine("WIP");
             
             cmp.ClearDirtyFlags();
-        }
+        }*/
     }
 
     #endregion

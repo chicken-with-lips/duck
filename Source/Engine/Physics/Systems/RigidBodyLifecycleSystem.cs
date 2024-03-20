@@ -36,7 +36,8 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddBox(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingBoxComponent boundingBox, in MassComponent mass)
     {
-        var physics = _physicsWorld.Physics;
+        Console.WriteLine("TODO: RigidBodyLifecycleSystem.AddBox");
+        /*var physics = _physicsWorld.Physics;
 
         World.Add<PhysXIntegrationComponent>(entity);
 
@@ -54,18 +55,19 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             mass,
             transform,
             ref World.Get<PhysXIntegrationComponent>(entity)
-        );
+        );*/
     }
 
     private void RemoveBody(in Entity entity)
     {
-        if (!World.Has<PhysXIntegrationComponent>(entity)) {
+        Console.WriteLine("TODO: RigidBodyLifecycleSystem.RemoveBody");
+       /* if (!World.Has<PhysXIntegrationComponent>(entity)) {
             return;
         }
 
         ref var cmp = ref World.Get<PhysXIntegrationComponent>(entity);
 
-        RigidBodyHelper.RemoveBody(ref cmp, _physicsWorld);
+        RigidBodyHelper.RemoveBody(ref cmp, _physicsWorld);*/
     }
 
     [Query]
@@ -73,7 +75,8 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddSphere(in Entity entity, in RigidBodyComponent rigidBody, in TransformComponent transform, in BoundingSphereComponent boundingSphere, in MassComponent mass)
     {
-        var physics = _physicsWorld.Physics;
+        Console.WriteLine("TODO: RigidBodyLifecycleSystem.AddSphere");
+        /*var physics = _physicsWorld.Physics;
 
         World.Add<PhysXIntegrationComponent>(entity);
 
@@ -86,7 +89,7 @@ public partial class RigidBodyLifecycleSystem : BaseSystem<World, float>
             mass,
             transform,
             ref World.Get<PhysXIntegrationComponent>(entity)
-        );
+        );*/
     }
 
     #endregion

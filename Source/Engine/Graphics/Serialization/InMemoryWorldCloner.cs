@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.Tracing;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions.Dangerous;
@@ -11,7 +12,8 @@ public static class InMemoryWorldCloner
 {
     public static World Copy(World sourceWorld)
     {
-        var destWorld = World.Create();
+        throw new NotImplementedException();
+        /*var destWorld = World.Create();
         var versions = (int[][])sourceWorld.GetVersions().Clone();
         var slots = Unsafe.As<(int, int)[][]>(sourceWorld.GetSlots().Clone());
 
@@ -91,6 +93,6 @@ public static class InMemoryWorldCloner
             destWorld.Remove(queryDesc, componentType);
         }
 
-        return destWorld;
+        return destWorld;*/
     }
 }
