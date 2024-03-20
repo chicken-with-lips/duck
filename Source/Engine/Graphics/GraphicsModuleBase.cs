@@ -1,13 +1,16 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using ADyn.Components;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Duck.Platform;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
 using Duck.Graphics.Events;
+using Duck.Math;
 using Duck.ServiceBus;
 using Silk.NET.Maths;
+using Transform = Duck.Math.Transform;
 
 namespace Duck.Graphics;
 
@@ -104,12 +107,12 @@ public abstract class GraphicsModuleBase : IRendererModule,
 
             // FIXME: this does not support multithreading
 
-            var cameraTransform = scene.World.Get<TransformComponent>(cameraRef.Value.Entity);
+            var cameraTransform = scene.World.Get<Position, Orientation>(cameraRef.Value.Entity);
 
             var commandBuffer = RenderSystem.GraphicsDevice.CreateCommandBuffer(view);
-            commandBuffer.ViewMatrix = cameraTransform.CreateLookAtMatrix();
+            commandBuffer.ViewMatrix = Transform.CreateLookAtMatrix(cameraTransform.t0, cameraTransform.t1);
 
-            Time.CameraPosition = cameraTransform.Position;
+            Time.CameraPosition = cameraTransform.t0.Value;
 
             scene.SystemRoot.PresentationGroup.RenderCommandBuffer = commandBuffer;
             scene.SystemRoot.PresentationGroup.View = view;

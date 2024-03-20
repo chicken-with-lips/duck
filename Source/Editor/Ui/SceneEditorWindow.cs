@@ -15,7 +15,7 @@ using Editor.Modules;
 namespace Editor.Ui;
 
 [AutoSerializable]
-public struct SceneEditorWindowComponent
+public partial struct SceneEditorWindowComponent
 {
 }
 

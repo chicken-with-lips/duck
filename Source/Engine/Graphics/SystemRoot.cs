@@ -55,13 +55,16 @@ public class SystemRoot : IDisposable
 
 public class Group<T> : ISystem<T>
 {
-    public Arch.CommandBuffer.CommandBuffer CommandBuffer { get; }
+    public Arch.Buffer.CommandBuffer CommandBuffer { get; }
 
     protected readonly List<ISystem<T>> _systems = new();
 
+    private World _world;
+
     public Group(World world)
     {
-        CommandBuffer = new Arch.CommandBuffer.CommandBuffer(world);
+        _world = world;
+        CommandBuffer = new Arch.Buffer.CommandBuffer();
     }
 
     public Group<T> Add(params ISystem<T>[] systems)
@@ -104,7 +107,7 @@ public class Group<T> : ISystem<T>
             system.AfterUpdate(t);
         }
 
-        CommandBuffer.Playback();
+        CommandBuffer.Playback(_world);
     }
 
     public void Dispose()
@@ -145,7 +148,7 @@ public class PresentationGroup<T> : Group<T>
 
 public interface IBufferedSystem
 {
-    public Arch.CommandBuffer.CommandBuffer CommandBuffer { get; set; }
+    public Arch.Buffer.CommandBuffer CommandBuffer { get; set; }
 }
 
 public interface IPresentationSystem

@@ -1,3 +1,5 @@
+using ADyn.Components;
+using Duck.Math;
 using Duck.Serialization;
 using Silk.NET.Maths;
 using MathF = Duck.Math.MathF;
@@ -18,7 +20,7 @@ public partial struct CameraComponent
     {
     }
 
-    public Vector3D<float> ScreenToWorldPosition(View view, in TransformComponent transformComponent, in Vector3D<float> screenCoordinates)
+    public Vector3D<float> ScreenToWorldPosition(View view, in AVector3 position, in AQuaternion orientation, in Vector3D<float> screenCoordinates)
     {
         // https://antongerdelan.net/opengl/raycasting.html
 
@@ -26,7 +28,11 @@ public partial struct CameraComponent
         var viewHeight = view.Dimensions.Y;
 
         var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView(MathF.ToRadians(FieldOfView), viewWidth / viewHeight, NearClipPlane, FarClipPlane);
-        var viewMatrix = Matrix4X4.CreateLookAt(transformComponent.Position, transformComponent.Position + transformComponent.Forward, transformComponent.Up);
+        var viewMatrix = Matrix4X4.CreateLookAt(
+            position,
+            position + Transform.Forward(position, orientation),
+            Math.Transform.Up(position, orientation)
+        );
 
         var x = (2f * screenCoordinates.X) / viewWidth - 1f;
         var y = 1f - (2f * screenCoordinates.Y) / viewHeight;

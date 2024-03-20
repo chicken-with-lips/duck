@@ -1,9 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
+using ADyn.Components;
 using Arch.Core;
 using Arch.System;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
+using Duck.Math;
 using Duck.Platform;
+using Silk.NET.Maths;
+using Transform = Duck.Math.Transform;
 
 namespace Duck.Graphics.Systems;
 
@@ -22,12 +26,11 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderStaticMeshWithBoundingBox(in TransformComponent transform, in RuntimeStaticMeshComponent runtimeStaticMesh, in BoundingBoxComponent boundingBox)
+    public void RenderStaticMeshWithBoundingBox(in LocalTransform localTransform, in LocalToWorld localToWorld, in RuntimeStaticMeshComponent runtimeStaticMesh, in BoundingBoxComponent boundingBox)
     {
         var renderObjectInstance = _graphicsDevice.GetRenderObjectInstance(runtimeStaticMesh.InstanceId);
         renderObjectInstance
-            .SetParameter("WorldScale", transform.Scale)
-            .SetParameter("WorldPosition", transform.WorldTranslation);
+            .SetParameter("Transform", localToWorld.Value);
 
         /*var scaledBoundingBox = new BoundingBoxComponent() {
             Box = boundingBox.Box.GetScaled(transform.Scale, boundingBox.Box.Center)
@@ -40,12 +43,11 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderStaticMeshWithBoundingSphere(in TransformComponent transform, in RuntimeStaticMeshComponent runtimeStaticMesh, in BoundingSphereComponent boundingSphere)
+    public void RenderStaticMeshWithBoundingSphere(in LocalToWorld localToWorld, in RuntimeStaticMeshComponent runtimeStaticMesh, in BoundingSphereComponent boundingSphere)
     {
         var renderObjectInstance = _graphicsDevice.GetRenderObjectInstance(runtimeStaticMesh.InstanceId);
         renderObjectInstance
-            .SetParameter("WorldScale", transform.Scale)
-            .SetParameter("WorldPosition", transform.WorldTranslation);
+            .SetParameter("Transform", localToWorld.Value);
 
         /*var scaledBoundingSphere = new BoundingSphereComponent() {
             Radius = boundingSphere.Radius
@@ -58,10 +60,10 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderDirectionalLight(in TransformComponent transform, in DirectionalLightComponent directionalLight)
+    public void RenderDirectionalLight(in LocalTransform localTransform, in DirectionalLightComponent directionalLight)
     {
         RenderCommandBuffer?.AddDirectionalLight(
-            transform.Forward,
+            localTransform.Forward,
             directionalLight.Ambient,
             directionalLight.Diffuse,
             directionalLight.Specular
@@ -70,9 +72,9 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderPointLight(in TransformComponent transform, in PointLightComponent pointLight)
+    public void RenderPointLight(in LocalTransform localTransform, in PointLightComponent pointLight)
     {
-        Time.PointLightPosition = transform.Position;
+        Time.PointLightPosition = localTransform.Position;
         Time.PointLightAmbient = pointLight.Ambient;
         Time.PointLightDiffuse = pointLight.Diffuse;
         Time.PointLightSpecular = pointLight.Specular;
@@ -83,10 +85,10 @@ public partial class RenderSceneSystem : BaseSystem<World, float>, IPresentation
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void RenderSpotLight(in TransformComponent transform, in SpotLightComponent spotLight)
+    public void RenderSpotLight(in LocalTransform localTransform, in SpotLightComponent spotLight)
     {
-        Time.SpotLightPosition = transform.Position;
-        Time.SpotLightDirection = transform.Forward;
+        Time.SpotLightPosition = localTransform.Position;
+        Time.SpotLightDirection = localTransform.Forward;
         Time.SpotLightAmbient = spotLight.Ambient;
         Time.SpotLightDiffuse = spotLight.Diffuse;
         Time.SpotLightSpecular = spotLight.Specular;

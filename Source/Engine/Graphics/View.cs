@@ -1,4 +1,5 @@
-﻿using Arch.Core;
+﻿using ADyn.Components;
+using Arch.Core;
 using Arch.Core.Extensions;
 using Duck.Graphics.Components;
 using Silk.NET.Maths;
@@ -46,7 +47,7 @@ public class View
                 return false;
             }
 
-            if (!Camera.HasValue || !Scene.World.IsAlive(Camera.Value) || !Scene.World.Has<CameraComponent, TransformComponent>(Camera.Value.Entity)) {
+            if (!Camera.HasValue || !Scene.World.IsAlive(Camera.Value) || !Scene.World.Has<CameraComponent, Position, Orientation>(Camera.Value.Entity)) {
                 return false;
             }
 

@@ -10,7 +10,7 @@ public interface IBoundingVolume
 [AutoSerializable]
 public partial struct BoundingBoxComponent : IBoundingVolume
 {
-    public Box3D<float> Box = default;
+    public ABox Box = default;
 
     public BoundingBoxComponent()
     {

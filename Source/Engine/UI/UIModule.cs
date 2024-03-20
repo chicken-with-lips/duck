@@ -1,16 +1,19 @@
+using ADyn.Components;
 using Duck.Content;
 using Duck.Graphics;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
-using Duck.Graphics.Materials;
 using Duck.Graphics.Shaders;
 using Duck.Input;
 using Duck.Logging;
+using Duck.Math;
 using Duck.Platform;
 using Duck.Ui.Artery;
 using Duck.UI.Content;
 using Duck.Ui.Elements;
 using Silk.NET.Maths;
+using Material = Duck.Graphics.Materials.Material;
+using Transform = Duck.Math.Transform;
 
 namespace Duck.Ui;
 
@@ -283,10 +286,10 @@ public class UIModule : IUIModule, IInitializableModule, IPreTickableModule, IRe
 
             // FIXME: this does not support multithreading
 
-            var cameraTransform = view.Scene.World.Get<TransformComponent>(cameraRef.Value.Entity);
+            var cameraTransform = view.Scene.World.Get<Position, Orientation>(cameraRef.Value.Entity);
 
             var commandBuffer = _rendererModule.GraphicsDevice.CreateCommandBuffer(view);
-            commandBuffer.ViewMatrix = cameraTransform.CreateLookAtMatrix();
+            commandBuffer.ViewMatrix = Transform.CreateLookAtMatrix(cameraTransform.t0, cameraTransform.t1);
 
             if (renderData.BoxIndexBuffer.ElementCount > 0) {
                 commandBuffer.ScheduleRenderable(renderData.BoxRenderObject);

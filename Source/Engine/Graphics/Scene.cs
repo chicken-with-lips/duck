@@ -7,7 +7,7 @@ using Duck.ServiceBus;
 namespace Duck.Graphics;
 
 [AutoSerializable]
-public partial class Scene : IScene, ICloneable
+public partial class Scene : IScene
 {
     #region Properties
 

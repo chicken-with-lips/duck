@@ -5,5 +5,6 @@ namespace Duck.Physics;
 
 public interface IPhysicsModule : IModule
 {
-    public IPhysicsWorld GetOrCreatePhysicsWorld(World world);
+    public IPhysicsScene GetOrCreatePhysicsScene(World world);
+    public void DestroyPhysicsSceneForWorld(World world);
 }

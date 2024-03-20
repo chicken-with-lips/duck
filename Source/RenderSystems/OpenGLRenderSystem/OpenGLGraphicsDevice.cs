@@ -89,7 +89,7 @@ internal class OpenGLGraphicsDevice : IGraphicsDevice
         );
 
         foreach (var renderable in commandBuffer.Renderables) {
-            var transform = renderable.HasParameter("WorldPosition") ? renderable.GetParameter<Matrix4X4<float>>("WorldPosition") : Matrix4X4<float>.Identity;
+            var transform = renderable.HasParameter("Transform") ? renderable.GetParameter<Matrix4X4<float>>("Transform") : Matrix4X4<float>.Identity;
 
             DrawRenderable(renderable, commandBuffer, commandBuffer.View, commandBuffer.ViewMatrix, transform, (renderObject) => {
                 _api.DrawElements(PrimitiveType.Triangles, renderObject.IndexCount, DrawElementsType.UnsignedInt, null);

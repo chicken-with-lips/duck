@@ -9,7 +9,7 @@ using Duck.Graphics;
 using Duck.Serialization;
 using Duck.ServiceBus;
 using Duck.Ui;
-using Tracy.Net;
+using Tracy;
 
 namespace Duck.GameFramework;
 

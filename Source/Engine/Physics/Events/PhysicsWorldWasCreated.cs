@@ -4,10 +4,10 @@ namespace Duck.Physics.Events;
 
 public readonly struct PhysicsWorldWasCreated : IEvent
 {
-    public readonly IPhysicsWorld World;
+    public readonly IPhysicsScene Scene;
 
-    public PhysicsWorldWasCreated(IPhysicsWorld world)
+    public PhysicsWorldWasCreated(IPhysicsScene scene)
     {
-        World = world;
+        Scene = scene;
     }
 }

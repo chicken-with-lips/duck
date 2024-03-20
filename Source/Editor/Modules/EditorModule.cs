@@ -1,4 +1,5 @@
 using System;
+using ADyn.Components;
 using Duck.Content;
 using Duck.Graphics;
 using Duck.Graphics.Components;
@@ -54,7 +55,8 @@ public class EditorModule : IInitializableModule, IPostInitializableModule
 
         var cameraEntity = world.Create(
             new CameraComponent(),
-            new TransformComponent()
+            new Position(),
+            new Orientation()
         );
 
         world.Create(

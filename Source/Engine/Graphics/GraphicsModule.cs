@@ -106,7 +106,7 @@ public class GraphicsModule : GraphicsModuleBase,
             UnloadSceneNow(scene);
         }
 
-        ComponentRegistry.Types.Clear();
+        Console.WriteLine("TODO: ComponentRegistry.Types.Clear());");
     }
 
     public void EndHotReload()
