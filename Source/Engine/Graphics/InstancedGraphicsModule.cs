@@ -46,6 +46,8 @@ public class InstancedGraphicsModule : GraphicsModuleBase, IInitializableModule
             var clone = (IScene)scene.Clone();
             _sceneBackup.Add(clone);
 
+            _app.GetModule<IPhysicsModule>().GetOrCreatePhysicsScene(scene.World).IsPaused = true;
+
             foreach (var view in Views) {
                 if (view.Scene == scene) {
                     _sceneToViewBackup.Add(

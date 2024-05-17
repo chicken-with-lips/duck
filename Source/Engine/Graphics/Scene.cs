@@ -95,9 +95,11 @@ public partial class Scene : IScene
 
     public object Clone()
     {
+        var destWorld = InMemoryWorldCloner.Copy(_world);
+
         return new Scene(
             _name,
-            InMemoryWorldCloner.Copy(World),
+            destWorld,
             _eventBus,
             IsActive
         );
