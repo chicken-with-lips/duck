@@ -216,7 +216,7 @@ public class ContentModule : IContentModule, IInitializableModule, ITickableModu
             data = fixmeData;
         } else if (asset.ImportData.Uri.IsFile) {
             var tmp = asset.ImportData.Uri.AbsolutePath;
-            var path = Path.IsPathFullyQualified(tmp) ? tmp : ContentRootDirectory + tmp;
+            var path = ContentRootDirectory + tmp;
 
             data = File.ReadAllBytes(path);
         }
