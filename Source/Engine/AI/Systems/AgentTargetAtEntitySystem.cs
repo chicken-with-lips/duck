@@ -24,16 +24,17 @@ public partial class AgentTargetAtEntitySystem : BaseSystem<World, float>
             return;
         }
 
-        if (!World.Has<TransformComponent>(targetEntity.Value.Value)
-            || !World.Has<RigidBodyComponent>(targetEntity.Value.Value)) {
-            return;
-        }
-
-        var targetTransform = World.Get<TransformComponent>(targetEntity.Value.Value);
-        var targetRigidBody = World.Get<RigidBodyComponent>(targetEntity.Value.Value);
-
-        target.Point = targetTransform.Position;
-        target.Heading = targetTransform.Forward;
-        target.Velocity = targetRigidBody.LinearVelocity;
+        Console.WriteLine("TODO: AgentTargetAtEntitySystem.Run");
+        // if (!World.Has<TransformComponent>(targetEntity.Value.Value)
+        //     || !World.Has<RigidBodyComponent>(targetEntity.Value.Value)) {
+        //     return;
+        // }
+        //
+        // var targetTransform = World.Get<TransformComponent>(targetEntity.Value.Value);
+        // var targetRigidBody = World.Get<RigidBodyComponent>(targetEntity.Value.Value);
+        //
+        // target.Point = targetTransform.Position;
+        // target.Heading = targetTransform.Forward;
+        // target.Velocity = targetRigidBody.LinearVelocity;
     }
 }
