@@ -1,3 +1,4 @@
+using Arch.Core;
 using Arch.Core.Utils;
 using Duck.Content;
 using Duck.Graphics.Content.SourceAssetImporter;
@@ -99,7 +100,7 @@ public class GraphicsModule : GraphicsModuleBase,
     {
         foreach (var view in Views) {
             view.Scene = null;
-            view.Camera = null;
+            view.Camera = EntityReference.Null;
         }
 
         foreach (var scene in Scenes) {

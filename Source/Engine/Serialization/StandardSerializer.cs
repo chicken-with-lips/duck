@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
+using Arch.Core;
+using Duck.Content;
 using Duck.Serialization.Exception;
 using Silk.NET.Maths;
 
 namespace Duck.Serialization;
 
-public class BasicSerializer : IBasicSerializer
+public class StandardSerializer : IStandardSerializer
 {
     #region Properties
 
@@ -21,7 +23,7 @@ public class BasicSerializer : IBasicSerializer
 
     #endregion
 
-    public BasicSerializer(ISerializationContext context)
+    public StandardSerializer(ISerializationContext context)
     {
         _context = context;
         _stream = new MemoryStream();
@@ -81,17 +83,17 @@ public class BasicSerializer : IBasicSerializer
     {
         ThrowIfSealed();
 
-        _writer.Write(value.X);
-        _writer.Write(value.Y);
-        _writer.Write(value.Z);
+        Write(value.X);
+        Write(value.Y);
+        Write(value.Z);
     }
 
     public void Write(in Vector2D<float> value)
     {
         ThrowIfSealed();
 
-        _writer.Write(value.X);
-        _writer.Write(value.Y);
+        Write(value.X);
+        Write(value.Y);
     }
 
     public void Write(in Box3D<float> value)
@@ -106,10 +108,35 @@ public class BasicSerializer : IBasicSerializer
     {
         ThrowIfSealed();
 
-        _writer.Write(value.X);
-        _writer.Write(value.Y);
-        _writer.Write(value.Z);
-        _writer.Write(value.W);
+        Write(value.X);
+        Write(value.Y);
+        Write(value.Z);
+        Write(value.W);
+    }
+
+    public void Write(in Guid value)
+    {
+        ThrowIfSealed();
+
+        Write(value.ToByteArray());
+    }
+
+    public void Write<T>(in AssetReference<T> value) where T : class, IAsset
+    {
+        ThrowIfSealed();
+
+        Write(typeof(T).FullName);
+        Write(value.AssetId);
+        Write(value.IsShared);
+        Write(value.IsUnique);
+    }
+
+    public void Write(EntityReference value)
+    {
+        ThrowIfSealed();
+
+        Write(value.Entity.Id);
+        Write(value.Version);
     }
 
     public SerializedContainer Close()

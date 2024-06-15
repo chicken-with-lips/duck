@@ -20,7 +20,7 @@ public partial class AgentTargetAtEntitySystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Run(ref AgentTargetComponent target, in AgentTargetEntityComponent targetEntity)
     {
-        if (!targetEntity.Value.HasValue || !World.IsAlive(targetEntity.Value.Value)) {
+        if (!World.IsAlive(targetEntity.Value)) {
             return;
         }
 

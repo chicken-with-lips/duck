@@ -101,13 +101,13 @@ public abstract class GraphicsModuleBase : IRendererModule,
             }
 
             Debug.Assert(view.Scene != null);
-            Debug.Assert(cameraRef.HasValue);
+            Debug.Assert(cameraRef != EntityReference.Null);
 
             var scene = view.Scene;
 
             // FIXME: this does not support multithreading
 
-            var cameraTransform = scene.World.Get<Position, Orientation>(cameraRef.Value.Entity);
+            var cameraTransform = scene.World.Get<Position, Orientation>(cameraRef);
 
             var commandBuffer = RenderSystem.GraphicsDevice.CreateCommandBuffer(view);
             commandBuffer.ViewMatrix = Transform.CreateLookAtMatrix(cameraTransform.t0, cameraTransform.t1);
