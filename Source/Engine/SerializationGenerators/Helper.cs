@@ -25,7 +25,7 @@ public static class Helper
             var genericParameters = new List<string>();
 
             foreach (var typeSymbol in namedSymbol.TypeArguments) {
-                genericParameters.Add(typeSymbol.Name);
+                genericParameters.Add(typeSymbol.ToDisplayString());
             }
 
             return String.Join(", ", genericParameters);

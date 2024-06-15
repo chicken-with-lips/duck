@@ -1,4 +1,5 @@
 using ADyn.Components;
+using Arch.Core;
 using Duck.Content;
 using Duck.Graphics;
 using Duck.Graphics.Components;
@@ -280,13 +281,13 @@ public class UIModule : IUIModule, IInitializableModule, IPreTickableModule, IRe
             // foreach (var view in _rendererModule.Views) {
             var cameraRef = view.Camera;
 
-            if (!view.IsValid || !cameraRef.HasValue) {
+            if (!view.IsValid || cameraRef != EntityReference.Null) {
                 return;
             }
 
             // FIXME: this does not support multithreading
 
-            var cameraTransform = view.Scene.World.Get<Position, Orientation>(cameraRef.Value.Entity);
+            var cameraTransform = view.Scene.World.Get<Position, Orientation>(cameraRef);
 
             var commandBuffer = _rendererModule.GraphicsDevice.CreateCommandBuffer(view);
             commandBuffer.ViewMatrix = Transform.CreateLookAtMatrix(cameraTransform.t0, cameraTransform.t1);

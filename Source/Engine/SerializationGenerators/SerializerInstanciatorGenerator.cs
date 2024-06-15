@@ -23,7 +23,7 @@ public class SerializerInstanciatorGenerator : IIncrementalGenerator
         if (enumerations.IsDefaultOrEmpty) {
             return;
         }
-        return;
+
         var checkBuilder = new StringBuilder();
         var instanciateBuilder = new StringBuilder();
         var instanciateT1Builder = new StringBuilder();
@@ -38,7 +38,7 @@ public class SerializerInstanciatorGenerator : IIncrementalGenerator
             checkBuilder.AppendLine($@"            case ""{fqdn}"":");
 
             if (type.IsGenericType) {
-                instanciateT1Builder.AppendLine($@"            ""{fqdn}"" => new {fqdn}(deserializer, context),");
+                // instanciateT1Builder.AppendLine($@"            ""{fqdn}"" => new {fqdn}(deserializer, context),");
             } else {
                 instanciateBuilder.AppendLine($@"            ""{fqdn}"" => new {fqdn}(deserializer, context),");
             }

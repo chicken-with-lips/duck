@@ -18,10 +18,6 @@ public class Instanciator
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
         foreach (var assembly in assemblies) {
-            if (!assembly.GetName().FullName.StartsWith("Duck.")) {
-                continue;
-            }
-
             var types = assembly.GetTypes()
                 .Where(type => !type.IsAbstract && type.GetInterface(nameof(IInstanciator)) != null);
 

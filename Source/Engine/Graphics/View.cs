@@ -35,7 +35,7 @@ public class View
 
     private WeakReference<IScene>? _scene;
 
-    public EntityReference? Camera { get; set; }
+    public EntityReference Camera { get; set; }
 
     public bool IsValid {
         get {
@@ -47,7 +47,7 @@ public class View
                 return false;
             }
 
-            if (!Camera.HasValue || !Scene.World.IsAlive(Camera.Value) || !Scene.World.Has<CameraComponent, Position, Orientation>(Camera.Value.Entity)) {
+            if (!Scene.World.IsAlive(Camera) || !Scene.World.Has<CameraComponent, Position, Orientation>(Camera.Entity)) {
                 return false;
             }
 
@@ -63,6 +63,6 @@ public class View
     public void ClearSceneReference()
     {
         Scene = null;
-        Camera = null;
+        Camera = EntityReference.Null;
     }
 }

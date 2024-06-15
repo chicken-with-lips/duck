@@ -82,6 +82,6 @@ public class InstancedGraphicsModule : GraphicsModuleBase, IInitializableModule
     private struct SceneBackup
     {
         public IScene Scene;
-        public EntityReference? Camera;
+        public EntityReference Camera;
     }
 }

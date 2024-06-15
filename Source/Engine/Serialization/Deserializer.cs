@@ -1,4 +1,10 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using ADyn;
+using ADyn.Shapes;
+using Arch.Core;
+using Arch.Core.Extensions.Dangerous;
+using Duck.Content;
 using Silk.NET.Maths;
 
 namespace Duck.Serialization;
@@ -9,8 +15,10 @@ public class Deserializer : IDeserializer
 
     public ReadOnlyCollection<IndexEntry> Index { get; }
 
-    public IDeserializer Root {
-        get {
+    public IDeserializer Root
+    {
+        get
+        {
             IDeserializer current = this;
 
             while (current.Parent != null) {
@@ -74,6 +82,18 @@ public class Deserializer : IDeserializer
         return ReadInt32();
     }
 
+    public uint ReadUInt32()
+    {
+        return _reader.ReadUInt32();
+    }
+
+    public uint ReadUInt32(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadUInt32();
+    }
+
     public long ReadInt64()
     {
         return _reader.ReadInt64();
@@ -92,6 +112,18 @@ public class Deserializer : IDeserializer
     }
 
     public float ReadFloat(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadFloat();
+    }
+
+    public Single ReadSingle()
+    {
+        return _reader.ReadSingle();
+    }
+
+    public Single ReadSingle(long offset)
     {
         _stream.Position = offset;
 
@@ -141,67 +173,149 @@ public class Deserializer : IDeserializer
         return ReadBytes(count);
     }
 
-    public Vector3D<float> ReadVector3D()
+    // FIXME: boxing?
+    private object ReadGeneric<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
-        return new Vector3D<float>(
-            ReadFloat(),
-            ReadFloat(),
-            ReadFloat()
+        switch (Type.GetTypeCode(typeof(T))) {
+            case TypeCode.Single:
+                return ReadFloat();
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public Vector4D<T> ReadVector4D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        
+        return new Vector4D<T>(
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>()
         );
     }
 
-    public Vector3D<float> ReadVector3D(long offset)
+    public Vector4D<T> ReadVector4D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         _stream.Position = offset;
 
-        return ReadVector3D();
+        return ReadVector4D<T>();
     }
 
-    public Vector2D<float> ReadVector2D()
+    public Vector3D<T> ReadVector3D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
-        return new Vector2D<float>(
-            ReadFloat(),
-            ReadFloat()
+        return new Vector3D<T>(
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>()
         );
     }
 
-    public Vector2D<float> ReadVector2D(long offset)
+    public Vector3D<T> ReadVector3D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         _stream.Position = offset;
 
-        return ReadVector2D();
+        return ReadVector3D<T>();
     }
 
-    public Box3D<float> ReadBox3D()
+    public Vector2D<T> ReadVector2D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
-        return new Box3D<float>(
-            ReadVector3D(),
-            ReadVector3D()
+        return new Vector2D<T>(
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>()
         );
     }
 
-    public Box3D<float> ReadBox3D(long offset)
+    public Vector2D<T> ReadVector2D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         _stream.Position = offset;
 
-        return ReadBox3D();
+        return ReadVector2D<T>();
     }
 
-    public Quaternion<float> ReadQuaternion()
+    public Box3D<T> ReadBox3D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
-        return new Quaternion<float>(
-            ReadFloat(),
-            ReadFloat(),
-            ReadFloat(),
-            ReadFloat()
+        return new Box3D<T>(
+            ReadVector3D<T>(),
+            ReadVector3D<T>()
         );
     }
 
-    public Quaternion<float> ReadQuaternion(long offset)
+    public Box3D<T> ReadBox3D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         _stream.Position = offset;
 
-        return ReadQuaternion();
+        return ReadBox3D<T>();
+    }
+
+    public Quaternion<T> ReadQuaternion<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        return new Quaternion<T>(
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>(),
+            (T) ReadGeneric<T>()
+        );
+    }
+
+    public Quaternion<T> ReadQuaternion<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        _stream.Position = offset;
+
+        return ReadQuaternion<T>();
+    }
+
+    public Matrix4X4<T> ReadMatrix4X4<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        return new Matrix4X4<T>(
+            ReadVector4D<T>(),
+            ReadVector4D<T>(),
+            ReadVector4D<T>(),
+            ReadVector4D<T>()
+        );
+    }
+
+    public Matrix4X4<T> ReadMatrix4X4<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        _stream.Position = offset;
+
+        return ReadMatrix4X4<T>();
+    }
+
+    public EntityReference ReadEntityReference()
+    {
+        throw new NotImplementedException();
+    }
+
+    public EntityReference ReadEntityReference(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadEntityReference();
+    }
+
+    public AssetReference<T> ReadAssetReference<T>() where T : class, IAsset
+    {
+        throw new NotImplementedException();
+    }
+
+    public AssetReference<T> ReadAssetReference<T>(long offset) where T : class, IAsset
+    {
+        _stream.Position = offset;
+
+        return ReadAssetReference<T>();
+    }
+
+    public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>() where T : unmanaged, IShape
+    {
+        throw new NotImplementedException();
+    }
+
+    public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>(long offset) where T : unmanaged, IShape
+    {
+        _stream.Position = offset;
+
+        return ReadRigidBodyDefinition<T>();
     }
 
     public T ReadObjectInternal<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long? offset, int? objectId) where T : ISerializable
@@ -209,7 +323,7 @@ public class Deserializer : IDeserializer
         if (offset != null) {
             _stream.Position = offset.Value;
         }
-        
+
         var container = ReadSerializedContainer();
         var deserializer = new Deserializer(container.Data, container.Index, _context, this);
         var context = new DeserializationContext(objectId, _context);
@@ -290,7 +404,8 @@ public class Deserializer : IDeserializer
         var index = new IndexEntry[indexCount];
 
         for (var i = 0; i < indexCount; i++) {
-            index[i] = new IndexEntry() {
+            index[i] = new IndexEntry()
+            {
                 Name = ReadString(),
                 Type = (DataType)ReadByte(),
                 OffsetStart = ReadInt64(),
@@ -303,7 +418,8 @@ public class Deserializer : IDeserializer
             }
         }
 
-        return new SerializedContainer() {
+        return new SerializedContainer()
+        {
             Index = new ReadOnlyCollection<IndexEntry>(index),
             Data = ReadBytes(dataLength)
         };
