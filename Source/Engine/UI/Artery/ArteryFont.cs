@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using ChickenWithLips.ArteryFont;
 using Duck.Content;
 using Duck.Graphics.Textures;

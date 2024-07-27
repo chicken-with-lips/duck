@@ -1,4 +1,4 @@
-﻿using Duck.Audio.Content.Loaders;
+using Duck.Audio.Content.Loaders;
 using Duck.Audio.FMod;
 using Duck.Content;
 using Duck.Logging;

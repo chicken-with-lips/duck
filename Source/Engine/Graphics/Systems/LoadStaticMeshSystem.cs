@@ -5,6 +5,7 @@ using Arch.System.SourceGenerator;
 using Duck.Content;
 using Duck.Graphics.Components;
 using Duck.Graphics.Device;
+using Duck.Graphics.Mesh;
 
 namespace Duck.Graphics.Systems;
 
@@ -23,13 +24,13 @@ public partial class LoadStaticMeshSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Load(in Entity entity, in StaticMeshComponent staticMesh)
     {
-        if (staticMesh.Mesh == null) {
+        if (staticMesh.Mesh == AssetReference<StaticMesh>.Null) {
             return;
         }
 
         World.Add<RuntimeStaticMeshComponent>(entity);
 
-        var mesh = _contentModule.LoadImmediate(staticMesh.Mesh.Value) as IRenderable;
+        var mesh = _contentModule.LoadImmediate(staticMesh.Mesh) as IRenderable;
 
         // FIXME: what was I trying to do here?
         ref var runtimeData = ref World.Get<RuntimeStaticMeshComponent>(entity);

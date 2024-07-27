@@ -1,4 +1,4 @@
-﻿    namespace Arch.System.SourceGenerator
+    namespace Arch.System.SourceGenerator
     {
     #if NET7_0_OR_GREATER
         public class AllAttribute<T0> : AllAttribute

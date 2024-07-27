@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using Duck.Ui.Elements;
 using Silk.NET.Maths;
 using MathF = Duck.Math.MathF;

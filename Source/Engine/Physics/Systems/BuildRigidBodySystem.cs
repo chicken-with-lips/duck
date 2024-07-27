@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using ADyn.Components;
 using ADyn.Shapes;
 using Arch.Core;

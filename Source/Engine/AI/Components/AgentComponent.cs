@@ -1,4 +1,4 @@
-﻿using Duck.Serialization;
+using Duck.Serialization;
 using Silk.NET.Maths;
 
 namespace Duck.AI.Components;

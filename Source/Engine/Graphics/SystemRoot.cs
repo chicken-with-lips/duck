@@ -1,4 +1,4 @@
-﻿using Arch.Core;
+using Arch.Core;
 using Arch.System;
 
 namespace Duck.Graphics;

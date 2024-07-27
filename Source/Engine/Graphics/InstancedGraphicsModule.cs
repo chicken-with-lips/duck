@@ -1,4 +1,4 @@
-﻿using Arch.Core;
+using Arch.Core;
 using Duck.Graphics.Device;
 using Duck.Physics;
 using Duck.Platform;

@@ -1,4 +1,4 @@
-﻿using ADyn.Components;
+using ADyn.Components;
 using Arch.Core;
 using Arch.Core.Extensions;
 using Duck.Graphics.Components;

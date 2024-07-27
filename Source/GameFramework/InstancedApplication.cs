@@ -1,4 +1,4 @@
-﻿using Duck.Platform;
+using Duck.Platform;
 using Duck.Graphics;
 
 namespace Duck.GameFramework;

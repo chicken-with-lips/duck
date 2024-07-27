@@ -1,7 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
 using Duck.Audio.Components;
+using Duck.Content;
 
 namespace Duck.Audio.Systems;
 
@@ -19,11 +20,11 @@ public partial class PlaySoundSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Run(in Entity entity, ref SoundComponent component)
     {
-        if (!component.Sound.HasValue || component.IsPlaying) {
+        if (component.Sound == AssetReference<SoundClip>.Null || component.IsPlaying) {
             return;
         }
 
         component.IsPlaying = true;
-        _audioModule.PlaySound(component.Sound.Value);
+        _audioModule.PlaySound(component.Sound);
     }
 }

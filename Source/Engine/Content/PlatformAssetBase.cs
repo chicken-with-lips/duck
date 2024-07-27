@@ -1,4 +1,4 @@
-﻿using WeakEvent;
+using WeakEvent;
 
 namespace Duck.Content;
 

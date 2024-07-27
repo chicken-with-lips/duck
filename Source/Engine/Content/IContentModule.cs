@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using Arch.Core;
 using Duck.Platform;
 
 namespace Duck.Content;
@@ -41,6 +43,35 @@ public readonly struct AssetReference<T>
     public Guid UniqueId { get; init; }
     public bool IsShared { get; init; }
     public bool IsUnique => !IsShared;
+
+    public static readonly AssetReference<T> Null = new();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(AssetReference<T> other)
+    {
+        return AssetId.Equals(other.AssetId)
+               && UniqueId.Equals(other.UniqueId)
+               && IsShared == other.IsShared
+               && IsUnique == other.IsUnique;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool Equals(object? obj)
+    {
+        return obj is AssetReference<T> other && Equals(other);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(AssetReference<T> left, AssetReference<T> right)
+    {
+        return left.Equals(right);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(AssetReference<T> left, AssetReference<T> right)
+    {
+        return !left.Equals(right);
+    }
 
     public static AssetReference<T> Shared(Guid assetId)
     {

@@ -1,4 +1,4 @@
-﻿using Arch.Core;
+using Arch.Core;
 using Duck.Serialization;
 
 namespace Duck.Physics.Components;

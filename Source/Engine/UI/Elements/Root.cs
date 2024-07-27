@@ -1,4 +1,4 @@
-﻿using Duck.Content;
+using Duck.Content;
 using Silk.NET.Maths;
 
 namespace Duck.Ui.Elements;

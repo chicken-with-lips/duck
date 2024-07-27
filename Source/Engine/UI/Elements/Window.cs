@@ -1,4 +1,4 @@
-﻿namespace Duck.Ui.Elements;
+namespace Duck.Ui.Elements;
 
 public record struct WindowProps(in string Title, in int Width, in int Height)
 {

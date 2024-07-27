@@ -1,4 +1,4 @@
-﻿using Duck.Graphics;
+using Duck.Graphics;
 
 namespace Duck.Ui.Elements;
 

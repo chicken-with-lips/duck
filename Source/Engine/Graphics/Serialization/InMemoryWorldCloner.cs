@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.Core.Extensions.Dangerous;

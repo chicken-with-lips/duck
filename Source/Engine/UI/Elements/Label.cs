@@ -1,4 +1,4 @@
-﻿namespace Duck.Ui.Elements;
+namespace Duck.Ui.Elements;
 
 public readonly record struct LabelProps(in string Content)
 {

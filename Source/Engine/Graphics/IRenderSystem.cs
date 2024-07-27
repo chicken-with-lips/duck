@@ -1,4 +1,4 @@
-﻿using Duck.Content;
+using Duck.Content;
 using Duck.Graphics.Device;
 using Duck.Graphics.Materials;
 using Duck.Graphics.Shaders;

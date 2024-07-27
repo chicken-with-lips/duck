@@ -1,4 +1,4 @@
-﻿using Duck.Content;
+using Duck.Content;
 using FmodAudio;
 
 namespace Duck.Audio.FMod;

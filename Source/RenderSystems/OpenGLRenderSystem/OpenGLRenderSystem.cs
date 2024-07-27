@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Duck.Content;
 using Duck.Graphics;
 using Duck.Graphics.Device;

@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using Duck.Content;
 using Duck.Ui.Elements;
 using Silk.NET.Maths;

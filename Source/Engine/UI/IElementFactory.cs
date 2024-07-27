@@ -1,4 +1,4 @@
-﻿namespace Duck.Ui;
+namespace Duck.Ui;
 
 public interface IElementFactory
 {
