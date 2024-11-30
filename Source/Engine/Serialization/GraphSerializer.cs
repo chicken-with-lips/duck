@@ -34,9 +34,8 @@ public class GraphSerializer : IGraphSerializer
     private readonly List<IndexEntry> _index;
     private readonly Dictionary<int, DeferredSerialization> _deferred;
     private readonly Dictionary<int, int> _deferredLookup;
-    private readonly StandardSerializer _serializer;
+    private readonly DefaultBasicSerializer _basicSerializer;
     private readonly ISerializationContext _context;
-
     #endregion
 
     public GraphSerializer(ISerializationContext context, IGraphSerializer? parent = null)
@@ -44,7 +43,7 @@ public class GraphSerializer : IGraphSerializer
         Parent = parent;
 
         _context = context;
-        _serializer = new StandardSerializer();
+        _basicSerializer = new DefaultBasicSerializer();
         _index = new();
         _deferred = new();
         _deferredLookup = new();
@@ -54,147 +53,147 @@ public class GraphSerializer : IGraphSerializer
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.String, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.String, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in int value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Int32, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Int32, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in float value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Float, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Float, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in bool value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Boolean, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Boolean, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Vector4D<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Vector4D, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Vector4D, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Vector3D<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Vector3D, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Vector3D, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Vector2D<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Vector2D, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Vector2D, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Box3D<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Box3D, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Box3D, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Quaternion<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Quaternion, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Quaternion, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Matrix3X3<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Matrix3X3, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Matrix3X3, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, in Matrix4X4<float> value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Matrix4X4, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Matrix4X4, offsetStart, _basicSerializer.Position);
     }
 
     public void Write<T>(string name, in AssetReference<T> value) where T : class, IAsset
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Quaternion, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Quaternion, offsetStart, _basicSerializer.Position);
     }
 
     public void Write<TShapeType>(string name, in RigidBodyDefinition<TShapeType> value) where TShapeType : unmanaged, IShape
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.RigidBodyDefinition, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.RigidBodyDefinition, offsetStart, _basicSerializer.Position);
     }
 
     public void Write(string name, EntityReference value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
 
-        _serializer.Write(value);
-        PushIndex(name, DataType.Quaternion, offsetStart, _serializer.Position);
+        _basicSerializer.Write(value);
+        PushIndex(name, DataType.Quaternion, offsetStart, _basicSerializer.Position);
     }
 
-    public void Write(string name, in ISerializable value)
+    public void Write(string name, in object value)
     {
         ThrowIfSealed();
 
-        var offsetStart = _serializer.Position;
+        var offsetStart = _basicSerializer.Position;
         var offsetEnd = (long)0;
         var dataType = DataType.ValueObject;
         string? explicitType = null;
@@ -215,13 +214,13 @@ public class GraphSerializer : IGraphSerializer
             WriteSerializableObject(value);
 
             explicitType = value.GetType().FullName;
-            offsetEnd = _serializer.Position;
+            offsetEnd = _basicSerializer.Position;
         }
 
         PushIndex(name, dataType, offsetStart, offsetEnd, explicitType);
     }
 
-    public void Write(string name, in ISerializable[] value, string containerType)
+   /* public void Write(string name, in ISerializable[] value, string containerType)
     {
         ThrowIfSealed();
 
@@ -236,9 +235,9 @@ public class GraphSerializer : IGraphSerializer
 
         WriteSerializedContainer(container);
         PushIndex(name, DataType.ValueObject, offsetStart, _serializer.Position, containerType);
-    }
+    }*/
 
-    public int TrackReferenceAndDeferSerialization(in ISerializable value)
+    public int TrackReferenceAndDeferSerialization(in object value)
     {
         int hash = value.GetHashCode();
 
@@ -276,10 +275,12 @@ public class GraphSerializer : IGraphSerializer
         );
     }
 
-    private void WriteSerializableObject(ISerializable obj)
+    private void WriteSerializableObject(object obj)
     {
         var serializer = new GraphSerializer(_context, this);
-        obj.Serialize(serializer, _context);
+        
+        Serializer.Serialize(obj, serializer, _context);
+
         var container = serializer.Close();
 
         WriteSerializedContainer(container);
@@ -287,18 +288,18 @@ public class GraphSerializer : IGraphSerializer
 
     private void WriteSerializedContainer(SerializedContainer container)
     {
-        _serializer.Write(container.Index.Count);
-        _serializer.Write(container.Data.Length);
+        _basicSerializer.Write(container.Index.Count);
+        _basicSerializer.Write(container.Data.Length);
 
         foreach (var entry in container.Index) {
-            _serializer.Write(entry.Name);
-            _serializer.Write((byte)entry.Type);
-            _serializer.Write(entry.OffsetStart);
-            _serializer.Write(entry.OffsetEnd);
-            _serializer.Write(entry.ExplicitType ?? "");
+            _basicSerializer.Write(entry.Name);
+            _basicSerializer.Write((byte)entry.Type);
+            _basicSerializer.Write(entry.OffsetStart);
+            _basicSerializer.Write(entry.OffsetEnd);
+            _basicSerializer.Write(entry.ExplicitType ?? "");
         }
 
-        _serializer.Write(container.Data.ToArray());
+        _basicSerializer.Write(container.Data.ToArray());
     }
 
     private void FlushDeferredSerializationList()
@@ -308,7 +309,7 @@ public class GraphSerializer : IGraphSerializer
             _deferred.Clear();
 
             foreach (var kvp in toSerialize) {
-                var offsetStart = _serializer.Position;
+                var offsetStart = _basicSerializer.Position;
 
                 WriteSerializableObject(kvp.Value.Object);
 
@@ -316,7 +317,7 @@ public class GraphSerializer : IGraphSerializer
                     Name = kvp.Value.Object.GetHashCode().ToString(),
                     Type = DataType.ReferenceObject,
                     OffsetStart = offsetStart,
-                    OffsetEnd = _serializer.Position,
+                    OffsetEnd = _basicSerializer.Position,
                     ExplicitType = kvp.Value.Object.GetType().FullName
                 };
             }
@@ -329,7 +330,7 @@ public class GraphSerializer : IGraphSerializer
 
         IsSealed = true;
 
-        var container = _serializer.Close();
+        var container = _basicSerializer.Close();
 
         return container with {
             Index = _index.AsReadOnly(),
@@ -346,6 +347,6 @@ public class GraphSerializer : IGraphSerializer
     private struct DeferredSerialization
     {
         public int Index;
-        public ISerializable Object;
+        public object Object;
     }
 }

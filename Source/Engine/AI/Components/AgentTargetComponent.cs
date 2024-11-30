@@ -3,7 +3,7 @@ using Silk.NET.Maths;
 
 namespace Duck.AI.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct AgentTargetComponent
 {
     public Vector3D<float> Point;

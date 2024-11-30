@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using ADyn;
+using ADyn.Components;
+using ADyn.Math;
 using ADyn.Shapes;
 using Arch.Core;
 using Arch.Core.Extensions.Dangerous;
@@ -17,8 +20,7 @@ public class Deserializer : IDeserializer
 
     public IDeserializer Root
     {
-        get
-        {
+        get {
             IDeserializer current = this;
 
             while (current.Parent != null) {
@@ -82,6 +84,18 @@ public class Deserializer : IDeserializer
         return ReadInt32();
     }
 
+    public ushort ReadUInt16()
+    {
+        return _reader.ReadUInt16();
+    }
+
+    public ushort ReadUInt16(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadUInt16();
+    }
+
     public uint ReadUInt32()
     {
         return _reader.ReadUInt32();
@@ -92,6 +106,18 @@ public class Deserializer : IDeserializer
         _stream.Position = offset;
 
         return ReadUInt32();
+    }
+
+    public ulong ReadUInt64()
+    {
+        return _reader.ReadUInt64();
+    }
+
+    public ulong ReadUInt64(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadUInt64();
     }
 
     public long ReadInt64()
@@ -184,14 +210,20 @@ public class Deserializer : IDeserializer
         }
     }
 
+    private T ReadEnum<T>() where T : struct
+    {
+        var str = ReadString();
+
+        return (T)Enum.Parse(typeof(T), str);
+    }
+
     public Vector4D<T> ReadVector4D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
-        
         return new Vector4D<T>(
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>()
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>()
         );
     }
 
@@ -202,12 +234,35 @@ public class Deserializer : IDeserializer
         return ReadVector4D<T>();
     }
 
+    public Vector3D<T>? ReadNullOrVector3D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        var hasValue = ReadBoolean();
+
+        if (!hasValue) {
+            return null;
+        }
+
+        return new Vector3D<T>(
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>()
+        );
+    }
+
+    public Vector3D<T>? ReadNullOrVector3D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        _stream.Position = offset;
+
+        return ReadNullOrVector3D<T>();
+    }
+
+
     public Vector3D<T> ReadVector3D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         return new Vector3D<T>(
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>()
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>()
         );
     }
 
@@ -221,8 +276,8 @@ public class Deserializer : IDeserializer
     public Vector2D<T> ReadVector2D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         return new Vector2D<T>(
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>()
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>()
         );
     }
 
@@ -251,10 +306,10 @@ public class Deserializer : IDeserializer
     public Quaternion<T> ReadQuaternion<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         return new Quaternion<T>(
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>(),
-            (T) ReadGeneric<T>()
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>(),
+            (T)ReadGeneric<T>()
         );
     }
 
@@ -264,6 +319,45 @@ public class Deserializer : IDeserializer
 
         return ReadQuaternion<T>();
     }
+
+    public Matrix3X3<T>? ReadNullOrMatrix3X3<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        var hasValue = ReadBoolean();
+
+        if (!hasValue) {
+            return null;
+        }
+
+        return new Matrix3X3<T>(
+            ReadVector3D<T>(),
+            ReadVector3D<T>(),
+            ReadVector3D<T>()
+        );
+    }
+
+    public Matrix3X3<T>? ReadNullOrMatrix3X3<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        _stream.Position = offset;
+
+        return ReadNullOrMatrix3X3<T>();
+    }
+
+    public Matrix3X3<T> ReadMatrix3X3<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        return new Matrix3X3<T>(
+            ReadVector3D<T>(),
+            ReadVector3D<T>(),
+            ReadVector3D<T>()
+        );
+    }
+
+    public Matrix3X3<T> ReadMatrix3X3<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        _stream.Position = offset;
+
+        return ReadMatrix3X3<T>();
+    }
+
 
     public Matrix4X4<T> ReadMatrix4X4<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
@@ -308,7 +402,159 @@ public class Deserializer : IDeserializer
 
     public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>() where T : unmanaged, IShape
     {
-        throw new NotImplementedException();
+        var shapeType = ReadString();
+        IShape? shape = null;
+        var hasShape = ReadBoolean();
+
+        if (hasShape) {
+            if (shapeType == typeof(BoxShape).FullName) {
+                shape = ReadBoxShape();
+            } else if (shapeType == typeof(CapsuleShape).FullName) {
+                shape = ReadCapsuleShape();
+            } else if (shapeType == typeof(CylinderShape).FullName) {
+                shape = ReadCylinderShape();
+            } else if (shapeType == typeof(MeshShape).FullName) {
+                throw new NotImplementedException();
+            } else if (shapeType == typeof(SphereShape).FullName) {
+                shape = ReadSphereShape();
+            } else if (shapeType == typeof(PlaneShape).FullName) {
+                shape = ReadPlaneShape();
+            } else {
+                throw new NotImplementedException();
+            }
+        }
+
+        return new RigidBodyDefinition<T> {
+            Kind = ReadEnum<RigidBodyKind>(),
+            Position = ReadVector3D<AScalar>(),
+            Orientation = ReadQuaternion<AScalar>(),
+            Mass = (AScalar)ReadGeneric<AScalar>(),
+            Inertia = ReadNullOrMatrix3X3<AScalar>(),
+            LinearVelocity = ReadVector3D<AScalar>(),
+            AngularVelocity = ReadVector3D<AScalar>(),
+            CenterOfMass = ReadNullOrVector3D<AScalar>(),
+            Gravity = ReadNullOrVector3D<AScalar>(),
+            Shape = shape != null ? (T)shape : null,
+            Material = ReadNullOrMaterial(),
+            CollisionGroup = ReadUInt64(),
+            CollisionMask = ReadUInt64(),
+            IsPresentation = ReadBoolean(),
+            PreventSleeping = ReadBoolean(),
+            IsNetworked = ReadBoolean(),
+        };
+    }
+
+    public BoxShape ReadBoxShape()
+    {
+        return new BoxShape() {
+            HalfExtents = ReadVector3D<AScalar>(),
+        };
+    }
+
+    public BoxShape ReadBoxShape(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadBoxShape();
+    }
+
+    public CapsuleShape ReadCapsuleShape()
+    {
+        return new CapsuleShape() {
+            Radius = (AScalar) ReadGeneric<AScalar>(),
+            HalfLength = (AScalar) ReadGeneric<AScalar>(),
+            Axis = ReadEnum<CoordinateAxis>(),
+        };
+    }
+
+    public CapsuleShape ReadCapsuleShape(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadCapsuleShape();
+    }
+
+    public CylinderShape ReadCylinderShape()
+    {
+        return new CylinderShape() {
+            Radius = (AScalar) ReadGeneric<AScalar>(),
+            HalfLength = (AScalar) ReadGeneric<AScalar>(),
+            Axis = ReadEnum<CoordinateAxis>(),
+        };
+    }
+
+    public CylinderShape ReadCylinderShape(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadCylinderShape();
+    }
+
+    public PlaneShape ReadPlaneShape()
+    {
+        return new PlaneShape() {
+            Normal = ReadVector3D<AScalar>(),
+            Constant = (AScalar) ReadGeneric<AScalar>(),
+        };
+    }
+
+    public PlaneShape ReadPlaneShape(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadPlaneShape();
+    }
+
+    public SphereShape ReadSphereShape()
+    {
+        return new SphereShape() {
+            Radius = (AScalar) ReadGeneric<AScalar>(),
+        };
+    }
+
+    public SphereShape ReadSphereShape(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadSphereShape();
+    }
+
+    public Material? ReadNullOrMaterial()
+    {
+        var hasValue = ReadBoolean();
+
+        if (!hasValue) {
+            return null;
+        }
+
+        return ReadMaterial();
+    }
+
+    public Material? ReadNullOrMaterial(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadNullOrMaterial();
+    }
+
+    public Material ReadMaterial()
+    {
+        return new Material {
+            Id = ReadUInt16(),
+            Restitution = (AScalar)ReadGeneric<AScalar>(),
+            Friction = (AScalar)ReadGeneric<AScalar>(),
+            SpinFriction = (AScalar)ReadGeneric<AScalar>(),
+            RollFriction = (AScalar)ReadGeneric<AScalar>(),
+            Stiffness = (AScalar)ReadGeneric<AScalar>(),
+            Damping = (AScalar)ReadGeneric<AScalar>(),
+        };
+    }
+
+    public Material ReadMaterial(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadMaterial();
     }
 
     public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>(long offset) where T : unmanaged, IShape
@@ -318,7 +564,7 @@ public class Deserializer : IDeserializer
         return ReadRigidBodyDefinition<T>();
     }
 
-    public T ReadObjectInternal<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long? offset, int? objectId) where T : ISerializable
+    public T ReadObjectInternal<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long? offset, int? objectId)
     {
         if (offset != null) {
             _stream.Position = offset.Value;
@@ -326,22 +572,30 @@ public class Deserializer : IDeserializer
 
         var container = ReadSerializedContainer();
         var deserializer = new Deserializer(container.Data, container.Index, _context, this);
-        var context = new DeserializationContext(objectId, _context);
+        var context = new DeserializationContext(_context, objectId);
 
         return objectInstanciator(deserializer, context);
     }
 
-    public T ReadObject<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator) where T : ISerializable
+    public object ReadObject(string typeName)
+    {
+        var container = ReadSerializedContainer();
+        var deserializer = new Deserializer(container.Data, container.Index, _context, this);
+
+        return Serializer.Deserialize(typeName, deserializer, new DeserializationContext(_context));
+    }
+
+    public T ReadObject<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator)
     {
         return ReadObjectInternal(objectInstanciator, null, null);
     }
 
-    public T ReadObject<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long offset) where T : ISerializable
+    public T ReadObject<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long offset)
     {
         return ReadObjectInternal(objectInstanciator, offset, null);
     }
 
-    public T ReadObjectReference<T>(IDeserializer.ObjectReferenceInstanciator<T> objectInstanciator, IndexEntry lookup) where T : ISerializable
+    public T ReadObjectReference<T>(IDeserializer.ObjectReferenceInstanciator<T> objectInstanciator, IndexEntry lookup)
     {
         int hash = lookup.GetHashCode();
 
@@ -360,7 +614,6 @@ public class Deserializer : IDeserializer
 
     public T1 ReadObjectList<T1, T2>(IDeserializer.NestedObjectInstanciator<T2> objectInstanciator, string containerType)
         where T1 : class
-        where T2 : ISerializable
     {
         var serializedContainer = ReadSerializedContainer();
         var objectList = new List<T2>();
@@ -389,7 +642,6 @@ public class Deserializer : IDeserializer
 
     public T1 ReadObjectList<T1, T2>(IDeserializer.NestedObjectInstanciator<T2> objectInstanciator, string containerType, long offset)
         where T1 : class
-        where T2 : ISerializable
     {
         _stream.Position = offset;
 
@@ -404,8 +656,7 @@ public class Deserializer : IDeserializer
         var index = new IndexEntry[indexCount];
 
         for (var i = 0; i < indexCount; i++) {
-            index[i] = new IndexEntry()
-            {
+            index[i] = new IndexEntry() {
                 Name = ReadString(),
                 Type = (DataType)ReadByte(),
                 OffsetStart = ReadInt64(),
@@ -418,8 +669,7 @@ public class Deserializer : IDeserializer
             }
         }
 
-        return new SerializedContainer()
-        {
+        return new SerializedContainer() {
             Index = new ReadOnlyCollection<IndexEntry>(index),
             Data = ReadBytes(dataLength)
         };

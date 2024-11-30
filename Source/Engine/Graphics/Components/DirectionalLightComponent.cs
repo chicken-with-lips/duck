@@ -3,7 +3,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Graphics.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct DirectionalLightComponent
 {
     public AVector3 Ambient = default;

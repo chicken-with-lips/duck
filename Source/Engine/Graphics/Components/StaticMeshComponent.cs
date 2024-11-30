@@ -5,7 +5,7 @@ using Duck.Serialization;
 
 namespace Duck.Graphics.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct StaticMeshComponent
 {
     public AssetReference<StaticMesh> Mesh = default;
@@ -16,7 +16,7 @@ public partial struct StaticMeshComponent
     }
 }
 
-[AutoSerializable, RuntimeComponent]
+[DuckSerializable, RuntimeComponent]
 public partial struct RuntimeStaticMeshComponent
 {
     public uint InstanceId = default;

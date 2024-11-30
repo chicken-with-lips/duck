@@ -6,7 +6,7 @@ using MathF = Duck.Math.MathF;
 
 namespace Duck.Graphics.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct CameraComponent
 {
     public bool IsActive = true;

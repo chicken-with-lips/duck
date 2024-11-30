@@ -26,13 +26,14 @@ public class FbxAssetImporter : SourceAssetImporterBase<StaticMesh>
 
     public override unsafe StaticMesh Import(string file)
     {
+        Console.WriteLine(Path.Combine(_contentDirectory, file));
         var ai = Assimp.GetApi();
         var scene = ai.ImportFile(Path.Combine(_contentDirectory, file), (uint)(
             PostProcessPreset.TargetRealTimeMaximumQuality
             | PostProcessSteps.Triangulate
             | PostProcessSteps.FlipUVs
             | PostProcessSteps.JoinIdenticalVertices
-            | PostProcessSteps.GenerateNormals
+            // | PostProcessSteps.GenerateNormals
             | PostProcessSteps.OptimizeGraph
             | PostProcessSteps.OptimizeMeshes
             | PostProcessSteps.ImproveCacheLocality

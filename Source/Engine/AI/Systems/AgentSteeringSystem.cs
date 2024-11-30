@@ -1,12 +1,7 @@
 using System.Runtime.CompilerServices;
 using Arch.Core;
 using Arch.System;
-using Arch.System.SourceGenerator;
 using Duck.AI.Components;
-using Duck.Graphics.Components;
-using Duck.Physics.Components;
-using Silk.NET.Maths;
-using MathF = Duck.Math.MathF;
 
 namespace Duck.AI.Systems;
 
@@ -21,7 +16,7 @@ public partial class AgentSteeringSystem : BaseSystem<World, float>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ResetSteeringForce(ref AgentComponent agentComponent)
     {
-        agentComponent.SteeringForce = Vector3D<float>.Zero;
+        agentComponent.SteeringForce = AVector3.Zero;
     }
 
     // [Query]

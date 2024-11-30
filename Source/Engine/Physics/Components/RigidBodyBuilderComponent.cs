@@ -4,12 +4,22 @@ using Duck.Serialization;
 
 namespace Duck.Physics.Components;
 
-[AutoSerializable]
-public partial struct RigidBodyBuilder<TShapeType> where TShapeType : unmanaged, IShape
+[DuckSerializable]
+public struct BoxRigidBodyBuilder
 {
-    public RigidBodyDefinition<TShapeType> Definition;
+    public RigidBodyDefinition<BoxShape> Definition;
 
-    public RigidBodyBuilder()
+    public BoxRigidBodyBuilder()
+    {
+    }
+}
+
+[DuckSerializable]
+public struct SphereRigidBodyBuilder
+{
+    public RigidBodyDefinition<SphereShape> Definition;
+
+    public SphereRigidBodyBuilder()
     {
     }
 }

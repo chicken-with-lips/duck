@@ -7,7 +7,7 @@ public interface IBoundingVolume
 {
 }
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct BoundingBoxComponent : IBoundingVolume
 {
     public ABox Box = default;
@@ -17,7 +17,7 @@ public partial struct BoundingBoxComponent : IBoundingVolume
     }
 }
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct BoundingSphereComponent : IBoundingVolume
 {
     public float Radius = 10f;

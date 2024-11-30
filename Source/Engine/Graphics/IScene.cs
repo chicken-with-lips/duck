@@ -3,8 +3,7 @@ using Duck.Serialization;
 
 namespace Duck.Graphics;
 
-[AutoSerializable]
-public partial interface IScene : ICloneable
+public interface IScene : ICloneable
 {
     public bool IsActive { get; set; }
 

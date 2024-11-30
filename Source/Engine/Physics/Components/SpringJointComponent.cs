@@ -3,12 +3,10 @@ using Duck.Serialization;
 
 namespace Duck.Physics.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct SpringJointComponent
 {
     public bool IsTargetDirty { get; private set; }
-
-    private EntityReference _target;
 
     public EntityReference Target {
         get => _target;
@@ -17,10 +15,7 @@ public partial struct SpringJointComponent
             IsTargetDirty = true;
         }
     }
-
-    public SpringJointComponent()
-    {
-    }
+    private EntityReference _target;
 
     public void ClearDirtyFlags()
     {

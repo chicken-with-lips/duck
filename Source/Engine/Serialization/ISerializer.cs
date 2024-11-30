@@ -15,11 +15,13 @@ public interface ISerializer
     public SerializedContainer Close();
 }
 
-public interface IStandardSerializer : ISerializer
+public interface IBasicSerializer : ISerializer
 {
     public void Write(in string value);
     public void Write(in int value);
+    public void Write(in ushort value);
     public void Write(in long value);
+    public void Write(in ulong value);
     public void Write(in float value);
     public void Write(in bool value);
     public void Write(in byte value);
@@ -32,6 +34,7 @@ public interface IStandardSerializer : ISerializer
     public void Write<T>(in Box3D<T> value) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public void Write<T>(in Quaternion<T> value) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public void Write(in Guid value);
+    public void Write(in Enum value);
     public void Write<T>(in AssetReference<T> value)
         where T : class, IAsset;
 
@@ -39,6 +42,8 @@ public interface IStandardSerializer : ISerializer
         where T : class, IAsset;
     public void Write<TShapeType>(in RigidBodyDefinition<TShapeType> value)
         where TShapeType : unmanaged, IShape;
+    public void Write(in Material value);
+    public void Write(in IShape value);
     public void Write(in BoxShape value);
     public void Write(in CapsuleShape value);
     public void Write(in CylinderShape value);
@@ -53,7 +58,7 @@ public interface IGraphSerializer : ISerializer
 {
     public IGraphSerializer Root { get; }
     public IGraphSerializer? Parent { get; }
-
+    
     public void Write(string name, in string value);
     public void Write(string name, in int value);
     public void Write(string name, in float value);
@@ -70,9 +75,7 @@ public interface IGraphSerializer : ISerializer
     public void Write<TShapeType>(string name, in RigidBodyDefinition<TShapeType> value)
         where TShapeType : unmanaged, IShape;
     public void Write(string name, EntityReference value);
-    public void Write(string name, in ISerializable value);
-    public void Write(string name, in ISerializable[] value, string containerType);
-    public int TrackReferenceAndDeferSerialization(in ISerializable value);
+    public int TrackReferenceAndDeferSerialization(in object value);
 }
 
 public struct SerializedContainer

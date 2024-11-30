@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using ADyn;
+using ADyn.Components;
 using ADyn.Shapes;
 using Arch.Core;
 using Duck.Content;
@@ -18,8 +19,12 @@ public interface IDeserializer
     public string ReadString(long offset);
     public int ReadInt32();
     public int ReadInt32(long offset);
+    public ushort ReadUInt16();
+    public ushort ReadUInt16(long offset);
     public uint ReadUInt32();
     public uint ReadUInt32(long offset);
+    public ulong ReadUInt64();
+    public ulong ReadUInt64(long offset);
     public long ReadInt64();
     public long ReadInt64(long offset);
     public float ReadFloat();
@@ -50,23 +55,32 @@ public interface IDeserializer
     public AssetReference<T> ReadAssetReference<T>(long offset) where T : class, IAsset;
     public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>() where T : unmanaged, IShape;
     public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>(long offset) where T : unmanaged, IShape;
+    public BoxShape ReadBoxShape();
+    public BoxShape ReadBoxShape(long offset);
+    public CapsuleShape ReadCapsuleShape();
+    public CapsuleShape ReadCapsuleShape(long offset);
+    public CylinderShape ReadCylinderShape();
+    public CylinderShape ReadCylinderShape(long offset);
+    public PlaneShape ReadPlaneShape();
+    public PlaneShape ReadPlaneShape(long offset);
+    public SphereShape ReadSphereShape();
+    public SphereShape ReadSphereShape(long offset);
+    public Material ReadMaterial();
+    public Material ReadMaterial(long offset);
 
-    public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator)
-        where T : ISerializable;
+    public object ReadObject(string typeName);
 
-    public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator, long offset)
-        where T : ISerializable;
+    public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator);
 
-    public T ReadObjectReference<T>(ObjectReferenceInstanciator<T> objectInstanciator, IndexEntry lookup)
-        where T : ISerializable;
+    public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator, long offset);
+
+    public T ReadObjectReference<T>(ObjectReferenceInstanciator<T> objectInstanciator, IndexEntry lookup);
 
     public T1 ReadObjectList<T1, T2>(NestedObjectInstanciator<T2> objectInstanciator, string containerType)
-        where T1 : class
-        where T2 : ISerializable;
+        where T1 : class;
 
     public T1 ReadObjectList<T1, T2>(NestedObjectInstanciator<T2> objectInstanciator, string containerType, long offset)
-        where T1 : class
-        where T2 : ISerializable;
+        where T1 : class;
 
     public delegate T ObjectInstanciator<T>(IDeserializer deserializer, IDeserializationContext context);
 

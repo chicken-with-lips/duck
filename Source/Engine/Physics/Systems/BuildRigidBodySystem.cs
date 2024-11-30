@@ -1,9 +1,7 @@
-using System.Runtime.CompilerServices;
-using ADyn.Components;
+﻿using System.Runtime.CompilerServices;
 using ADyn.Shapes;
 using Arch.Core;
 using Arch.System;
-using Arch.System.SourceGenerator;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;
 
@@ -23,7 +21,7 @@ public partial class BuildRigidBodySystem : BaseSystem<World, float>
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BuildBoxShape(in Entity entity, in RigidBodyBuilder<BoxShape> container)
+    public void BuildBoxShape(in Entity entity, in BoxRigidBodyBuilder container)
     {
         var scale = AVector3.One;
         var scaledDefinition = container.Definition;
@@ -41,12 +39,12 @@ public partial class BuildRigidBodySystem : BaseSystem<World, float>
         var scene = _physicsModule.GetOrCreatePhysicsScene(World) as PhysicsScene;
         scene?.Simulation.CreateRigidBody(entity, scaledDefinition);
 
-        World.Remove<RigidBodyBuilder<BoxShape>>(entity);
+        World.Remove<BoxRigidBodyBuilder>(entity);
     }
 
     [Query]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BuildSphereShape(in Entity entity, in RigidBodyBuilder<SphereShape> container)
+    public void BuildSphereShape(in Entity entity, in SphereRigidBodyBuilder container)
     {
         var scale = AVector3.One;
         var scaledDefinition = container.Definition;
@@ -64,7 +62,7 @@ public partial class BuildRigidBodySystem : BaseSystem<World, float>
         var scene = _physicsModule.GetOrCreatePhysicsScene(World) as PhysicsScene;
         scene?.Simulation.CreateRigidBody(entity, scaledDefinition);
 
-        World.Remove<RigidBodyBuilder<SphereShape>>(entity);
+        World.Remove<SphereRigidBodyBuilder>(entity);
     }
 
     #endregion

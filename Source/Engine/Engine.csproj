@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -26,12 +26,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj"/>
-        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.System\Arch.System.csproj"/>
-        <ProjectReference Include="..\..\..\..\Arch\Arch.Extended\Arch.System.SourceGenerator\Arch.System.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\..\..\ADyn\ADyn\ADyn.csproj" />
-        <ProjectReference Include="..\..\..\ArteryFont\ArteryFont.csproj"/>
-        <ProjectReference Include="SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\External\ADyn\ADyn\ADyn.csproj"/>
+        <ProjectReference Include="..\..\External\Arch.Extended\Arch.System\Arch.System.csproj"/>
+        <ProjectReference Include="..\..\External\Arch\src\Arch\Arch.csproj"/>
+        <ProjectReference Include="..\..\External\ArteryFont\ArteryFont.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\External\Arch.Extended\Arch.System.SourceGenerator\Arch.System.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
     <ItemGroup>

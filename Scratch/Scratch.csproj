@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE;PURE_ECS</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>TRACE;PURE_ECS</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Asteroids\Code\Asteroids.csproj"/>
+        <ProjectReference Include="..\External\Arch\src\Arch\Arch.csproj"/>
+        <ProjectReference Include="..\Source\ArchSerializer\ArchSerializer.csproj" />
+        <ProjectReference Include="..\Source\SerializationGenerators\SerializationGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <PackageReference Include="MessagePack" Version="2.6.100-alpha"/>
+        <PackageReference Include="Utf8Json" Version="1.3.7"/>
+    </ItemGroup>
+
+</Project>

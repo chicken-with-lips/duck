@@ -1,3 +1,15 @@
 [submodule "ThirdParty/PhysX"]
 	path = ThirdParty/PhysX
 	url = git@github.com:NVIDIAGameWorks/PhysX.git
+[submodule "External/Arch.Extended"]
+	path = External/Arch.Extended
+	url = https://github.com/genaray/Arch.Extended.git
+[submodule "External/ArteryFont"]
+	path = External/ArteryFont
+	url = https://github.com/chicken-with-lips/artery-font.git
+[submodule "External/ADyn"]
+	path = External/ADyn
+	url = git@github.com:chicken-with-lips/adyn.git
+[submodule "External/Arch"]
+	path = External/Arch
+	url = git@github.com:chicken-with-lips/Arch.git

@@ -3,7 +3,7 @@ using Duck.Serialization;
 
 namespace Duck.Audio.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct SoundComponent
 {
     public AssetReference<SoundClip> Sound;

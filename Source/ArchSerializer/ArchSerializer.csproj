@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Duck.Serialization.Arch</AssemblyName>
+        <RootNamespace>Duck.Serialization.Arch</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\External\Arch\src\Arch\Arch.csproj" />
+      <ProjectReference Include="..\Engine\Engine.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="MessagePack">
+        <HintPath>..\..\..\..\..\..\..\..\home\jolly_samurai\.nuget\packages\messagepack\2.6.100-alpha\lib\net6.0\MessagePack.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

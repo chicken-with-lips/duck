@@ -2,7 +2,7 @@ using Duck.Serialization;
 
 namespace Duck.AI.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct AgentSeekBehaviourComponent
 {
 }

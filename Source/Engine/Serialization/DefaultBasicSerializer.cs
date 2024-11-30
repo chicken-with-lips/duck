@@ -10,7 +10,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Serialization;
 
-public class StandardSerializer : IStandardSerializer
+public class DefaultBasicSerializer : IBasicSerializer
 {
     #region Properties
 
@@ -26,7 +26,7 @@ public class StandardSerializer : IStandardSerializer
 
     #endregion
 
-    public StandardSerializer()
+    public DefaultBasicSerializer()
     {
         _stream = new MemoryStream();
         _writer = new BinaryWriter(_stream);
@@ -46,7 +46,21 @@ public class StandardSerializer : IStandardSerializer
         _writer.Write(value);
     }
 
+    public void Write(in ushort value)
+    {
+        ThrowIfSealed();
+
+        _writer.Write(value);
+    }
+
     public void Write(in long value)
+    {
+        ThrowIfSealed();
+
+        _writer.Write(value);
+    }
+
+    public void Write(in ulong value)
     {
         ThrowIfSealed();
 
@@ -86,13 +100,14 @@ public class StandardSerializer : IStandardSerializer
         ThrowIfSealed();
 
         switch (Type.GetTypeCode(typeof(T))) {
-            case TypeCode.Single: Write(Convert.ToSingle(value));
+            case TypeCode.Single:
+                Write(Convert.ToSingle(value));
                 break;
             default:
                 throw new NotImplementedException();
         }
     }
-    
+
     public void Write<T>(in Vector4D<T> value) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
         ThrowIfSealed();
@@ -172,32 +187,81 @@ public class StandardSerializer : IStandardSerializer
         // Write(value);
     }
 
+    public void Write(in Enum value)
+    {
+        ThrowIfSealed();
+
+        _writer.Write(value.ToString());
+    }
+
     public void Write<TShapeType>(in RigidBodyDefinition<TShapeType> value) where TShapeType : unmanaged, IShape
     {
         ThrowIfSealed();
 
         Write(typeof(TShapeType).FullName);
+        Write(value.Shape.HasValue);
+        if (value.Shape.HasValue) {
+            Write(value.Shape.Value);
+        }
         Write(value.Kind.ToString());
         Write(value.Position);
         Write(value.Orientation);
         Write(value.Mass);
         Write(value.Inertia.HasValue);
-        Write(value.Inertia ?? AMatrix3X3.Identity);
+        if (value.Inertia.HasValue) {
+            Write(value.Inertia.Value);
+        }
         Write(value.LinearVelocity);
         Write(value.AngularVelocity);
         Write(value.CenterOfMass.HasValue);
-        Write(value.CenterOfMass ?? AVector3.Zero);
+        if (value.CenterOfMass.HasValue) {
+            Write(value.CenterOfMass.Value);
+        }
         Write(value.Gravity.HasValue);
-        Write(value.Gravity ?? AVector3.Zero);
-        Write(value.Shape.HasValue);
-        // Write(value.Shape ?? new TShapeType());
+        if (value.Gravity.HasValue) {
+            Write(value.Gravity.Value);
+        }
         Write(value.Material.HasValue);
-        // Write(value.Material ?? new Material());
+        if (value.Material.HasValue) {
+            Write(value.Material.Value);
+        }
         Write(value.CollisionGroup);
         Write(value.CollisionMask);
         Write(value.IsPresentation);
         Write(value.PreventSleeping);
         Write(value.IsNetworked);
+    }
+
+    public void Write(in Material value)
+    {
+        Write(value.Id);
+        Write(value.Restitution);
+        Write(value.Friction);
+        Write(value.SpinFriction);
+        Write(value.RollFriction);
+        Write(value.Stiffness);
+        Write(value.Damping);
+    }
+
+    public void Write(in IShape value)
+    {
+        ThrowIfSealed();
+
+        if (value is BoxShape boxShape) {
+            Write(boxShape);
+        } else if (value is CapsuleShape capsuleShape) {
+            Write(capsuleShape);
+        } else if (value is CylinderShape cylinderShape) {
+            Write(cylinderShape);
+        } else if (value is MeshShape meshShape) {
+            Write(meshShape);
+        } else if (value is SphereShape sphereShape) {
+            Write(sphereShape);
+        } else if (value is PlaneShape planeShape) {
+            Write(planeShape);
+        } else {
+            throw new NotImplementedException();
+        }
     }
 
     public void Write(in BoxShape value)

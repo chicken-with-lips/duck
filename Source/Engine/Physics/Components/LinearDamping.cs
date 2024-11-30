@@ -2,12 +2,8 @@ using Duck.Serialization;
 
 namespace Duck.Physics.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct LinearDamping
 {
     public float Value;
-
-    public LinearDamping()
-    {
-    }
 }

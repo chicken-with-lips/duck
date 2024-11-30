@@ -13,7 +13,7 @@ public class SerializationContext : ISerializationContext
 
     #region Members
 
-    private readonly ConcurrentDictionary<int, ISerializable> _sharedObjects = new();
+    private readonly ConcurrentDictionary<int, object> _sharedObjects = new();
 
     #endregion
 
@@ -29,7 +29,7 @@ public class SerializationContext : ISerializationContext
         return _sharedObjects.ContainsKey(objectId);
     }
 
-    public ISerializable GetObject(int objectId)
+    public object GetObject(int objectId)
     {
         if (_sharedObjects.TryGetValue(objectId, out var data)) {
             return data;
@@ -38,7 +38,7 @@ public class SerializationContext : ISerializationContext
         throw new SerializationException("Shared object could not be found.");
     }
 
-    public void AddObject(int objectId, ISerializable obj)
+    public void AddObject(int objectId, object obj)
     {
         if (HasObject(objectId)) {
             throw new SerializationException("Shared object has already been added.");
@@ -65,10 +65,9 @@ public class DeserializationContext : IDeserializationContext
 
     #endregion
 
-
     #region Methods
 
-    public DeserializationContext(int? objectId, ISerializationContext serializationContext)
+    public DeserializationContext(ISerializationContext serializationContext, int? objectId = null)
     {
         ObjectId = objectId;
 
@@ -76,12 +75,12 @@ public class DeserializationContext : IDeserializationContext
     }
 
 
-    public ISerializable GetObject(int objectId)
+    public object GetObject(int objectId)
     {
         return _serializationContext.GetObject(objectId);
     }
 
-    public void AddObject(int objectId, ISerializable obj)
+    public void AddObject(int objectId, object obj)
     {
         _serializationContext.AddObject(objectId, obj);
     }

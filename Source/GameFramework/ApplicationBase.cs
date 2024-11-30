@@ -57,7 +57,7 @@ public abstract class ApplicationBase : IApplication
 
         ChangeState(ApplicationState.Initializing);
 
-        Instanciator.Init();
+        Serializer.Init();
         RegisterModules();
 
         Time.FrameTimer = _platform.CreateFrameTimer();

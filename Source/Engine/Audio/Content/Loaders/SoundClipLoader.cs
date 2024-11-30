@@ -21,7 +21,7 @@ internal class SoundClipLoader : IAssetLoader
 
     public IPlatformAsset Load(IAsset asset, IAssetLoadContext context, IPlatformAsset? loadInto, ReadOnlySpan<byte> source)
     {
-        if (!CanLoad(asset, context) || asset is not SoundClip textureAsset) {
+        if (!CanLoad(asset, context) || asset is not SoundClip) {
             throw new Exception("FIXME: errors");
         }
 

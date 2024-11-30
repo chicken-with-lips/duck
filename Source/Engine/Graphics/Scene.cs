@@ -1,13 +1,11 @@
 using Arch.Core;
 using Duck.Graphics.Events;
 using Duck.Graphics.Serialization;
-using Duck.Serialization;
 using Duck.ServiceBus;
 
 namespace Duck.Graphics;
 
-[AutoSerializable]
-public partial class Scene : IScene
+public class Scene : IScene
 {
     #region Properties
 

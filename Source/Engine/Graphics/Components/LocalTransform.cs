@@ -2,7 +2,7 @@ using Duck.Serialization;
 
 namespace Duck.Graphics.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct LocalTransform
 {
     public AVector3 Position;

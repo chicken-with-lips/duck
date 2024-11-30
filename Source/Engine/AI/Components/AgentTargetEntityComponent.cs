@@ -3,7 +3,7 @@ using Duck.Serialization;
 
 namespace Duck.AI.Components;
 
-[AutoSerializable]
+[DuckSerializable]
 public partial struct AgentTargetEntityComponent
 {
     public EntityReference Value;
