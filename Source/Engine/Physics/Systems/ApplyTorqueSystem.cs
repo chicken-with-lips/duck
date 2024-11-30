@@ -1,7 +1,5 @@
-using System.Runtime.CompilerServices;
-using ADyn;
+﻿using System.Runtime.CompilerServices;
 using ADyn.Components;
-using ADyn.Shapes;
 using Arch.Core;
 using Arch.System;
 using Arch.System.SourceGenerator;

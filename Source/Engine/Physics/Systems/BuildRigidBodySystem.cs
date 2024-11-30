@@ -1,9 +1,7 @@
-using System.Runtime.CompilerServices;
-using ADyn.Components;
+﻿using System.Runtime.CompilerServices;
 using ADyn.Shapes;
 using Arch.Core;
 using Arch.System;
-using Arch.System.SourceGenerator;
 using Duck.Graphics.Components;
 using Duck.Physics.Components;
 

@@ -1,10 +1,9 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ADyn.Components;
 using Arch.Core;
 using Arch.System;
 using Arch.System.SourceGenerator;
 using Duck.Graphics.Components;
-using Duck.Math;
 using Transform = Duck.Math.Transform;
 
 namespace Duck.Graphics.Systems;

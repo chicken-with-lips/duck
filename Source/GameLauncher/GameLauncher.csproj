@@ -16,7 +16,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\Arch\Arch\src\Arch\Arch.csproj" />
       <ProjectReference Include="..\Engine\Engine.csproj" />
       <ProjectReference Include="..\GameFramework\GameFramework.csproj" />
       <ProjectReference Include="..\Platforms\Standard\Standard.csproj" />

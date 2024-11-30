@@ -13,34 +13,33 @@ public class SerializerGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var enumTypes = context.SyntaxProvider
-            .CreateSyntaxProvider(IsInterestingEnum, ResolveTypeOrNull)
+            .CreateSyntaxProvider(IsTypeOfInterest, ResolveTypeOrNull)
             .Where(type => type is not null)
             .Collect();
 
-        context.RegisterSourceOutput(enumTypes, GenerateCode);
+        context.RegisterSourceOutput(enumTypes, GeneratePartialTypes);
     }
 
-    private static void GenerateCode(SourceProductionContext context, ImmutableArray<ITypeSymbol?> enumerations)
+    private static void GeneratePartialTypes(SourceProductionContext context, ImmutableArray<ITypeSymbol?> types)
     {
-        if (enumerations.IsDefaultOrEmpty) {
+        if (types.IsDefaultOrEmpty) {
             return;
         }
 
-        foreach (var type in enumerations.Distinct(SymbolEqualityComparer.Default)
+        foreach (var type in types.Distinct(SymbolEqualityComparer.Default)
                      .Cast<INamedTypeSymbol>()
                      .Where(type => type is not null)) {
             context.CancellationToken.ThrowIfCancellationRequested();
 
-            var code = GenerateCode(type);
             var typeNamespace = type.ContainingNamespace.IsGlobalNamespace
                 ? null
                 : $"{type.ContainingNamespace}.";
 
-            context.AddSource($"{typeNamespace}{type.Name}.Generated.cs", code);
+            context.AddSource($"{typeNamespace}{type.Name}.Generated.cs", GenerateCode(type));
         }
     }
 
-    private static bool IsSerializable(IFieldSymbol symbol)
+    private static bool IsFieldSerializable(IFieldSymbol symbol)
     {
         if (symbol.Type.IsValueType) {
             return true;
@@ -158,7 +157,7 @@ public partial {typeIdentifier} {name}
                 continue;
             }
 
-            if (fieldSymbol.Kind != SymbolKind.Field || !IsSerializable(fieldSymbol)) {
+            if (fieldSymbol.Kind != SymbolKind.Field || !IsFieldSerializable(fieldSymbol)) {
                 continue;
             }
 
@@ -171,7 +170,8 @@ public partial {typeIdentifier} {name}
 
             if (!hasSerializeBeenImplemented) {
                 if (IsSupportedContainerType(fieldSymbol.Type)) {
-                    serialize.AppendLine($@"        serializer.Write(""{symbolName}"", {symbolName}.ToArray(), ""{fieldSymbol.Type.ContainingNamespace}.{fieldSymbol.Type.Name}"");");
+                    serialize.AppendLine(
+                        $@"        serializer.Write(""{symbolName}"", {symbolName}.ToArray(), ""{fieldSymbol.Type.ContainingNamespace}.{fieldSymbol.Type.Name}"");");
                 } else {
                     serialize.AppendLine($@"        serializer.Write(""{symbolName}"", {symbolName});");
                 }
@@ -187,7 +187,9 @@ public partial {typeIdentifier} {name}
                      );
                      break;");
                 } else {
-                    var doesImplementISerializable = fieldSymbol.Type.AllInterfaces.Any(symbol => symbol.Name == "ISerializable") || fieldSymbol.Type.GetAttributes().Any(data => data.AttributeClass.Name == "AutoSerializable");
+                    var doesImplementISerializable =
+                        fieldSymbol.Type.AllInterfaces.Any(symbol => symbol.Name == "ISerializable") || fieldSymbol.Type
+                            .GetAttributes().Any(data => data.AttributeClass.Name == "AutoSerializable");
                     var typeList = new List<string>();
 
                     typeList.Add(fieldSymbol.Type.ToDisplayString());
@@ -208,9 +210,11 @@ public partial {typeIdentifier} {name}
                     } else {
                         if (fieldTypeSymbol.IsGenericType) {
                             var argString = Helper.MakeGenericArgumentString(fieldTypeSymbol);
-                            deserialize.AppendLine($@"                case ""{symbolName}"": {symbolName} = deserializer.{methodName}<{argString}>(entry.OffsetStart); break;");
+                            deserialize.AppendLine(
+                                $@"                case ""{symbolName}"": {symbolName} = deserializer.{methodName}<{argString}>(entry.OffsetStart); break;");
                         } else {
-                            deserialize.AppendLine($@"                case ""{symbolName}"": {symbolName} = deserializer.{methodName}(entry.OffsetStart); break;");
+                            deserialize.AppendLine(
+                                $@"                case ""{symbolName}"": {symbolName} = deserializer.{methodName}(entry.OffsetStart); break;");
                         }
                     }
                 }
@@ -262,8 +266,7 @@ public partial {typeIdentifier} {name}
         return context.SemanticModel.GetDeclaredSymbol(attributeSyntax.Parent?.Parent) as ITypeSymbol;
     }
 
-    private static bool IsInterestingEnum(
-        SyntaxNode syntaxNode,
+    private static bool IsTypeOfInterest(SyntaxNode syntaxNode,
         CancellationToken cancellationToken)
     {
         if (syntaxNode is not AttributeSyntax attribute)

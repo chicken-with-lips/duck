@@ -1,10 +1,8 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ADyn;
 using ADyn.Components;
-using ADyn.Shapes;
 using Arch.Core;
 using Arch.System;
-using Arch.System.SourceGenerator;
 using Duck.Physics.Components;
 using Silk.NET.Maths;
 
