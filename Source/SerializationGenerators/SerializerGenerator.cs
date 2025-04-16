@@ -12,7 +12,7 @@ public class SerializerGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var types = context.SyntaxProvider
-            .CreateSyntaxProvider(IsOfInterestToSyntaxProvider, TransformTypeForSyntaxProvider)
+            .CreateSyntaxProvider(IsOfInterestToSyntaxProvider, TransformTypeForSyntaxProvider) 
             .Where(type => type is not null)
             .Collect();
 
@@ -216,7 +216,8 @@ public class SerializerGenerator : IIncrementalGenerator
                     typeList.Add(Util.MakeGenericArgumentString(fieldTypeSymbol));
                 }
 
-                var methodName = $"Read{fieldSymbol.Type.Name}";
+                var methodName = Util.GetPrimitiveSerializerMethodName(fieldSymbol);
+                // var methodName = "X";
 
                 if (doesImplementISerializable) {
                     deserializeMemberBuilder.AppendLine($@"case ""{symbolName}"":

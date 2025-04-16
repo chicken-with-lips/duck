@@ -23,7 +23,7 @@ public class LauncherApp : ApplicationBase
         base.RegisterModules();
 
         GetModule<IContentModule>().ContentRootDirectory = Path.Combine(_projectDirectory, "Content");
-        GetModule<IContentModule>().ReloadChangedContent = true;
+        GetModule<IContentModule>().ReloadChangedContent = false;
 
         AddModule(new GameClientHostModule(this, GetModule<ILogModule>(), _projectDirectory));
     }

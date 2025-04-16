@@ -39,16 +39,16 @@ public static class Serializer
         var typeName = type.GetFormattedFullName(true);
 
         if (type.IsGenericType) {
-            var x = 1;
-            typeName = type.Namespace + ".RigidBodyBuilder<TShapeType>";
+            // var x = 1;
+            // typeName = type.Namespace + ".RigidBodyBuilder<TShapeType>";
         }
 
-        foreach (var instanciator in Factories) {
-            if (!instanciator.Supports(typeName)) {
+        foreach (var factory in Factories) {
+            if (!factory.Supports(typeName)) {
                 continue;
             }
 
-            instanciator.Serialize(value, serializer, context);
+            factory.Serialize(value, serializer, context);
             return;
         }
 
@@ -61,16 +61,21 @@ public static class Serializer
 
         if (type != null && type.IsGenericType) {
             var x = 1;
-            typeName = type.Namespace + ".RigidBodyBuilder<TShapeType>";
+            // typeName = type.Namespace + ".RigidBodyBuilder<TShapeType>";
         }
 
-        foreach (var instanciator in Factories) {
-            if (instanciator.Supports(typeName)) {
-                return instanciator.Deserialize(typeName, deserializer, context);
+        foreach (var factory in Factories) {
+            if (factory.Supports(typeName)) {
+                return factory.Deserialize(typeName, deserializer, context);
             }
         }
 
         throw new SerializationException("Could not find a serialization factory for this type: " + typeName);
+    }
+
+    public static T Deserialize<T>(IDeserializer deserializer, IDeserializationContext context)
+    {
+        return (T)Deserialize(typeof(T).FullName, deserializer, context);
     }
 
     /*public static T Deserialize<T>(IDeserializer deserializer, IDeserializationContext context)
@@ -112,23 +117,5 @@ public static class Serializer
         }
 
         return type.FullName;
-    }
-}
-
-public class BuiltinSerializationFactory : ISerializationFactory
-{
-    public bool Supports(string typeName)
-    {
-        return false;
-    }
-
-    public void Serialize(object value, IGraphSerializer graphSerializer, ISerializationContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Deserialize(string typeName, IDeserializer deserializer, IDeserializationContext context)
-    {
-        throw new NotImplementedException();
     }
 }

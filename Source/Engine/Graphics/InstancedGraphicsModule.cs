@@ -26,8 +26,8 @@ public class InstancedGraphicsModule : GraphicsModuleBase, IInitializableModule
     #endregion
 
 
-    public InstancedGraphicsModule(IRendererModule parent, IApplication app)
-        : base(app.GetModule<IEventBus>())
+    public InstancedGraphicsModule(IRendererModule parent, IApplication app, IEventBus eventBus)
+        : base(eventBus)
     {
         _parent = parent;
         _app = app;
@@ -46,7 +46,7 @@ public class InstancedGraphicsModule : GraphicsModuleBase, IInitializableModule
             var clone = (IScene)scene.Clone();
             _sceneBackup.Add(clone);
 
-            _app.GetModule<IPhysicsModule>().GetOrCreatePhysicsScene(scene.World).IsPaused = true;
+            Console.WriteLine("TODO: _app.GetModule<IPhysicsModule>().GetOrCreatePhysicsScene(scene.World).IsPaused = true);");
 
             foreach (var view in Views) {
                 if (view.Scene == scene) {

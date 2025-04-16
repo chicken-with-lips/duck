@@ -269,7 +269,7 @@ public abstract class ApplicationBase : IApplication
         AddModule(new GraphicsModule(this, _platform, GetModule<IEventBus>(), _renderSystem, GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new InputModule(GetModule<ILogModule>(), _platform));
         AddModule(new PhysicsModule(GetModule<ILogModule>(), GetModule<IEventBus>()));
-        AddModule(new AudioModule(GetModule<ILogModule>(), GetModule<IContentModule>()));
+        // AddModule(new AudioModule(GetModule<ILogModule>(), GetModule<IContentModule>()));
         AddModule(new UIModule(GetModule<ILogModule>(), GetModule<IContentModule>(), GetModule<IRendererModule>(), GetModule<IInputModule>()));
     }
 

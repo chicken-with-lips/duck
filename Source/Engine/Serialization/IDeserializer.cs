@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 using ADyn;
 using ADyn.Components;
@@ -27,16 +28,22 @@ public interface IDeserializer
     public ulong ReadUInt64(long offset);
     public long ReadInt64();
     public long ReadInt64(long offset);
+    public float ReadScalar();
+    public float ReadScalar(long offset);
     public float ReadFloat();
     public float ReadFloat(long offset);
-    public Single ReadSingle();
-    public Single ReadSingle(long offset);
+    public double ReadDouble();
+    public double ReadDouble(long offset);
+    public double? ReadNullOrDouble();
+    public double? ReadNullOrDouble(long offset);
     public bool ReadBoolean();
     public bool ReadBoolean(long offset);
     public byte ReadByte();
     public byte ReadByte(long offset);
     public ReadOnlyMemory<byte> ReadBytes(long count);
     public ReadOnlyMemory<byte> ReadBytes(long count, long offset);
+    public Guid ReadGuid();
+    public Guid ReadGuid(long offset);
     public Vector4D<T> ReadVector4D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public Vector4D<T> ReadVector4D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public Vector3D<T> ReadVector3D<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
@@ -47,10 +54,13 @@ public interface IDeserializer
     public Box3D<T> ReadBox3D<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public Quaternion<T> ReadQuaternion<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public Quaternion<T> ReadQuaternion<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
+    public Matrix3X3<T>? ReadNullOrMatrix3X3<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
+
+    public Matrix3X3<T>? ReadNullOrMatrix3X3<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
+    public Matrix3X3<T> ReadMatrix3X3<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
+    public Matrix3X3<T> ReadMatrix3X3<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public Matrix4X4<T> ReadMatrix4X4<T>() where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
     public Matrix4X4<T> ReadMatrix4X4<T>(long offset) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>;
-    public EntityReference ReadEntityReference();
-    public EntityReference ReadEntityReference(long offset);
     public AssetReference<T> ReadAssetReference<T>() where T : class, IAsset;
     public AssetReference<T> ReadAssetReference<T>(long offset) where T : class, IAsset;
     public RigidBodyDefinition<T> ReadRigidBodyDefinition<T>() where T : unmanaged, IShape;
@@ -67,24 +77,35 @@ public interface IDeserializer
     public SphereShape ReadSphereShape(long offset);
     public Material ReadMaterial();
     public Material ReadMaterial(long offset);
+    public EntityReference ReadEntityReference();
+    public EntityReference ReadEntityReference(long offset);
+    public List<EntityReference> ReadEntityReferenceList();
+    public List<EntityReference> ReadEntityReferenceList(long offset);
+    public List<EntityReference>? ReadNullOrEntityReferenceList();
+    public List<EntityReference>? ReadNullOrEntityReferenceList(long offset);
+    public Entity ReadEntity();
+    public Entity ReadEntity(long offset);
 
     public object ReadObject(string typeName);
+    public object ReadObject(string typeName, long offset);
 
-    public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator);
+    public T ReadObject<T>();
+    public T ReadObject<T>(long offset);
+
+    public TContainerType ReadObjectList<TContainerType, TElementType>()
+        where TContainerType : class, IList;
+    public TContainerType ReadObjectList<TContainerType, TElementType>(long offset)
+        where TContainerType : class, IList;
+
+    /*public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator);
 
     public T ReadObject<T>(ObjectInstanciator<T> objectInstanciator, long offset);
 
     public T ReadObjectReference<T>(ObjectReferenceInstanciator<T> objectInstanciator, IndexEntry lookup);
 
-    public T1 ReadObjectList<T1, T2>(NestedObjectInstanciator<T2> objectInstanciator, string containerType)
-        where T1 : class;
-
-    public T1 ReadObjectList<T1, T2>(NestedObjectInstanciator<T2> objectInstanciator, string containerType, long offset)
-        where T1 : class;
-
     public delegate T ObjectInstanciator<T>(IDeserializer deserializer, IDeserializationContext context);
 
     public delegate T ObjectReferenceInstanciator<T>(IDeserializer deserializer, IDeserializationContext context, IndexEntry entry);
 
-    public delegate T NestedObjectInstanciator<T>(IDeserializer deserializer, IDeserializationContext context, IndexEntry entry);
+    public delegate T NestedObjectInstanciator<T>(IDeserializer deserializer, IDeserializationContext context, IndexEntry entry);*/
 }

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using ADyn;
 using ADyn.Components;
+using ADyn.Constraints;
 using ADyn.Shapes;
 using Arch.Core;
 using Duck.Content;
@@ -15,7 +16,7 @@ public interface ISerializer
     public SerializedContainer Close();
 }
 
-public interface IBasicSerializer : ISerializer
+public interface IPrimitiveSerializer : ISerializer
 {
     public void Write(in string value);
     public void Write(in int value);
@@ -23,6 +24,7 @@ public interface IBasicSerializer : ISerializer
     public void Write(in long value);
     public void Write(in ulong value);
     public void Write(in float value);
+    public void Write(in double value);
     public void Write(in bool value);
     public void Write(in byte value);
     public void Write(in byte[] value);
@@ -51,7 +53,7 @@ public interface IBasicSerializer : ISerializer
     public void Write(in PlaneShape value);
     public void Write(in SphereShape value);
 
-    public void Write(EntityReference value);
+    public void Write(in EntityReference value);
 }
 
 public interface IGraphSerializer : ISerializer
@@ -62,6 +64,9 @@ public interface IGraphSerializer : ISerializer
     public void Write(string name, in string value);
     public void Write(string name, in int value);
     public void Write(string name, in float value);
+    public void WriteNullOr(string name, in float? value);
+    public void Write(string name, in double value);
+    public void WriteNullOr(string name, in double? value);
     public void Write(string name, in bool value);
     public void Write(string name, in Vector4D<float> value);
     public void Write(string name, in Vector3D<float> value);
@@ -74,7 +79,9 @@ public interface IGraphSerializer : ISerializer
         where T : class, IAsset;
     public void Write<TShapeType>(string name, in RigidBodyDefinition<TShapeType> value)
         where TShapeType : unmanaged, IShape;
-    public void Write(string name, EntityReference value);
+
+    public void Write(string name, in EntityReference value);
+    public void Write(string name, in object value);
     public int TrackReferenceAndDeferSerialization(in object value);
 }
 
@@ -96,17 +103,24 @@ public struct IndexEntry
 public enum DataType : byte
 {
     Boolean = 1,
-    Float = 2,
-    Int32 = 3,
-    String = 4,
-    Vector2D = 5,
-    Vector3D = 6,
-    Vector4D = 7,
-    Box3D = 8,
-    Quaternion = 9,
-    Matrix3X3 = 10,
-    Matrix4X4 = 11,
-    RigidBodyDefinition = 12,
-    ValueObject = 13,
-    ReferenceObject = 14,
+    Double = 2,
+    Float = 3,
+    Int32 = 4,
+    String = 5,
+    Vector2D = 6,
+    Vector3D = 7,
+    Vector4D = 8,
+    Box3D = 9,
+    Quaternion = 10,
+    Matrix3X3 = 11,
+    Matrix4X4 = 12,
+    RigidBodyDefinition = 13,
+    ValueObject = 14,
+    ReferenceObject = 15,
+    GenericList = 16,
+    List = 17,
+    NullOrList = 18,
+    NullOrFloat = 19,
+    NullOrDouble = 20,
+    EntityReference = 21,
 }

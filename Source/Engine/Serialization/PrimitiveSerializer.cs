@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Numerics;
 using ADyn;
 using ADyn.Components;
 using ADyn.Shapes;
@@ -10,7 +9,7 @@ using Silk.NET.Maths;
 
 namespace Duck.Serialization;
 
-public class DefaultBasicSerializer : IBasicSerializer
+public class PrimitiveSerializer : IPrimitiveSerializer
 {
     #region Properties
 
@@ -26,7 +25,7 @@ public class DefaultBasicSerializer : IBasicSerializer
 
     #endregion
 
-    public DefaultBasicSerializer()
+    public PrimitiveSerializer()
     {
         _stream = new MemoryStream();
         _writer = new BinaryWriter(_stream);
@@ -68,6 +67,13 @@ public class DefaultBasicSerializer : IBasicSerializer
     }
 
     public void Write(in float value)
+    {
+        ThrowIfSealed();
+
+        _writer.Write(value);
+    }
+
+    public void Write(in double value)
     {
         ThrowIfSealed();
 
@@ -183,8 +189,10 @@ public class DefaultBasicSerializer : IBasicSerializer
     {
         ThrowIfSealed();
 
-        throw new NotImplementedException();
-        // Write(value);
+        Write(typeof(T).FullName);
+        Write(value.AssetId);
+        Write(value.UniqueId);
+        Write(value.IsShared);
     }
 
     public void Write(in Enum value)
@@ -322,7 +330,7 @@ public class DefaultBasicSerializer : IBasicSerializer
         Write(value.Damping);
     }
 
-    public void Write(EntityReference value)
+    public void Write(in EntityReference value)
     {
         ThrowIfSealed();
 

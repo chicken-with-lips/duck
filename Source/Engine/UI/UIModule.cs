@@ -281,7 +281,7 @@ public class UIModule : IUIModule, IInitializableModule, IPreTickableModule, IRe
             // foreach (var view in _rendererModule.Views) {
             var cameraRef = view.Camera;
 
-            if (!view.IsValid || cameraRef != EntityReference.Null) {
+            if (!view.IsValid || cameraRef == EntityReference.Null) {
                 return;
             }
 

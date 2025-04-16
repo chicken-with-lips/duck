@@ -116,7 +116,7 @@ public class GraphicsModule : GraphicsModuleBase,
 
     public IModule CreateModuleInstance(IApplication app)
     {
-        return new InstancedGraphicsModule(this, app);
+        return new InstancedGraphicsModule(this, app, EventBus);
     }
 
     private void ProcessWindowEvents()

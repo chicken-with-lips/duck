@@ -99,7 +99,7 @@ public class PhysicsScene : IPhysicsScene
     public void Step(float timeStep)
     {
         ThrowIfDisposed();
-
+Console.WriteLine("STEP");
         _simulation.Update(Time.Elapsed);
     }
 

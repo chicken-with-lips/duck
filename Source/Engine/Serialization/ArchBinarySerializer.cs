@@ -9,9 +9,7 @@ using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
 
-// using Utf8Json;
-
-namespace Duck.Serialization.Arch;
+namespace Duck.Serialization;
 
 /// <summary>
 ///     The <see cref="ArchBinarySerializer"/> class

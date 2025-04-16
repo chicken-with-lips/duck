@@ -62,7 +62,7 @@ public partial class SceneEditorWindow : BaseSystem<World, float>
                     },
                     c.Label(
                         LabelProps.Default with {
-                            Content = _app.IsInPlayMode ? "Stop" : "Play"
+                            Content = _app.IsInPlayMode ? "Stop" : "Play",
                         }
                     ),
                     _onPlayClicked
@@ -88,7 +88,7 @@ public partial class SceneEditorWindow : BaseSystem<World, float>
                     VerticalContainerProps.Default with {
                         GapSize = 0.5f,
                     },
-                    c.RenderView(
+                    /*c.RenderView(
                         RenderViewProps.Default with {
                             Box = Box.Default with {
                                 ContentWidth = 44,
@@ -96,7 +96,7 @@ public partial class SceneEditorWindow : BaseSystem<World, float>
                             },
                             View = _gameHost.GetModule<IRendererModule>().PrimaryView,
                         }
-                    ),
+                    ),*/
                     c.Panel(
                         PanelProps.Default with {
                             BackgroundColor = Color.Red,

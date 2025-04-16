@@ -137,7 +137,7 @@ public class GameHostModule : IInitializableModule,
             // _assemblyContext.LoadFromAssemblyPath(Path.Combine(directory, assembly));
         }
 
-        var gameDll = Path.Combine(_projectDirectory, "Binaries", "net8.0", "Game.dll");
+        var gameDll = Path.Combine(_projectDirectory, "Binaries", "net9.0", "Game.dll");
 
         using (_assemblyContext?.EnterContextualReflection()) {
             using (var stream = File.OpenRead(gameDll)) {
@@ -264,8 +264,8 @@ class GameAssemblyLoadContext : AssemblyLoadContext
         Console.WriteLine("EditorClientAssemblyLoadContext.Load: " + assemblyName.FullName);
 
         return null;
-        // string file = "/home/jolly_samurai/Projects/chicken-with-lips/infectic/Code/bin/Debug/net8.0/" + assemblyName.Name + ".dll";
-        string file = "/media/jolly_samurai/Data/Projects/chicken-with-lips/Duck/Build/Debug/net9.0/" + assemblyName.Name + ".dll";
+        string file = "/home/jolly_samurai/Projects/chicken-with-lips/infectic/Code/bin/Debug/net9.0/" + assemblyName.Name + ".dll";
+        // string file = "/media/jolly_samurai/Data/Projects/chicken-with-lips/Duck/Build/Debug/net9.0/" + assemblyName.Name + ".dll";
         Console.WriteLine(file);
         if (File.Exists(file)) {
             return LoadFromAssemblyPath(file);

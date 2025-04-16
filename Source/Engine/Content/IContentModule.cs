@@ -42,7 +42,6 @@ public readonly struct AssetReference<T>
 
     public Guid UniqueId { get; init; }
     public bool IsShared { get; init; }
-    public bool IsUnique => !IsShared;
 
     public static readonly AssetReference<T> Null = new();
 
@@ -51,8 +50,7 @@ public readonly struct AssetReference<T>
     {
         return AssetId.Equals(other.AssetId)
                && UniqueId.Equals(other.UniqueId)
-               && IsShared == other.IsShared
-               && IsUnique == other.IsUnique;
+               && IsShared == other.IsShared;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

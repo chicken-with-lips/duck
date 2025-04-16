@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -93,6 +94,11 @@ public static class Util
         return name is "DuckSerializable" or "DuckSerializableAttribute";
     }
 
+    public static bool IsGenerateListSerializerAttributeName(string name)
+    {
+        return name is "GenerateListSerializer" or "GenerateListSerializerAttribute";
+    }
+
     public static bool IsMarkedAsAutoSerializable(SyntaxNode syntaxNode)
     {
         if (syntaxNode is not AttributeSyntax attribute) {
@@ -153,5 +159,65 @@ public static class Util
             "List" => true,
             _ => false,
         };
+    }
+
+    public static string? GetPrimitiveSerializerMethodName(IFieldSymbol symbol)
+    {
+        // TODO: this sucks
+
+        var methodName = $"Read{symbol.Type.Name}";
+
+        if (methodName == "ReadSingle") {
+            methodName = "ReadFloat";
+        }
+
+        switch (methodName) {
+            case "ReadAssetReference":
+            case "ReadBoolean":
+            case "ReadBox3D":
+            case "ReadBoxShape":
+            case "ReadByte":
+            case "ReadBytes":
+            case "ReadCapsuleShape":
+            case "ReadCylinderShape":
+            case "ReadDouble":
+            case "ReadEntity":
+            case "ReadEntityReference":
+            case "ReadEntityReferenceList":
+            case "ReadFloat":
+            case "ReadGuid":
+            case "ReadInt32":
+            case "ReadInt64":
+            case "ReadMaterial":
+            case "ReadMatrix3X3":
+            case "ReadMatrix4X4":
+            case "ReadNullOrEntityReferenceList":
+            case "ReadPlaneShape":
+            case "ReadQuaternion":
+            case "ReadRigidBodyDefinition":
+            case "ReadScalar":
+            case "ReadSphereShape":
+            case "ReadString":
+            case "ReadUInt16":
+            case "ReadUInt32":
+            case "ReadUInt64":
+            case "ReadVector2D":
+            case "ReadVector3D":
+            case "ReadVector4D":
+                return methodName;
+        }
+
+        return null;
+    }
+    
+    public static string GetNameWithoutGenericArity(string name)
+    {
+        int index = name.IndexOf('`');
+
+        if (index == -1) {
+            index = name.IndexOf('<');
+        }
+        
+        return index == -1 ? name : name.Substring(0, index);
     }
 }

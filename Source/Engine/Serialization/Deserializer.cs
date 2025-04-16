@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -132,6 +133,22 @@ public class Deserializer : IDeserializer
         return ReadInt64();
     }
 
+    public AScalar ReadScalar()
+    {
+#if USE_DOUBLE_PRECISION
+        return _reader.ReadDouble();
+#else
+        return _reader.ReadSingle();
+#endif
+    }
+
+    public float ReadScalar(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadScalar();
+    }
+
     public float ReadFloat()
     {
         return _reader.ReadSingle();
@@ -144,16 +161,34 @@ public class Deserializer : IDeserializer
         return ReadFloat();
     }
 
-    public Single ReadSingle()
+    public double ReadDouble()
     {
-        return _reader.ReadSingle();
+        return _reader.ReadDouble();
     }
 
-    public Single ReadSingle(long offset)
+    public double ReadDouble(long offset)
     {
         _stream.Position = offset;
 
-        return ReadFloat();
+        return ReadDouble();
+    }
+
+    public double? ReadNullOrDouble()
+    {
+        var hasValue = ReadBoolean();
+
+        if (!hasValue) {
+            return null;
+        }
+
+        return _reader.ReadDouble();
+    }
+
+    public double? ReadNullOrDouble(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadNullOrDouble();
     }
 
     public bool ReadBoolean()
@@ -197,6 +232,20 @@ public class Deserializer : IDeserializer
         _stream.Position = offset;
 
         return ReadBytes(count);
+    }
+
+    public Guid ReadGuid()
+    {
+        return new Guid(
+            ReadBytes(16).Span
+        );
+    }
+
+    public Guid ReadGuid(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadGuid();
     }
 
     // FIXME: boxing?
@@ -376,21 +425,15 @@ public class Deserializer : IDeserializer
         return ReadMatrix4X4<T>();
     }
 
-    public EntityReference ReadEntityReference()
-    {
-        throw new NotImplementedException();
-    }
-
-    public EntityReference ReadEntityReference(long offset)
-    {
-        _stream.Position = offset;
-
-        return ReadEntityReference();
-    }
-
     public AssetReference<T> ReadAssetReference<T>() where T : class, IAsset
     {
-        throw new NotImplementedException();
+        var typeName = ReadString();
+
+        return new AssetReference<T> {
+            AssetId = ReadGuid(),
+            UniqueId = ReadGuid(),
+            IsShared = ReadBoolean(),
+        };
     }
 
     public AssetReference<T> ReadAssetReference<T>(long offset) where T : class, IAsset
@@ -461,8 +504,8 @@ public class Deserializer : IDeserializer
     public CapsuleShape ReadCapsuleShape()
     {
         return new CapsuleShape() {
-            Radius = (AScalar) ReadGeneric<AScalar>(),
-            HalfLength = (AScalar) ReadGeneric<AScalar>(),
+            Radius = (AScalar)ReadGeneric<AScalar>(),
+            HalfLength = (AScalar)ReadGeneric<AScalar>(),
             Axis = ReadEnum<CoordinateAxis>(),
         };
     }
@@ -477,8 +520,8 @@ public class Deserializer : IDeserializer
     public CylinderShape ReadCylinderShape()
     {
         return new CylinderShape() {
-            Radius = (AScalar) ReadGeneric<AScalar>(),
-            HalfLength = (AScalar) ReadGeneric<AScalar>(),
+            Radius = (AScalar)ReadGeneric<AScalar>(),
+            HalfLength = (AScalar)ReadGeneric<AScalar>(),
             Axis = ReadEnum<CoordinateAxis>(),
         };
     }
@@ -494,7 +537,7 @@ public class Deserializer : IDeserializer
     {
         return new PlaneShape() {
             Normal = ReadVector3D<AScalar>(),
-            Constant = (AScalar) ReadGeneric<AScalar>(),
+            Constant = (AScalar)ReadGeneric<AScalar>(),
         };
     }
 
@@ -508,7 +551,7 @@ public class Deserializer : IDeserializer
     public SphereShape ReadSphereShape()
     {
         return new SphereShape() {
-            Radius = (AScalar) ReadGeneric<AScalar>(),
+            Radius = (AScalar)ReadGeneric<AScalar>(),
         };
     }
 
@@ -564,7 +607,37 @@ public class Deserializer : IDeserializer
         return ReadRigidBodyDefinition<T>();
     }
 
-    public T ReadObjectInternal<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long? offset, int? objectId)
+    public Entity ReadEntity()
+    {
+        return new Entity(
+            ReadInt32(),
+            ReadInt32()
+        );
+    }
+
+    public Entity ReadEntity(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadEntity();
+    }
+
+    public EntityReference ReadEntityReference()
+    {
+        return new EntityReference(
+            ReadEntity(),
+            ReadInt32()
+        );
+    }
+
+    public EntityReference ReadEntityReference(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadEntityReference();
+    }
+
+    /*public T ReadObjectInternal<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator, long? offset, int? objectId)
     {
         if (offset != null) {
             _stream.Position = offset.Value;
@@ -575,7 +648,7 @@ public class Deserializer : IDeserializer
         var context = new DeserializationContext(_context, objectId);
 
         return objectInstanciator(deserializer, context);
-    }
+    }*/
 
     public object ReadObject(string typeName)
     {
@@ -585,7 +658,24 @@ public class Deserializer : IDeserializer
         return Serializer.Deserialize(typeName, deserializer, new DeserializationContext(_context));
     }
 
-    public T ReadObject<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator)
+    public object ReadObject(string typeName, long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadObject(typeName);
+    }
+
+    public T ReadObject<T>()
+    {
+        return (T)ReadObject(typeof(T).FullName);
+    }
+
+    public T ReadObject<T>(long offset)
+    {
+        return (T)ReadObject(typeof(T).FullName, offset);
+    }
+
+    /*public T ReadObject<T>(IDeserializer.ObjectInstanciator<T> objectInstanciator)
     {
         return ReadObjectInternal(objectInstanciator, null, null);
     }
@@ -610,22 +700,71 @@ public class Deserializer : IDeserializer
         }
 
         return ReadObjectInternal((d, c) => objectInstanciator(d, c, lookup), lookup.OffsetStart, lookup.GetHashCode());
+    }*/
+
+    public List<EntityReference> ReadEntityReferenceList()
+    {
+        var objectList = new List<EntityReference>();
+        var count = ReadInt32();
+
+        for (var i = 0; i < count; i++) {
+            objectList.Add(
+                ReadEntityReference()
+            );
+        }
+
+        return objectList;
     }
 
-    public T1 ReadObjectList<T1, T2>(IDeserializer.NestedObjectInstanciator<T2> objectInstanciator, string containerType)
-        where T1 : class
+    public List<EntityReference> ReadEntityReferenceList(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadEntityReferenceList();
+    }
+
+    public List<EntityReference>? ReadNullOrEntityReferenceList()
+    {
+        var hasValue = ReadBoolean();
+
+        if (!hasValue) {
+            return null;
+        }
+
+        var count = ReadInt32();
+        var list = new List<EntityReference>(count);
+
+        for (var i = 0; i < count; i++) {
+            list.Add(
+                ReadEntityReference()
+            );
+        }
+
+        return list;
+    }
+
+    public List<EntityReference>? ReadNullOrEntityReferenceList(long offset)
+    {
+        _stream.Position = offset;
+
+        return ReadNullOrEntityReferenceList();
+    }
+
+    public TContainerType ReadObjectList<TContainerType, TElementType>()
+        where TContainerType : class, IList
     {
         var serializedContainer = ReadSerializedContainer();
-        var objectList = new List<T2>();
+        var objectList = new List<TElementType>();
         var deserializer = new Deserializer(serializedContainer.Data, serializedContainer.Index, _context, this);
 
         foreach (var entry in serializedContainer.Index) {
-            T2 obj;
+            TElementType obj;
 
             if (entry.Type == DataType.ReferenceObject) {
-                obj = deserializer.ReadObjectReference((d, c, e) => objectInstanciator(d, c, e), entry);
+                // obj = deserializer.ReadObjectReference((d, c, e) => objectInstanciator(d, c, e), entry);
+                throw new NotImplementedException();
             } else {
-                obj = deserializer.ReadObject((d, c) => objectInstanciator(d, c, entry), entry.OffsetStart);
+                obj = (TElementType)deserializer.ReadObject(typeof(TElementType).FullName, entry.OffsetStart);
             }
 
             objectList.Add(
@@ -633,20 +772,25 @@ public class Deserializer : IDeserializer
             );
         }
 
-        if (containerType == "System.Collections.Generic.List") {
-            return objectList as T1;
-        }
-
-        throw new NotImplementedException();
+        return objectList as TContainerType;
     }
 
+    public TContainerType ReadObjectList<TContainerType, TElementType>(long offset)
+        where TContainerType : class, IList
+    {
+        _stream.Position = offset;
+
+        return ReadObjectList<TContainerType, TElementType>(offset);
+    }
+
+/*
     public T1 ReadObjectList<T1, T2>(IDeserializer.NestedObjectInstanciator<T2> objectInstanciator, string containerType, long offset)
         where T1 : class
     {
         _stream.Position = offset;
 
         return ReadObjectList<T1, T2>(objectInstanciator, containerType);
-    }
+    }*/
 
     private SerializedContainer ReadSerializedContainer()
     {

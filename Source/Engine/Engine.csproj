@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Duck</AssemblyName>
@@ -19,6 +19,7 @@
 
     <ItemGroup>
         <PackageReference Include="FmodAudio" Version="2.2.5"/>
+        <PackageReference Include="MessagePack" Version="2.6.100-alpha"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0"/>
         <PackageReference Include="Silk.NET.Assimp" Version="2.17.1"/>
         <PackageReference Include="StbImageSharp" Version="2.27.13"/>
@@ -40,7 +41,6 @@
     <ItemGroup>
         <Compile Remove="Ecs\Events\**"/>
         <Compile Remove="Ecs\Generated\**"/>
-        <Compile Remove="Ecs\Serialization\**"/>
         <Compile Remove="Ecs\Systems\**"/>
         <Compile Remove="Ecs\ComponentPool.cs"/>
         <Compile Remove="Ecs\ComponentPoolCollection.cs"/>
@@ -65,7 +65,6 @@
     <ItemGroup>
         <EmbeddedResource Remove="Ecs\Events\**"/>
         <EmbeddedResource Remove="Ecs\Generated\**"/>
-        <EmbeddedResource Remove="Ecs\Serialization\**"/>
         <EmbeddedResource Remove="Ecs\Systems\**"/>
         <EmbeddedResource Remove="SerializationGenerators\**"/>
     </ItemGroup>
@@ -73,7 +72,6 @@
     <ItemGroup>
         <None Remove="Ecs\Events\**"/>
         <None Remove="Ecs\Generated\**"/>
-        <None Remove="Ecs\Serialization\**"/>
         <None Remove="Ecs\Systems\**"/>
         <None Remove="SerializationGenerators\**"/>
     </ItemGroup>
