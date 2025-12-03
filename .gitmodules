@@ -1,0 +1,3 @@
+[submodule "External/Arch"]
+	path = External/Arch
+	url = https://github.com/genray/arch
