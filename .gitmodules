@@ -1,3 +1,9 @@
 [submodule "External/Arch"]
 	path = External/Arch
-	url = https://github.com/genray/arch
+	url = https://github.com/genray/Arch
+[submodule "External/Arch.Extended"]
+	path = External/Arch.Extended
+	url = https://github.com/genaray/Arch.Extended
+[submodule "External/Godot"]
+	path = External/Godot
+	url = https://github.com/godotengine/godot.git
