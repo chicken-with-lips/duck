@@ -53,7 +53,11 @@ public class DeserializationContext : IDeserializationContext
     #region Properties
 
     public int? ObjectId { get; }
-    public bool IsHotReload => _serializationContext.IsHotReload;
+
+    public bool IsHotReload
+    {
+        get => _serializationContext.IsHotReload;
+    }
 
     #endregion
 

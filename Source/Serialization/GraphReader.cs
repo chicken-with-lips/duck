@@ -7,7 +7,11 @@ public class GraphReader
     #region Properties
 
     public ReadOnlyCollection<IndexEntry> Index { get; }
-    public ISerializationContext Context => Reader.Context;
+
+    public ISerializationContext Context
+    {
+        get => Reader.Context;
+    }
 
     public Reader Reader
     {
@@ -24,6 +28,6 @@ public class GraphReader
 
         Reader = new Reader(data, context);
     }
-    
+
     #endregion
 }

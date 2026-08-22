@@ -39,7 +39,7 @@ public static class Serializer
         Factories.Clear();
     }
 
-    public static void Serialize(in object value, GraphWriter writer)
+    public static void Serialize(object value, GraphWriter writer)
     {
         var type = value.GetType();
         var typeName = type.GetFormattedFullName(true);

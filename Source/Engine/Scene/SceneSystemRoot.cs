@@ -19,7 +19,7 @@ public class SceneSystemRoot<T> : IDisposable
 
     public SceneSystemRoot(World world)
     {
-        _root = new(world);
+        _root = new Group<T>(world);
 
         _root
             .Add(InitializationGroup = new Group<T>(world))
@@ -65,7 +65,11 @@ public class SceneSystemRoot<T> : IDisposable
 public class Group<T> : ISystem<T>
 {
     public CommandBuffer CommandBuffer { get; }
-    internal List<ISystem<T>> Systems => _systems;
+
+    internal List<ISystem<T>> Systems
+    {
+        get => _systems;
+    }
 
     private readonly List<ISystem<T>> _systems = new();
 
@@ -96,7 +100,9 @@ public class Group<T> : ISystem<T>
         foreach (var system in _systems) {
             if (system is Group<T> group) {
                 group.RemoveByAssembly(assembly);
-            } else if (system.GetType().Assembly.Equals(assembly)) {
+            } else if (system
+                       .GetType()
+                       .Assembly.Equals(assembly)) {
                 toRemove.Add(system);
             }
         }
@@ -149,7 +155,7 @@ public class Group<T> : ISystem<T>
 
     public void Dispose()
     {
-        foreach (ISystem<T> system in _systems) {
+        foreach (var system in _systems) {
             system.Dispose();
         }
 
@@ -163,5 +169,5 @@ public class Group<T> : ISystem<T>
 
 public interface IBufferedSystem
 {
-    public CommandBuffer? CommandBuffer { get; set; }
+    CommandBuffer? CommandBuffer { get; set; }
 }

@@ -1,16 +1,14 @@
-using Duck.Scene;
-
 namespace Duck.Platform;
 
 public interface IPlatform
 {
-    public FrameTimer CreateFrameTimer();
-    public IWindow CreateWindow(in WindowConfiguration? config = null);
-    
-    public IWindow PrimaryWindow { get; }
-    public IView PrimaryView { get; }
+    FrameTimer CreateFrameTimer();
+    IWindow CreateWindow(in WindowConfiguration? config = null);
 
-    public void Initialize(IApplication app);
-    public void Shutdown();
-    public bool Update();
+    IWindow PrimaryWindow { get; }
+    IView PrimaryView { get; }
+
+    bool Initialize(IApplication app);
+    void Shutdown();
+    bool Update();
 }

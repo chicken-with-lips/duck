@@ -29,88 +29,145 @@ public class GraphWriter
         Context = context;
         Writer = new Writer();
         _index = new List<IndexEntry>();
-        _deferred = new Dictionary<object, DeferredSerialization>(ReferenceEqualityComparer.Instance);
-        _deferredLookup = new Dictionary<object, int>(ReferenceEqualityComparer.Instance);
+        _deferred = new Dictionary<object, DeferredSerialization>(
+            ReferenceEqualityComparer.Instance
+        );
+        _deferredLookup = new Dictionary<object, int>(
+            ReferenceEqualityComparer.Instance
+        );
     }
 
-    public void Write(string name, in string value)
+    public void Write(string name, string value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value);
-        PushIndex(name, DataType.String, offsetStart, Writer.Position);
+        Writer.Write(
+            value
+        );
+        PushIndex(
+            name,
+            DataType.String,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    public void Write(string name, in int value)
+    public void Write(string name, int value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value);
-        PushIndex(name, DataType.Int32, offsetStart, Writer.Position);
+        Writer.Write(
+            value
+        );
+        PushIndex(
+            name,
+            DataType.Int32,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    public void Write(string name, in float value)
+    public void Write(string name, float value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value);
-        PushIndex(name, DataType.Float, offsetStart, Writer.Position);
+        Writer.Write(
+            value
+        );
+        PushIndex(
+            name,
+            DataType.Float,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    public void WriteNullOr(string name, in float? value)
+    public void WriteNullOr(string name, float? value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value.HasValue);
+        Writer.Write(
+            value.HasValue
+        );
 
         if (value.HasValue) {
-            Writer.Write(value.Value);
+            Writer.Write(
+                value.Value
+            );
         }
 
-        PushIndex(name, DataType.NullOrFloat, offsetStart, Writer.Position);
+        PushIndex(
+            name,
+            DataType.NullOrFloat,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    public void Write(string name, in double value)
+    public void Write(string name, double value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value);
-        PushIndex(name, DataType.Double, offsetStart, Writer.Position);
+        Writer.Write(
+            value
+        );
+        PushIndex(
+            name,
+            DataType.Double,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    public void WriteNullOr(string name, in double? value)
+    public void WriteNullOr(string name, double? value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value.HasValue);
+        Writer.Write(
+            value.HasValue
+        );
 
         if (value.HasValue) {
-            Writer.Write(value.Value);
+            Writer.Write(
+                value.Value
+            );
         }
 
-        PushIndex(name, DataType.NullOrDouble, offsetStart, Writer.Position);
+        PushIndex(
+            name,
+            DataType.NullOrDouble,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    public void Write(string name, in bool value)
+    public void Write(string name, bool value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value);
-        PushIndex(name, DataType.Boolean, offsetStart, Writer.Position);
+        Writer.Write(
+            value
+        );
+        PushIndex(
+            name,
+            DataType.Boolean,
+            offsetStart,
+            Writer.Position
+        );
     }
 
     /*public void Write<T>(string name, in AssetReference<T> value) where T : class, IAsset
@@ -133,17 +190,25 @@ public class GraphWriter
         PushIndex(name, DataType.RigidBodyDefinition, offsetStart, _primitiveSerializer.Position);
     }*/
 
-    public void Write<T>(string name, in IList<T> value)
+    public void Write<T>(string name, IList<T> value)
     {
         ThrowIfSealed();
 
         var offsetStart = Writer.Position;
 
-        Writer.Write(value, Context);
-        PushIndex(name, DataType.GenericList, offsetStart, Writer.Position);
+        Writer.Write(
+            value,
+            Context
+        );
+        PushIndex(
+            name,
+            DataType.GenericList,
+            offsetStart,
+            Writer.Position
+        );
     }
 
-    /*public void WriteNullOr<T>(string name, in IList<ConstraintRow>? value)
+    /*public void WriteNullOr<T>(string name, IList<ConstraintRow>? value)
     {
         ThrowIfSealed();
 
@@ -164,7 +229,7 @@ public class GraphWriter
     }*/
 
     // [GenerateListSerializer<ConstraintRow>]
-    // public partial void Write(string name, in IList<ConstraintRow> value);
+    // public partial void Write(string name, IList<ConstraintRow> value);
     /*{
         ThrowIfSealed();
 
@@ -179,7 +244,7 @@ public class GraphWriter
         PushIndex(name, DataType.GenericList, offsetStart, _primitiveSerializer.Position);
     }*/
 
-    /*public void Write(string name, in object value)
+    /*public void Write(string name, object value)
     {
         ThrowIfSealed();
 
@@ -215,7 +280,7 @@ public class GraphWriter
         PushIndex(name, dataType, offsetStart, offsetEnd, explicitType);
     }*/
 
-    /*public void Write(string name, in IList value)
+    /*public void Write(string name, IList value)
     {
         ThrowIfSealed();
 
@@ -232,71 +297,107 @@ public class GraphWriter
         PushIndex(name, DataType.ValueObject, offsetStart, _serializer.Position, containerType);
     }*/
 
-    public int TrackReferenceAndDeferSerialization(in object value)
+    public int TrackReferenceAndDeferSerialization(object value)
     {
-        if (_deferredLookup.TryGetValue(value, out var outValue)) {
+        if (_deferredLookup.TryGetValue(
+                value,
+                out var outValue
+            )) {
             return outValue;
         }
 
         var index = _index.Count;
 
-        _index.Add(new IndexEntry {
-                Name = RuntimeHelpers
-                    .GetHashCode(value)
-                    .ToString(),
-                Type = DataType.ReferenceObject,
-            }
+        var item = new IndexEntry(
+            RuntimeHelpers
+                .GetHashCode(
+                    value
+                )
+                .ToString(),
+            DataType.ReferenceObject
         );
 
-        _deferred.Add(value,
-            new DeferredSerialization {
-                Index = index,
-                Object = value,
-            }
+        _index.Add(
+            item
         );
 
-        _deferredLookup.Add(value, index);
+        _deferred.Add(
+            value,
+            new DeferredSerialization(
+                index,
+                value
+            )
+        );
+
+        _deferredLookup.Add(
+            value,
+            index
+        );
 
         return index;
     }
 
     public void PushIndex(string name, DataType type, long offsetStart, long offsetEnd, string? explicitType = null)
     {
-        _index.Add(new IndexEntry {
-                Name = name,
-                Type = type,
-                OffsetStart = offsetStart,
-                OffsetEnd = offsetEnd,
-                ExplicitType = explicitType,
-            }
+        _index.Add(
+            new IndexEntry(
+                name,
+                type,
+                offsetStart,
+                offsetEnd,
+                explicitType
+            )
         );
     }
 
     private void WriteSerializableObject(object obj)
     {
-        var writer = new GraphWriter(Context);
+        var writer = new GraphWriter(
+            Context
+        );
 
-        Serializer.Serialize(obj, writer);
+        Serializer.Serialize(
+            obj,
+            writer
+        );
 
         var container = writer.Close();
 
-        WriteSerializedContainer(container);
+        WriteSerializedContainer(
+            container
+        );
     }
 
-    private void WriteSerializedContainer(SerializedContainer container)
+    private void WriteSerializedContainer(in SerializedContainer container)
     {
-        Writer.Write(container.Index.Count);
-        Writer.Write(container.Data.Length);
+        Writer.Write(
+            container.Index.Count
+        );
+        Writer.Write(
+            container.Data.Length
+        );
 
         foreach (var entry in container.Index) {
-            Writer.Write(entry.Name);
-            Writer.Write((byte)entry.Type);
-            Writer.Write(entry.OffsetStart);
-            Writer.Write(entry.OffsetEnd);
-            Writer.Write(entry.ExplicitType ?? "");
+            Writer.Write(
+                entry.Name
+            );
+            Writer.Write(
+                (byte)entry.Type
+            );
+            Writer.Write(
+                entry.OffsetStart
+            );
+            Writer.Write(
+                entry.OffsetEnd
+            );
+            Writer.Write(
+                entry.ExplicitType ?? ""
+            );
         }
 
-        Writer.Write(container.Data.ToArray());
+        Writer.Write(
+            container.Data.ToArray()
+        );
     }
 
     private void FlushDeferredSerializationList()
@@ -308,18 +409,22 @@ public class GraphWriter
             foreach (var kvp in toSerialize) {
                 var offsetStart = Writer.Position;
 
-                WriteSerializableObject(kvp.Value.Object);
+                WriteSerializableObject(
+                    kvp.Value.Value
+                );
 
-                _index[kvp.Value.Index] = new IndexEntry {
-                    Name = RuntimeHelpers
-                        .GetHashCode(kvp.Value.Object)
+                _index[kvp.Value.Index] = new IndexEntry(
+                    RuntimeHelpers
+                        .GetHashCode(
+                            kvp.Value.Value
+                        )
                         .ToString(),
-                    Type = DataType.ReferenceObject,
-                    OffsetStart = offsetStart,
-                    OffsetEnd = Writer.Position,
-                    ExplicitType = kvp.Value.Object.GetType()
-                        .FullName,
-                };
+                    DataType.ReferenceObject,
+                    offsetStart,
+                    Writer.Position,
+                    kvp.Value.Value.GetType()
+                        .FullName
+                );
             }
         }
     }
@@ -332,39 +437,64 @@ public class GraphWriter
 
         var data = Writer.Close();
 
-        return new SerializedContainer {
-            Index = _index.AsReadOnly(),
-            Data = data,
-        };
+        return new SerializedContainer(
+            _index.AsReadOnly(),
+            data
+        );
     }
 
     public void ThrowIfSealed()
     {
         if (IsSealed) {
-            throw new SerializationException("Serializer is sealed");
+            throw new SerializationException(
+                "Serializer is sealed"
+            );
         }
     }
 
-    private struct DeferredSerialization
+    private readonly struct DeferredSerialization
     {
-        public int Index;
-        public object Object;
+        public readonly int Index;
+        public readonly object Value;
+        public DeferredSerialization(int index, object value)
+        {
+            Index = index;
+            Value = value;
+        }
     }
 }
 
-public struct SerializedContainer
+public readonly struct SerializedContainer
 {
-    public ReadOnlyCollection<IndexEntry> Index;
-    public ReadOnlyMemory<byte> Data;
+    public readonly ReadOnlyCollection<IndexEntry> Index;
+    public readonly ReadOnlyMemory<byte> Data;
+    public SerializedContainer(ReadOnlyCollection<IndexEntry> index, ReadOnlyMemory<byte> data)
+    {
+        Index = index;
+        Data = data;
+    }
 }
 
-public struct IndexEntry
+public readonly struct IndexEntry
 {
-    public string Name;
-    public DataType Type;
-    public long OffsetStart;
-    public long OffsetEnd;
-    public string? ExplicitType;
+    public readonly string Name;
+    public readonly DataType Type;
+    public readonly long OffsetStart;
+    public readonly long OffsetEnd;
+    public readonly string? ExplicitType;
+    public IndexEntry(string name, DataType type) : this()
+    {
+        Name = name;
+        Type = type;
+    }
+    public IndexEntry(string name, DataType type, long offsetStart, long offsetEnd, string? explicitType)
+    {
+        Name = name;
+        Type = type;
+        OffsetStart = offsetStart;
+        OffsetEnd = offsetEnd;
+        ExplicitType = explicitType;
+    }
 }
 
 public enum DataType : byte

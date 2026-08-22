@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Arch.Core;
 using Arch.Core.Extensions.Dangerous;
 using Arch.LowLevel.Jagged;
-using Duck.ModuleManagement;
+using Duck.Platform.ModuleManagement;
 using Duck.Platform;
 using Duck.Platform.Logging;
 using Duck.Serialization;
@@ -40,7 +40,8 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
     public void BeginHotReload(HotReloadInstigator[] instigators)
     {
         _hotReloadState = new HotReloadState();
-        _hotReloadState.Save(instigators,
+        _hotReloadState.Save(
+            instigators,
             _loadedScenes
                 .ToList()
                 .ConvertAll(i => i.Value)
@@ -127,7 +128,7 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
     {
         private readonly Dictionary<World, SerializedContainer> _state = new();
 
-        public void Save(IList<HotReloadInstigator> instigators, in IList<Scene> scenes)
+        public void Save(IList<HotReloadInstigator> instigators, IList<Scene> scenes)
         {
             List<Type> typesToRemove = [];
             List<Type> typesToReplace = [];
@@ -135,11 +136,16 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
             Save_FindOrReplaceComponents(instigators, typesToRemove, typesToReplace);
 
             scenes
-                .ForEach(s => { Save_RemoveSystems(s, instigators); });
+                .ForEach(s =>
+                    {
+                        Save_RemoveSystems(s, instigators);
+                    }
+                );
 
             scenes
                 .Where(s => Save_IsRelevantWorld(s.World, typesToRemove, typesToReplace))
-                .ForEach(s => {
+                .ForEach(s =>
+                    {
                         Save_RemoveComponentFromEntities(s.World, typesToRemove);
                         Save_RemoveArchetypes(s.World, typesToRemove);
                         Save_SerializeWorld(s.World);
@@ -154,7 +160,8 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
         {
             var context = new SerializationContext(true);
 
-            _state.ForEach(s => {
+            _state.ForEach(s =>
+                {
                     var container = s.Value;
                     var graphReader = new GraphReader(container.Data, container.Index, context);
                     var serializationFactory = Serializer.GetFactory<World>();
@@ -169,7 +176,7 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
             );
         }
 
-        private void Save_RemoveSystems(Scene scene, in IList<HotReloadInstigator> instigators)
+        private void Save_RemoveSystems(Scene scene, IList<HotReloadInstigator> instigators)
         {
             instigators.ForEach(i => scene.SystemRoot.RemoveByAssembly(i.Current));
         }
@@ -192,11 +199,12 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
             _state.Add(world, graphWriter.Close());
         }
 
-        private void Save_RemoveArchetypes(World world, in IList<Type> types)
+        private void Save_RemoveArchetypes(World world, IList<Type> types)
         {
             List<Archetype> toRemove = [];
 
-            types.ForEach(t => {
+            types.ForEach(t =>
+                {
                     ComponentRegistry.TryGet(t, out var componentType);
 
                     foreach (var archetype in world.Archetypes.Items) {
@@ -210,20 +218,28 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
             toRemove.ForEach(a => world.Archetypes.Remove(a));
         }
 
-        private void Save_RemoveComponentFromEntities(World world, in IList<Type> types)
+        private void Save_RemoveComponentFromEntities(World world, IList<Type> types)
         {
-            types.ForEach(t => {
+            types.ForEach(t =>
+                {
                     ComponentRegistry.TryGet(t, out var componentType);
 
                     var query = new QueryDescription(new Signature(componentType));
 
                     // FIXME: optimize bulk removal
-                    world.Query(in query, entity => { world.Remove(entity, componentType); });
+                    world.Query(
+                        in query,
+                        entity =>
+                        {
+                            world.Remove(entity, componentType);
+                        }
+                    );
                 }
             );
         }
 
-        private void Save_FindOrReplaceComponents(in IList<HotReloadInstigator> instigators,
+        private void Save_FindOrReplaceComponents(
+            IList<HotReloadInstigator> instigators,
             IList<Type> typesToRemove,
             IList<Type> typesToReplace)
         {
@@ -258,7 +274,7 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
             }
         }
 
-        private bool Save_IsRelevantWorld(World world, in IList<Type> typesToRemove, in IList<Type> typesToReplace)
+        private bool Save_IsRelevantWorld(World world, IList<Type> typesToRemove, IList<Type> typesToReplace)
         {
             var combined = new List<Type>(typesToRemove);
             combined.AddRange(typesToReplace);
@@ -276,7 +292,7 @@ public class SceneModule : IInitializableModule, IDisposable, ITickModule, IFixe
             return false;
         }
 
-        private void Save_RemoveComponentsFromRegistry(in IList<Type> types)
+        private void Save_RemoveComponentsFromRegistry(IList<Type> types)
         {
             types.ForEach(t => ComponentRegistry.Remove(t));
         }

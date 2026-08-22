@@ -8,7 +8,7 @@ using Silk.NET.Vulkan.Extensions.EXT;
 using Silk.NET.Vulkan.Extensions.KHR;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Sdl;
-using DuckIView = Duck.Scene.IView;
+using DuckIView = Duck.Platform.IView;
 using DuckIWindow = Duck.Platform.IWindow;
 using Logger = Duck.Platform.Logging.Logger;
 
@@ -16,68 +16,55 @@ namespace Duck.RenderSystem.Vulkan;
 
 public unsafe class VulkanPlatform : IPlatform
 {
-    public DuckIWindow PrimaryWindow
-    {
+    public DuckIWindow PrimaryWindow {
         get => _windows.First(w => w.IsPrimary);
     }
 
-    public DuckIView PrimaryView
-    {
+    public DuckIView PrimaryView {
         get => _views.First(v => v.IsPrimary);
     }
 
-    public IReadOnlyList<VulkanWindow> Windows
-    {
+    public IReadOnlyList<VulkanWindow> Windows {
         get => _windows;
     }
 
-    public Vk Vk
-    {
+    public Vk Vk {
         get => _vk!;
     }
 
-    public Instance Instance
-    {
+    public Instance Instance {
         get => _instance;
     }
 
-    public PhysicalDevice PhysicalDevice
-    {
+    public PhysicalDevice PhysicalDevice {
         get => _physicalDevice;
     }
 
-    public Device Device
-    {
+    public Device Device {
         get => _device;
     }
 
-    public Queue GraphicsQueue
-    {
+    public Queue GraphicsQueue {
         get => _graphicsQueue;
     }
 
-    public Queue PresentQueue
-    {
+    public Queue PresentQueue {
         get => _presentQueue;
     }
 
-    public uint GraphicsQueueFamily
-    {
+    public uint GraphicsQueueFamily {
         get => _graphicsQueueFamily;
     }
 
-    public uint PresentQueueFamily
-    {
+    public uint PresentQueueFamily {
         get => _presentQueueFamily;
     }
 
-    public KhrSurface KhrSurface
-    {
+    public KhrSurface KhrSurface {
         get => _khrSurface!;
     }
 
-    public KhrSwapchain KhrSwapchain
-    {
+    public KhrSwapchain KhrSwapchain {
         get => _khrSwapchain!;
     }
 
@@ -106,12 +93,15 @@ public unsafe class VulkanPlatform : IPlatform
     private readonly Logger _logger;
     private bool _windowingRegistered;
 
+    private HashSet<string>? _supportedDeviceExtensions;
+    private HashSet<string>? _supportedInstanceExtensions;
+
     public VulkanPlatform(Logger logger)
     {
         _logger = logger;
     }
 
-    public void Initialize(IApplication app)
+    public bool Initialize(IApplication app)
     {
         _logger.LogInformation("Initializing Vulkan platform");
 
@@ -119,7 +109,9 @@ public unsafe class VulkanPlatform : IPlatform
 
         _vk = Vk.GetApi();
 
-        CreateInstance(primaryWindow);
+        if (!CreateInstance(primaryWindow)) {
+            return false;
+        }
 
 #if DEBUG
         SetupDebugMessenger();
@@ -129,20 +121,33 @@ public unsafe class VulkanPlatform : IPlatform
             throw new InvalidOperationException("KHR_surface extension not available");
         }
 
-        CreateSurface(primaryWindow);
-        SelectPhysicalDevice(primaryWindow.Surface);
-        CreateLogicalDevice();
-
-        if (!_vk.TryGetDeviceExtension<KhrSwapchain>(_instance, _device, out _khrSwapchain)) {
-            throw new InvalidOperationException("KHR_swapchain extension not available");
+        if (!CreateSurface(primaryWindow)) {
+            return false;
         }
 
-        CreateSwapchain(primaryWindow);
+        if (!SelectPhysicalDevice(primaryWindow.Surface)) {
+            return false;
+        }
+
+        if (!CreateLogicalDevice()) {
+            return false;
+        }
+
+        if (!_vk.TryGetDeviceExtension<KhrSwapchain>(_instance, _device, out _khrSwapchain)) {
+            _logger.LogError("KHR_swapchain extension not available");
+            return false;
+        }
+
+        if (!CreateSwapchain(primaryWindow)) {
+            return false;
+        }
 
         var primaryView = primaryWindow.CreateView("Primary", true);
         _views.Add(primaryView);
 
         _logger.LogInformation("Vulkan platform initialized");
+
+        return true;
     }
 
     public void Shutdown()
@@ -218,10 +223,11 @@ public unsafe class VulkanPlatform : IPlatform
         return window;
     }
 
-    private void CreateInstance(VulkanWindow primaryWindow)
+    private bool CreateInstance(VulkanWindow primaryWindow)
     {
         if (primaryWindow.SilkWindow.VkSurface is null) {
-            throw new InvalidOperationException("Window does not support Vulkan surfaces");
+            _logger.LogError("Window does not support Vulkan surfaces");
+            return false;
         }
 
         var glfwExtensions = primaryWindow.SilkWindow.VkSurface.GetRequiredExtensions(out var glfwExtensionCount);
@@ -263,10 +269,13 @@ public unsafe class VulkanPlatform : IPlatform
         };
 
         if (_vk!.CreateInstance(&createInfo, null, out _instance) != Result.Success) {
-            throw new InvalidOperationException("Failed to create Vulkan instance");
+            _logger.LogError("Failed to create Vulkan instance");
+            return false;
         }
 
         _logger.LogInformation("Vulkan instance created");
+
+        return true;
     }
 
     private string[] GetAvailableValidationLayers(string[] requested)
@@ -340,27 +349,31 @@ public unsafe class VulkanPlatform : IPlatform
     }
 #endif
 
-    private void CreateSurface(VulkanWindow window)
+    private bool CreateSurface(VulkanWindow window)
     {
         var surface = window.SilkWindow.VkSurface!
             .Create<AllocationCallbacks>(_instance.ToHandle(), null)
             .ToSurface();
 
         if (surface.Handle == 0) {
-            throw new InvalidOperationException("Failed to create Vulkan surface");
+            _logger.LogError("Failed to create Vulkan surface");
+            return false;
         }
 
         window.SetSurface(surface);
+
+        return true;
     }
 
-    private void SelectPhysicalDevice(SurfaceKHR surface)
+    private bool SelectPhysicalDevice(SurfaceKHR surface)
     {
         uint deviceCount = 0;
 
         _vk!.EnumeratePhysicalDevices(_instance, &deviceCount, null);
 
         if (deviceCount == 0) {
-            throw new InvalidOperationException("No Vulkan-capable GPU found");
+            _logger.LogError("No Vulkan-capable GPU found");
+            return false;
         }
 
         var devices = new PhysicalDevice[deviceCount];
@@ -391,7 +404,8 @@ public unsafe class VulkanPlatform : IPlatform
         }
 
         if (bestScore < 0) {
-            throw new InvalidOperationException("No suitable Vulkan GPU found");
+            _logger.LogError("No suitable Vulkan GPU found");
+            return false;
         }
 
         _physicalDevice = best;
@@ -403,6 +417,13 @@ public unsafe class VulkanPlatform : IPlatform
         _logger.LogInformation("Selected GPU: {0} ({1})", deviceName, selectedProps.DeviceType);
 
         GetQueueFamilies(_physicalDevice, surface, out _graphicsQueueFamily, out _presentQueueFamily);
+
+        _supportedInstanceExtensions = GetSupportedInstanceExtensions(_physicalDevice);
+        _supportedDeviceExtensions = GetSupportedDeviceExtensions(_physicalDevice);
+
+        _logger.LogInformation($"Supported extensions: {string.Join(',', _supportedDeviceExtensions)}");
+
+        return true;
     }
 
     private bool IsDeviceSuitable(PhysicalDevice device, SurfaceKHR surface, string name)
@@ -420,10 +441,9 @@ public unsafe class VulkanPlatform : IPlatform
         }
 
         if (!HasRequiredExtensions(device)) {
-            _logger.LogError("GPU {0}: missing VK_KHR_swapchain", name);
             return false;
         }
-
+        return false;
         uint formatCount = 0;
         _khrSurface!.GetPhysicalDeviceSurfaceFormats(device, surface, &formatCount, null);
 
@@ -431,7 +451,8 @@ public unsafe class VulkanPlatform : IPlatform
         _khrSurface.GetPhysicalDeviceSurfacePresentModes(device, surface, &presentModeCount, null);
 
         if (formatCount == 0 || presentModeCount == 0) {
-            _logger.LogError("GPU {0}: inadequate swapchain (formats={1}, modes={2})",
+            _logger.LogError(
+                "GPU {0}: inadequate swapchain (formats={1}, modes={2})",
                 name,
                 formatCount,
                 presentModeCount
@@ -444,21 +465,23 @@ public unsafe class VulkanPlatform : IPlatform
 
     private bool HasRequiredExtensions(PhysicalDevice device)
     {
-        uint count = 0;
-        _vk!.EnumerateDeviceExtensionProperties(device, (byte*)null, &count, null);
+        string[] required = [
+            KhrSwapchain.ExtensionName,
+            "VK_EXT_memory_budget",
+        ];
 
-        var extensions = new ExtensionProperties[count];
-        fixed(ExtensionProperties* pExtensions = extensions) {
-            _vk.EnumerateDeviceExtensionProperties(device, (byte*)null, &count, pExtensions);
+        var supportedExtensions = GetSupportedDeviceExtensions(device);
+
+        var hasAllExtensions = true;
+
+        foreach (var extName in required) {
+            if (!supportedExtensions.Contains(extName)) {
+                _logger.LogError($"GPU {0}: missing {extName}");
+                hasAllExtensions = false;
+            }
         }
 
-        var required = new HashSet<string> { KhrSwapchain.ExtensionName };
-
-        foreach (var t in extensions) {
-            required.Remove(Marshal.PtrToStringAnsi((nint)t.ExtensionName) ?? string.Empty);
-        }
-
-        return required.Count == 0;
+        return hasAllExtensions;
     }
 
     private void GetQueueFamilies(PhysicalDevice device,
@@ -473,6 +496,7 @@ public unsafe class VulkanPlatform : IPlatform
         _vk!.GetPhysicalDeviceQueueFamilyProperties(device, &count, null);
 
         var families = new QueueFamilyProperties[count];
+
         fixed(QueueFamilyProperties* pFamilies = families) {
             _vk.GetPhysicalDeviceQueueFamilyProperties(device, &count, pFamilies);
         }
@@ -484,6 +508,7 @@ public unsafe class VulkanPlatform : IPlatform
             }
 
             _khrSurface!.GetPhysicalDeviceSurfaceSupport(device, i, surface, out var presentSupport);
+
             if (presentSupport) {
                 presentFamily = i;
             }
@@ -494,13 +519,14 @@ public unsafe class VulkanPlatform : IPlatform
         }
     }
 
-    private void CreateLogicalDevice()
+    private bool CreateLogicalDevice()
     {
         var uniqueFamilies = new HashSet<uint> { _graphicsQueueFamily, _presentQueueFamily };
         var queueCreateInfos = new DeviceQueueCreateInfo[uniqueFamilies.Count];
         var queuePriority = 1.0f;
 
         var i = 0;
+
         foreach (var family in uniqueFamilies) {
             queueCreateInfos[i++] = new DeviceQueueCreateInfo {
                 SType = StructureType.DeviceQueueCreateInfo,
@@ -509,7 +535,7 @@ public unsafe class VulkanPlatform : IPlatform
                 PQueuePriorities = &queuePriority,
             };
         }
-        
+
         var features = new PhysicalDeviceFeatures();
         var dynamicRenderingFeatures = new PhysicalDeviceDynamicRenderingFeatures {
             SType = StructureType.PhysicalDeviceDynamicRenderingFeatures,
@@ -531,7 +557,8 @@ public unsafe class VulkanPlatform : IPlatform
             };
 
             if (_vk!.CreateDevice(_physicalDevice, &createInfo, null, out _device) != Result.Success) {
-                throw new InvalidOperationException("Failed to create logical device");
+                _logger.LogError("Failed to create logical device");
+                return false;
             }
         }
 
@@ -539,9 +566,11 @@ public unsafe class VulkanPlatform : IPlatform
         _vk.GetDeviceQueue(_device, _presentQueueFamily, 0, out _presentQueue);
 
         _logger.LogInformation("Logical device created");
+
+        return true;
     }
 
-    private void CreateSwapchain(VulkanWindow window)
+    private bool CreateSwapchain(VulkanWindow window)
     {
         _khrSurface!.GetPhysicalDeviceSurfaceCapabilities(_physicalDevice, window.Surface, out var capabilities);
 
@@ -549,6 +578,7 @@ public unsafe class VulkanPlatform : IPlatform
         _khrSurface.GetPhysicalDeviceSurfaceFormats(_physicalDevice, window.Surface, &formatCount, null);
 
         var formats = new SurfaceFormatKHR[formatCount];
+
         fixed(SurfaceFormatKHR* pFormats = formats) {
             _khrSurface.GetPhysicalDeviceSurfaceFormats(_physicalDevice, window.Surface, &formatCount, pFormats);
         }
@@ -557,8 +587,10 @@ public unsafe class VulkanPlatform : IPlatform
         _khrSurface.GetPhysicalDeviceSurfacePresentModes(_physicalDevice, window.Surface, &presentModeCount, null);
 
         var presentModes = new PresentModeKHR[presentModeCount];
+
         fixed(PresentModeKHR* pModes = presentModes) {
-            _khrSurface.GetPhysicalDeviceSurfacePresentModes(_physicalDevice,
+            _khrSurface.GetPhysicalDeviceSurfacePresentModes(
+                _physicalDevice,
                 window.Surface,
                 &presentModeCount,
                 pModes
@@ -600,13 +632,15 @@ public unsafe class VulkanPlatform : IPlatform
         }
 
         if (_khrSwapchain!.CreateSwapchain(_device, &createInfo, null, out var swapchain) != Result.Success) {
-            throw new InvalidOperationException("Failed to create swapchain");
+            _logger.LogError("Failed to create swapchain");
+            return false;
         }
 
         uint swapImageCount = 0;
         _khrSwapchain.GetSwapchainImages(_device, swapchain, &swapImageCount, null);
 
         var images = new Image[swapImageCount];
+
         fixed(Image* pImages = images) {
             _khrSwapchain.GetSwapchainImages(_device, swapchain, &swapImageCount, pImages);
         }
@@ -635,18 +669,21 @@ public unsafe class VulkanPlatform : IPlatform
             };
 
             if (_vk!.CreateImageView(_device, &viewCreateInfo, null, out imageViews[i]) != Result.Success) {
-                throw new InvalidOperationException($"Failed to create swapchain image view {i}");
+                _logger.LogError($"Failed to create swapchain image view {i}");
             }
         }
 
         window.SetSwapchain(swapchain, surfaceFormat.Format, extent, images, imageViews);
 
-        _logger.LogInformation("Swapchain created: {0}x{1}, {2} images, format {3}",
+        _logger.LogInformation(
+            "Swapchain created: {0}x{1}, {2} images, format {3}",
             extent.Width,
             extent.Height,
             swapImageCount,
             surfaceFormat.Format
         );
+
+        return true;
     }
 
     private void DestroyWindowResources(VulkanWindow window)
@@ -698,10 +735,69 @@ public unsafe class VulkanPlatform : IPlatform
 
         return new Extent2D(
             Math.Clamp((uint)window.Dimensions.X, capabilities.MinImageExtent.Width, capabilities.MaxImageExtent.Width),
-            Math.Clamp((uint)window.Dimensions.Y,
+            Math.Clamp(
+                (uint)window.Dimensions.Y,
                 capabilities.MinImageExtent.Height,
                 capabilities.MaxImageExtent.Height
             )
         );
+    }
+
+    private HashSet<string> GetSupportedDeviceExtensions(PhysicalDevice device)
+    {
+        uint count = 0;
+        _vk!.EnumerateDeviceExtensionProperties(device, (byte*)null, &count, null);
+
+        var extensions = new ExtensionProperties[count];
+
+        fixed(ExtensionProperties* pExtensions = extensions) {
+            _vk.EnumerateDeviceExtensionProperties(device, (byte*)null, &count, pExtensions);
+        }
+
+        var supported = new HashSet<string>((int)count, StringComparer.Ordinal);
+
+        foreach (var t in extensions) {
+            var name = Marshal.PtrToStringAnsi((nint)t.ExtensionName);
+
+            if (!string.IsNullOrEmpty(name)) {
+                supported.Add(name);
+            }
+        }
+
+        return supported;
+    }
+
+    private HashSet<string> GetSupportedInstanceExtensions(PhysicalDevice device)
+    {
+        uint count = 0;
+        _vk!.EnumerateInstanceExtensionProperties((byte*)null, &count, null);
+
+        var extensions = new ExtensionProperties[count];
+
+        fixed(ExtensionProperties* pExtensions = extensions) {
+            _vk.EnumerateInstanceExtensionProperties((byte*)null, &count, pExtensions);
+        }
+
+        var supported = new HashSet<string>((int)count, StringComparer.Ordinal);
+
+        foreach (var t in extensions) {
+            var name = Marshal.PtrToStringAnsi((nint)t.ExtensionName);
+
+            if (!string.IsNullOrEmpty(name)) {
+                supported.Add(name);
+            }
+        }
+
+        return supported;
+    }
+
+    private bool SupportsDeviceExtension(string name)
+    {
+        return _supportedDeviceExtensions?.Contains(name) ?? false;
+    }
+
+    private bool SupportsInstanceExtension(string name)
+    {
+        return _supportedInstanceExtensions?.Contains(name) ?? false;
     }
 }

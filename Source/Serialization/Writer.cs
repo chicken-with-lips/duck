@@ -10,97 +10,99 @@ public class Writer
         _writer = new BinaryWriter(_stream);
     }
 
-    public void Write(in string value)
+    public void Write(string value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in int value)
+    public void Write(int value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in uint value)
+    public void Write(uint value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in short value)
+    public void Write(short value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in ushort value)
+    public void Write(ushort value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in long value)
+    public void Write(long value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in ulong value)
+    public void Write(ulong value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in float value)
+    public void Write(float value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in double value)
+    public void Write(double value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in bool value)
+    public void Write(bool value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in byte value)
+    public void Write(byte value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in byte[] value)
+    public void Write(byte[] value)
     {
         ThrowIfSealed();
 
         _writer.Write(value);
     }
 
-    public void Write(in int[] value)
+    public void Write(int[] value)
     {
         ThrowIfSealed();
 
         _writer.Write(value.Length);
 
-        for (var i = 0; i < value.Length; i++) _writer.Write(value[i]);
+        for (var i = 0; i < value.Length; i++) {
+            _writer.Write(value[i]);
+        }
     }
 
     public void WriteGeneric<T>(in T value) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
@@ -124,14 +126,14 @@ public class Writer
         Write(value.ToByteArray());
     }
 
-    public void Write(in Enum value)
+    public void Write(Enum value)
     {
         ThrowIfSealed();
 
         _writer.Write(value.ToString());
     }
 
-    public void Write<T>(in IList<T> value, ISerializationContext context)
+    public void Write<T>(IList<T> value, ISerializationContext context)
     {
         ThrowIfSealed();
 

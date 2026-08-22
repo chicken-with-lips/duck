@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Duck.ModuleManagement;
+namespace Duck.Platform.ModuleManagement;
 
 public delegate void ExternalModuleChanged(ExternalModuleManager manager);
 
@@ -12,11 +12,15 @@ public class ExternalModuleManager : IDisposable
 
     public string AssemblyPath { get; }
 
-    public bool IsPendingUnloadComplete {
+    public bool IsPendingUnloadComplete
+    {
         get => !_isUnloading;
     }
 
-    public ExternalModuleHandle? Handle => _current;
+    public ExternalModuleHandle? Handle
+    {
+        get => _current;
+    }
 
     #endregion
 
@@ -55,7 +59,9 @@ public class ExternalModuleManager : IDisposable
         var now = DateTime.UtcNow.Ticks;
         var last = Interlocked.Exchange(ref _assemblyLastWriteTimeTicks, now);
 
-        if (now - last > TimeSpan.FromMilliseconds(100).Ticks) {
+        if (now - last
+            > TimeSpan.FromMilliseconds(100)
+                .Ticks) {
             Changed?.Invoke(this);
         }
     }
@@ -106,11 +112,9 @@ public class ExternalModuleManager : IDisposable
 
                 Console.WriteLine($"[HotReload] Loaded system from {AssemblyPath}");
                 break;
-            }
-            catch (IOException) {
+            } catch (IOException) {
                 Thread.Sleep(100);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 Console.WriteLine($"[HotReload] Failed to load: {ex}");
                 Thread.Sleep(500);
             }

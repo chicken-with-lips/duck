@@ -1,10 +1,10 @@
 using Duck;
-using Duck.ModuleManagement;
+using Duck.Platform.ModuleManagement;
 using Duck.Platform;
 
-namespace GameLauncher;
+namespace Duck.GameLauncher;
 
-class GameModule : IInitializableModule, ITickModule, IPreTickModule, IPostTickModule, IFixedTickModule, IDisposable
+internal class GameModule : IInitializableModule, ITickModule, IPreTickModule, IPostTickModule, IFixedTickModule, IDisposable
 {
     private readonly Application _app;
     private ExternalModuleManager? _gameModuleManager;

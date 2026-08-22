@@ -4,6 +4,6 @@ public interface ISerializationFactory
 {
     public bool Supports(string typeName);
 
-    public void Serialize(in object value, GraphWriter graphWriter);
+    public void Serialize(object value, GraphWriter graphWriter);
     public object Deserialize(string typeName, GraphReader graphReader);
 }

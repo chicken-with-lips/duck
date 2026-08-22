@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Duck.ModuleManagement;
+namespace Duck.Platform.ModuleManagement;
 
 public static class ExternalModuleAssemblyLoader
 {

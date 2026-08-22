@@ -1,4 +1,4 @@
-using Duck.ModuleManagement;
+using Duck.Platform.ModuleManagement;
 using Duck.Platform;
 using Schedulers;
 using Silk.NET.Vulkan;
@@ -13,7 +13,7 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
     private const int MaxFramesInFlight = 2;
 
     private readonly Logger _logger;
-    private VulkanPlatform? _platform;
+    private VulkanPlatform _platform;
     private int _currentFrame;
 
     private readonly Dictionary<VulkanWindow, WindowRenderData> _windowData = [];
@@ -33,7 +33,7 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
 
         _scheduler = app.Scheduler;
 
-        foreach (var window in _platform!.Windows) {
+        foreach (var window in _platform.Windows) {
             CreateWindowRenderData(window);
         }
 
@@ -89,6 +89,7 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
 
         // Phase 2: submit and present serially — Vulkan queues require external synchronization.
         var vk = platform.Vk;
+
         for (var i = 0; i < entries.Length; i++) {
             if (imageIndices[i] < 0) {
                 continue;
@@ -240,7 +241,8 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
             },
         };
 
-        vk.CmdPipelineBarrier(cmd,
+        vk.CmdPipelineBarrier(
+            cmd,
             PipelineStageFlags.TopOfPipeBit,
             PipelineStageFlags.ColorAttachmentOutputBit,
             DependencyFlags.None,
@@ -278,7 +280,8 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
         imageBarrier.OldLayout = ImageLayout.ColorAttachmentOptimal;
         imageBarrier.NewLayout = ImageLayout.PresentSrcKhr;
 
-        vk.CmdPipelineBarrier(cmd,
+        vk.CmdPipelineBarrier(
+            cmd,
             PipelineStageFlags.ColorAttachmentOutputBit,
             PipelineStageFlags.BottomOfPipeBit,
             DependencyFlags.None,

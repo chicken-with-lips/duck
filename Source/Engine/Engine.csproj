@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0"/>
         <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
+        <PackageReference Include="ThomasLevesque.WeakEvent" Version="4.1.0"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -1,6 +1,6 @@
 using Duck.Platform;
 
-namespace Duck.ModuleManagement;
+namespace Duck.Platform.ModuleManagement;
 
 public interface IModule
 {

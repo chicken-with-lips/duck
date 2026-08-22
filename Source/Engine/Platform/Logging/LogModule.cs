@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using Duck.ModuleManagement;
+using Duck.Platform.ModuleManagement;
 using Microsoft.Extensions.Logging;
 
 namespace Duck.Platform.Logging;
@@ -19,14 +19,15 @@ public class LogModule : IModule
     public LogModule()
     {
         _factory = LoggerFactory.Create(builder =>
-        {
-            builder
-                .SetMinimumLevel(LogLevel.Debug)
-                .AddProvider(new ConsoleLoggerProvider(LogLevel.Debug))
-                .AddProvider(new ConsoleLoggerProvider(LogLevel.Error, ConsoleColor.Black, ConsoleColor.Red))
-                .AddProvider(new ConsoleLoggerProvider(LogLevel.Information))
-                .AddProvider(new ConsoleLoggerProvider(LogLevel.Warning, ConsoleColor.Red));
-        });
+            {
+                builder
+                    .SetMinimumLevel(LogLevel.Debug)
+                    .AddProvider(new ConsoleLoggerProvider(LogLevel.Debug))
+                    .AddProvider(new ConsoleLoggerProvider(LogLevel.Error, ConsoleColor.Black, ConsoleColor.Red))
+                    .AddProvider(new ConsoleLoggerProvider(LogLevel.Information))
+                    .AddProvider(new ConsoleLoggerProvider(LogLevel.Warning, ConsoleColor.Red));
+            }
+        );
 
         _logger = CreateLogger("Log");
         _logger.LogInformation("Created logging module.");

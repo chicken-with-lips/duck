@@ -1,8 +1,9 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using Duck.ModuleManagement;
+using Duck.Content;
 using Duck.Platform;
 using Duck.Platform.Logging;
+using Duck.Platform.ModuleManagement;
 using Duck.Scene;
 using Duck.Serialization;
 using Schedulers;
@@ -22,34 +23,49 @@ public delegate IPlatform CreatePlatformDelegate(Application application);
 
 public class Application : IApplication
 {
+
+    #region Properties
+
+    public FrameTimer FrameTimer { get; private set; } = null!;
+
+    public JobScheduler Scheduler {
+        get;
+        private set;
+    } = null!;
+
+    public IPlatform Platform { get; private set; } = null!;
+
+    #endregion
+
+    #region Members
+
+    private ApplicationState _state = ApplicationState.Uninitialized;
+
+    private readonly Logger _logger;
+
+    private FrameAccumulator _frameAccumulator = null!;
+    private FrameAccumulator _fixedTickAccumulator = null!;
+
+    private readonly List<IModule> _modules = [];
+    private readonly ConcurrentBag<ExternalModuleManager> _queuedHotReloadRequests = [];
+
+    private bool _isWaitingForUnload;
+
+    private readonly List<JobHandle> _iterationJobHandles = new();
+
+    #endregion
+
+    #region Methods
+
     public Application(CreatePlatformDelegate createPlatform)
     {
         AddModule(new LogModule());
+        AddModule(new ContentModule(CreateLogger("Content")));
         AddModule(new SceneModule(CreateLogger("Scene")));
 
         _logger = CreateLogger("Engine");
 
         Platform = createPlatform(this);
-        FrameTimer = Platform.CreateFrameTimer();
-
-        _frameAccumulator = new FrameAccumulator(FrameTimer) {
-            TargetFrameRate = 60,
-        };
-
-        _fixedTickAccumulator = new FrameAccumulator(FrameTimer) {
-            TargetFrameRate = 1,
-        };
-
-        _scheduler = new JobScheduler(new JobScheduler.Config {
-                ThreadPrefixName = "Duck",
-                ThreadCount = 0, // determine automatically
-                MaxExpectedConcurrentJobs = 64,
-                StrictAllocationMode = false,
-            }
-        );
-
-        _logger.LogInformation("Initialized job scheduler:");
-        _logger.LogInformation("...thread count: {0}", _scheduler.ThreadCount);
     }
 
     public T GetModule<T>() where T : IModule
@@ -70,7 +86,7 @@ public class Application : IApplication
             .CreateLogger(categoryName);
     }
 
-    public void Initialize()
+    public bool Initialize()
     {
         if (_state != ApplicationState.Uninitialized) {
             throw new Exception("Application must be in the uninitialized state");
@@ -78,15 +94,42 @@ public class Application : IApplication
 
         ChangeState(ApplicationState.Initializing);
 
+        FrameTimer = Platform.CreateFrameTimer();
+
+        _frameAccumulator = new FrameAccumulator(FrameTimer) {
+            TargetFrameRate = 60,
+        };
+
+        _fixedTickAccumulator = new FrameAccumulator(FrameTimer) {
+            TargetFrameRate = 1,
+        };
+
+        Scheduler = new JobScheduler(
+            new JobScheduler.Config {
+                ThreadPrefixName = "Duck",
+                ThreadCount = 0, // determine automatically
+                MaxExpectedConcurrentJobs = 64,
+                StrictAllocationMode = false,
+            }
+        );
+
+        _logger.LogInformation("Initialized job scheduler:");
+        _logger.LogInformation($"...thread count: {Scheduler.ThreadCount}");
+
         var context = new InitializationContext(false);
 
-        Platform.Initialize(this);
+        if (!Platform.Initialize(this)) {
+            Shutdown();
+            return false;
+        }
 
         IterateModules<IInitializableModule>(module => module.Initialize(this, context));
 
         Serializer.Init();
 
         ChangeState(ApplicationState.Initialized);
+
+        return true;
     }
 
     public void AddModule(IModule module)
@@ -163,11 +206,15 @@ public class Application : IApplication
             }
         }
 
+        Shutdown();
+    }
+
+    private void Shutdown()
+    {
         IterateModules<IShutdownModule>(m => m.Shutdown(this));
 
         Platform.Shutdown();
-
-        _scheduler?.Dispose();
+        Scheduler.Dispose();
     }
 
     private void ChangeState(ApplicationState newState)
@@ -199,7 +246,8 @@ public class Application : IApplication
         if (!_isWaitingForUnload) {
             var instigators = _queuedHotReloadRequests
                 .Where(m => m.Handle != null)
-                .Select(m => {
+                .Select(m =>
+                    {
                         var r = m.Reload();
 
                         return new HotReloadInstigator(r.Item1!, r.Item2);
@@ -237,6 +285,10 @@ public class Application : IApplication
         _logger.LogInformation("Hot reload finished.");
     }
 
+    #endregion
+
+    #region IterateJob
+
     private readonly struct IterateJob<T> : IJob
     {
         private readonly Action<T> _action;
@@ -253,35 +305,6 @@ public class Application : IApplication
             _action.Invoke(_module);
         }
     }
-
-    #region Properties
-
-    public FrameTimer FrameTimer { get; }
-
-    public JobScheduler Scheduler
-    {
-        get => _scheduler!;
-    }
-
-    public IPlatform Platform { get; }
-
-    #endregion
-
-    #region Members
-
-    private ApplicationState _state = ApplicationState.Uninitialized;
-
-    private readonly JobScheduler? _scheduler;
-    private readonly Logger _logger;
-    private readonly FrameAccumulator _frameAccumulator;
-    private readonly FrameAccumulator _fixedTickAccumulator;
-
-    private readonly List<IModule> _modules = [];
-    private readonly ConcurrentBag<ExternalModuleManager> _queuedHotReloadRequests = [];
-
-    private bool _isWaitingForUnload;
-
-    private readonly List<JobHandle> _iterationJobHandles = new();
 
     #endregion
 }

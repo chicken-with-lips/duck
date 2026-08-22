@@ -7,15 +7,22 @@ public class Scene : IScene
 {
     #region Properties
 
-    public bool IsActive
-    {
+    public bool IsActive {
         get => _isActive;
         set => _isActive = value;
     }
 
-    public string Name => _name;
-    public World World => _world;
-    public SceneSystemRoot<FrameTimer> SystemRoot => _systemRoot;
+    public string Name {
+        get => _name;
+    }
+
+    public World World {
+        get => _world;
+    }
+
+    public SceneSystemRoot<FrameTimer> SystemRoot {
+        get => _systemRoot;
+    }
 
     #endregion
 
@@ -34,10 +41,10 @@ public class Scene : IScene
         _name = name;
         _isActive = isActive;
         _world = world;
-        _systemRoot = new(world);
+        _systemRoot = new SceneSystemRoot<FrameTimer>(world);
     }
 
-    public void PreTick(in FrameTimer timer)
+    public void PreTick(FrameTimer timer)
     {
         if (!IsActive) {
             return;
@@ -50,7 +57,7 @@ public class Scene : IScene
         _systemRoot.SimulationGroup.BeforeUpdate(timer);
     }
 
-    public void Tick(in FrameTimer timer)
+    public void Tick(FrameTimer timer)
     {
         if (!IsActive) {
             return;
@@ -59,7 +66,7 @@ public class Scene : IScene
         _systemRoot.SimulationGroup.Update(timer);
     }
 
-    public void FixedTick(in FrameTimer timer)
+    public void FixedTick(FrameTimer timer)
     {
         if (!IsActive) {
             return;
@@ -68,7 +75,7 @@ public class Scene : IScene
         _systemRoot.FixedSimulationGroup.Update(timer);
     }
 
-    public void PostTick(in FrameTimer timer)
+    public void PostTick(FrameTimer timer)
     {
         if (!IsActive) {
             return;
@@ -81,7 +88,7 @@ public class Scene : IScene
         _systemRoot.LateSimulationGroup.AfterUpdate(timer);
     }
 
-    public void Present(in FrameTimer timer)
+    public void Present(FrameTimer timer)
     {
         if (!IsActive) {
             return;

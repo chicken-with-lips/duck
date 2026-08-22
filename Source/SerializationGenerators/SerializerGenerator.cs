@@ -97,7 +97,7 @@ public class SerializerGenerator : IIncrementalGenerator
                   {
                       public void Serialize(GraphWriter writer)
                       {
-                        {{serializerTypeName}}.Serialize(in this, writer, context);
+                        {{serializerTypeName}}.Serialize(this, writer, context);
                       }
                   }
               {{(!type.ContainingNamespace.IsGlobalNamespace ? "}" : "")}}
@@ -136,7 +136,7 @@ public class SerializerGenerator : IIncrementalGenerator
         }
 
         return $$"""
-                 public static void Serialize{{genericParameters}}(in {{typeName}} value, GraphWriter writer) {{genericConstraints}}
+                 public static void Serialize{{genericParameters}}({{typeName}} value, GraphWriter writer) {{genericConstraints}}
                  {
                     {{sb}}
                  }

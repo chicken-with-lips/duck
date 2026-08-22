@@ -209,7 +209,8 @@ public class Reader
     public Guid ReadGuid()
     {
         return new Guid(
-            ReadBytes(16).Span
+            ReadBytes(16)
+                .Span
         );
     }
 
@@ -290,23 +291,19 @@ public class Reader
         var index = new IndexEntry[indexCount];
 
         for (var i = 0; i < indexCount; i++) {
-            index[i] = new IndexEntry {
-                Name = ReadString(),
-                Type = (DataType)ReadByte(),
-                OffsetStart = ReadInt64(),
-                OffsetEnd = ReadInt64(),
-                ExplicitType = ReadString(),
-            };
-
-            if (string.IsNullOrEmpty(index[i].ExplicitType)) {
-                index[i].ExplicitType = null;
-            }
+            index[i] = new IndexEntry(
+                ReadString(),
+                (DataType)ReadByte(),
+                ReadInt64(),
+                ReadInt64(),
+                ReadString()
+            );
         }
 
-        return new SerializedContainer {
-            Index = new ReadOnlyCollection<IndexEntry>(index),
-            Data = ReadBytes(dataLength),
-        };
+        return new SerializedContainer(
+            new ReadOnlyCollection<IndexEntry>(index),
+            ReadBytes(dataLength)
+        );
     }
 
     public int[] ReadInt32Array()

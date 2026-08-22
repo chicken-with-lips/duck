@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Duck.ModuleManagement;
+namespace Duck.Platform.ModuleManagement;
 
 public class ExternalModuleAssemblyLoadContext : AssemblyLoadContext
 {
@@ -15,8 +15,12 @@ public class ExternalModuleAssemblyLoadContext : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        if (Default.Assemblies.Any(a => a.GetName().Name == assemblyName.Name))
+        if (Default.Assemblies.Any(a => a.GetName()
+                                            .Name
+                                        == assemblyName.Name
+            )) {
             return null;
+        }
 
         var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
 

@@ -25,7 +25,7 @@ public class WorldSerializationFactory : ISerializationFactory
         return false;
     }
 
-    public void Serialize(in object value, GraphWriter graphWriter)
+    public void Serialize(object value, GraphWriter graphWriter)
     {
         switch (value) {
             case Archetype archetype:
@@ -76,7 +76,7 @@ public class WorldSerializationFactory : ISerializationFactory
         }
     }
 
-    public void Serialize(in World value, GraphWriter graphWriter)
+    public void Serialize(World value, GraphWriter graphWriter)
     {
         // Write important metadata
         graphWriter.Writer.Write((uint)value.BaseChunkSize);
@@ -103,7 +103,7 @@ public class WorldSerializationFactory : ISerializationFactory
         }
     }
 
-    private void SerializeEntityData(in JaggedArray<EntityData> value, GraphWriter graphWriter)
+    private void SerializeEntityData(JaggedArray<EntityData> value, GraphWriter graphWriter)
     {
         // Write length/capacity and items
         graphWriter.Writer.Write(value.Capacity);
@@ -117,7 +117,7 @@ public class WorldSerializationFactory : ISerializationFactory
         }
     }
 
-    public void Serialize(in Archetype value, GraphWriter graphWriter)
+    public void Serialize(Archetype value, GraphWriter graphWriter)
     {
         var types = value.Signature;
         var chunks = value.Chunks;
@@ -129,7 +129,7 @@ public class WorldSerializationFactory : ISerializationFactory
         for (var index = 0; index < value.ChunkCount; index++) SerializeChunk(chunks[index], types, graphWriter);
     }
 
-    public void Serialize(in Signature value, GraphWriter graphWriter)
+    public void Serialize(Signature value, GraphWriter graphWriter)
     {
         // Write count and types
         graphWriter.Writer.Write((uint)value.Count);
@@ -139,13 +139,13 @@ public class WorldSerializationFactory : ISerializationFactory
         }
     }
 
-    public void Serialize(in ComponentType value, GraphWriter graphWriter)
+    public void Serialize(ComponentType value, GraphWriter graphWriter)
     {
         graphWriter.Writer.Write((uint)value.Id);
         graphWriter.Writer.Write((uint)value.ByteSize);
     }
 
-    private void SerializeChunk(in Chunk value, Signature signature, GraphWriter graphWriter)
+    private void SerializeChunk(Chunk value, Signature signature, GraphWriter graphWriter)
     {
         // Write size
         graphWriter.Writer.Write((uint)value.Count);
@@ -165,7 +165,11 @@ public class WorldSerializationFactory : ISerializationFactory
             // Write array itself
             var array = value.GetArray(type);
 
-            graphWriter.Writer.Write(array.GetType().GetElementType()!.FullName!);
+            graphWriter.Writer.Write(
+                array
+                    .GetType()
+                    .GetElementType()!.FullName!
+            );
             graphWriter.Writer.Write(array.Length);
 
             for (var index = 0; index < array.Length; index++) {
@@ -224,7 +228,11 @@ public class WorldSerializationFactory : ISerializationFactory
 
             // var componentType = Type.GetType(componentTypeName);
             var componentCount = graphReader.Reader.ReadInt32();
-            var componentType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(componentTypeName, false, false)).FirstOrDefault(t => t != null) ?? throw new SerializationException($"Could not resolve component type '{componentTypeName}' in any loaded assembly");
+            var componentType = AppDomain
+                                    .CurrentDomain.GetAssemblies()
+                                    .Select(a => a.GetType(componentTypeName, false, false))
+                                    .FirstOrDefault(t => t != null)
+                                ?? throw new SerializationException($"Could not resolve component type '{componentTypeName}' in any loaded assembly");
 
             var array = Array.CreateInstance(componentType, componentCount);
             var chunkArray = chunk.GetArray(componentType);

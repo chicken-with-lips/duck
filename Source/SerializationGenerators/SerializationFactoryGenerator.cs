@@ -11,7 +11,8 @@ public class SerializationFactoryGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var enumTypes = context.SyntaxProvider
+        var enumTypes = context
+            .SyntaxProvider
             .CreateSyntaxProvider(IsOfInterestToSyntaxProvider, TransformTypeForSyntaxProvider)
             .Where(type => type is not null)
             .Collect();
@@ -30,7 +31,14 @@ public class SerializationFactoryGenerator : IIncrementalGenerator
         var fileName = $"SerializationFactory.Generated.cs";
         var code = GenerateCode(context, types);
 
-        context.AddSource(fileName, CSharpSyntaxTree.ParseText(code).GetRoot().NormalizeWhitespace().ToFullString());
+        context.AddSource(
+            fileName,
+            CSharpSyntaxTree
+                .ParseText(code)
+                .GetRoot()
+                .NormalizeWhitespace()
+                .ToFullString()
+        );
     }
 
     private static string GenerateCode(SourceProductionContext context, ImmutableArray<ITypeSymbol?> types)
@@ -40,7 +48,8 @@ public class SerializationFactoryGenerator : IIncrementalGenerator
         var deserializeBuilder = new StringBuilder();
         var deserializeT1Builder = new StringBuilder();
 
-        foreach (var type in types.Distinct(SymbolEqualityComparer.Default)
+        foreach (var type in types
+                     .Distinct(SymbolEqualityComparer.Default)
                      .Cast<INamedTypeSymbol>()
                      .Where(type => type != null)) {
             context.CancellationToken.ThrowIfCancellationRequested();
@@ -51,7 +60,7 @@ public class SerializationFactoryGenerator : IIncrementalGenerator
 
             supportsBuilder.AppendLine($"""case "{fqdn}":""");
 
-            
+
 
             if (type.IsGenericType) {
                 // deserializeBuilder.AppendLine($@"""{fqdn}"" => {type.ContainingNamespace}.{type.ConstructUnboundGenericType().Name}Serializer.Deserialize(reader, context),");
@@ -79,18 +88,18 @@ public class SerializationFactoryGenerator : IIncrementalGenerator
                         {{supportsBuilder}}
                               return true;
                       }
-              
+
                       return false;
                   }
                   
-                  public void Serialize(in object value, GraphWriter writer)
+                  public void Serialize(object value, GraphWriter writer)
                   {
                       switch(value.GetType().FullName) {
                         {{serializeBuilder}}
                           default: throw new System.NotImplementedException();
                       };
                   }
-              
+
                   public object Deserialize(string typeName, GraphReader reader)
                   {
                       return typeName switch {

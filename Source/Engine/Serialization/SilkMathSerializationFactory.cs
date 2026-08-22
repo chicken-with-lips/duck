@@ -18,7 +18,7 @@ public class SilkMathSerializationFactory : ISerializationFactory
         return false;
     }
 
-    public void Serialize(in object value, GraphWriter graphWriter)
+    public void Serialize(object value, GraphWriter graphWriter)
     {
         /*switch (value.GetType().FullName) {
             case "Silk.NET.Maths.Box3D<T>":
