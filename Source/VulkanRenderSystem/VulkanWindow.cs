@@ -7,20 +7,17 @@ namespace Duck.RenderSystem.Vulkan;
 
 public class VulkanWindow : IWindow
 {
-    public Vector2D<int> Dimensions
-    {
+    public Vector2D<int> Dimensions {
         get => new(_silkWindow.Size.X, _silkWindow.Size.Y);
     }
 
     public bool IsPrimary { get; }
 
-    public IReadOnlyList<VulkanView> Views
-    {
+    public IReadOnlyList<VulkanView> Views {
         get => _views;
     }
 
-    internal Silk.NET.Windowing.IWindow SilkWindow
-    {
+    internal Silk.NET.Windowing.IWindow SilkWindow {
         get => _silkWindow;
     }
 
@@ -63,5 +60,14 @@ public class VulkanWindow : IWindow
         SwapchainExtent = extent;
         SwapchainImages = images;
         SwapchainImageViews = imageViews;
+    }
+
+    internal void ClearSwapchain()
+    {
+        Swapchain = default;
+        SwapchainFormat = default;
+        SwapchainExtent = default;
+        SwapchainImages = [];
+        SwapchainImageViews = [];
     }
 }

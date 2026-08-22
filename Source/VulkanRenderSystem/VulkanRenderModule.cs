@@ -44,7 +44,7 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
 
     public void Shutdown(IApplication app)
     {
-        if (_platform is null) {
+        if (_platform.Device.Handle == 0) {
             return;
         }
 
@@ -66,7 +66,7 @@ public unsafe class VulkanRenderModule : IInitializableModule, IShutdownModule,
 
     public void Present(FrameTimer frameTimer)
     {
-        if (_platform is null) {
+        if (_platform.Device.Handle == 0) {
             return;
         }
 

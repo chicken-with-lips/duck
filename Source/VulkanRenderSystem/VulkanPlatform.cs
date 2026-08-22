@@ -152,13 +152,24 @@ public unsafe class VulkanPlatform : IPlatform
 
     public void Shutdown()
     {
-        _vk!.DeviceWaitIdle(_device);
-
-        foreach (var window in _windows) {
-            DestroyWindowResources(window);
+        if (_vk == null) {
+            return;
         }
 
-        _vk.DestroyDevice(_device, null);
+        if (_device.Handle != 0) {
+            _vk.DeviceWaitIdle(_device);
+
+            foreach (var window in _windows) {
+                DestroyWindowDeviceResources(window);
+            }
+
+            _vk.DestroyDevice(_device, null);
+            _device = default;
+        }
+
+        foreach (var window in _windows) {
+            DestroyWindowSurface(window);
+        }
 
 #if DEBUG
         _extDebugUtils?.DestroyDebugUtilsMessenger(_instance, _debugMessenger, null);
@@ -166,6 +177,7 @@ public unsafe class VulkanPlatform : IPlatform
 
         _vk.DestroyInstance(_instance, null);
         _vk.Dispose();
+        _vk = null;
 
         foreach (var window in _windows) {
             window.SilkWindow.Close();
@@ -443,7 +455,7 @@ public unsafe class VulkanPlatform : IPlatform
         if (!HasRequiredExtensions(device)) {
             return false;
         }
-        return false;
+
         uint formatCount = 0;
         _khrSurface!.GetPhysicalDeviceSurfaceFormats(device, surface, &formatCount, null);
 
@@ -686,7 +698,7 @@ public unsafe class VulkanPlatform : IPlatform
         return true;
     }
 
-    private void DestroyWindowResources(VulkanWindow window)
+    private void DestroyWindowDeviceResources(VulkanWindow window)
     {
         foreach (var view in window.SwapchainImageViews) {
             _vk!.DestroyImageView(_device, view, null);
@@ -696,9 +708,16 @@ public unsafe class VulkanPlatform : IPlatform
             _khrSwapchain!.DestroySwapchain(_device, window.Swapchain, null);
         }
 
+        window.ClearSwapchain();
+    }
+
+    private void DestroyWindowSurface(VulkanWindow window)
+    {
         if (window.Surface.Handle != 0) {
             _khrSurface!.DestroySurface(_instance, window.Surface, null);
         }
+
+        window.SetSurface(default);
     }
 
     private static SurfaceFormatKHR ChooseSurfaceFormat(SurfaceFormatKHR[] formats)
